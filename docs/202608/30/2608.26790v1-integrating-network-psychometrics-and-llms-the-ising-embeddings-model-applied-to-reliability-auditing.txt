@@ -1,0 +1,835 @@
+Title: Integrating Network Psychometrics and LLMs: The Ising-Embeddings-Model applied to Reliability Auditing
+
+URL Source: https://arxiv.org/pdf/2608.26790v1
+
+Published Time: Fri, 28 Aug 2026 00:42:16 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+# Integrating Network Psychometrics and LLMs: The Ising-Embeddings-Model applied to Reliability Auditing 
+
+## Matthias von Davier ∗
+
+## August 28, 2026 
+
+Abstract 
+
+Scoring consistency for constructed-response items in large-scale as-sessments is typically estimated through double-scoring, which uses small samples and assumes independence among responses. We present an inte-grated framework combining network psychometrics with the Linguistic-Integrated Reliability Audit (LiRA) via a modified Ising model. The model defines a joint distribution over binary correctness labels with pair-wise interactions set to the cosine similarity of sentence embeddings and a global bias parameter for item difficulty. LiRA’s weighted majority voting over semantic neighborhoods is shown to approximate the condi-tional logistic distributions of this Ising model. The parametric frame-work supports benchmark score generation, uncertainty quantification, and missing label imputation; parameters are estimated by maximum pseudo-likelihood. The approach uses the full dataset without requiring extensive double-scoring, accounts for semantic dependencies, and pro-vides diagnostics for rater inconsistencies. The integration of LiRA’s scal-able methodology with a probabilistic graphical model offers a compre-hensive tool for reliability assessment in international assessments such as PIRLS, PISA, and TIMSS. Keywords: AI, Large Language Model, Ising Model, Network Psycho-metrics, Scoring Reliability 
+
+> ∗
+
+The author acknowledges the use of generative AI tools for assistance with code devel-opment (vibe-coding) and light editing of the manuscript; the code produced by the LLM was checked by the author of the submission. All conceptual ideas, mathematical derivations, were developed and the empirical analyses were developed by the author of the submission. 
+
+1arXiv:2608.26790v1 [stat.AP] 27 Aug 2026 1 Introduction 
+
+This work develops a model-based justification and extension of the method for creating a reference score in the LiRA framework. In LiRA, a small number of responses are selected that show maximum similarity to the target response in order to create a reference score that is used to evaluate the agreement between the score assigned to the target response and that reference score. This approach weights the reference response by the similarity between the target and comparison responses. Here we show that this approach can be justified by means of the Ising model, which was introduced to psychometrics by the prolific Amsterdam school. 
+
+## 1.1 Network Psychometrics and the Ising Model 
+
+Network psychometrics models the interdependence among observed variables without reliance on latent variables. A typical setup consists of K observed variables Xk ∈ { 0, 1} with k = 1 , . . . , K , and the assumption that the joint dis-tribution of (X1, . . . , X K ) exists and can be modeled using a parametric prob-ability distribution P (X1, . . . , X K ) for K-dimensional binary variables. Note that instead of Boolean x ∈ { 0, 1} variables, the Ising model often utilizes a notation 
+
+X∗ 
+
+> k
+
+= 2 Xk − 1 ∈ {− 1, 1}
+
+that reflects its origin in statistical mechanics, as it was originally developed to describe magnetic spins (Ising, 1925). We will use Xk and X∗ 
+
+> k
+
+interchangeably in the text but will use the appropriate parametrization in the equations as needed. In Ising’s approach, the probability of a realization (a state) (x1, . . . , x K ) of the 
+
+Xk is modeled as 
+
+P (x1, . . . , x K ) = exp [ −βH (x1, . . . , x K )] 
+
+Z
+
+where 
+
+Zβ = X 
+
+> (y1,...,y k)∈{ 0,1}K
+
+exp [ −βH (y1, . . . , y k)] 
+
+is the partition function, a sum over all possible states. Finally, H is a function 2referred to as the Hamiltonian and is defined as 
+
+H (x1, . . . , x K ) = − 12
+
+X 
+
+> j̸=l
+
+w∗
+
+> jl
+
+x∗ 
+
+> j
+
+x∗ 
+
+> l
+
+− μ X
+
+> k
+
+vkx∗
+
+> k
+
+.
+
+The weights wjl form a symmetric K ×K matrix, with wjl = wlj , and the factor  
+
+> 12
+
+is necessary to avoid double counting when summing over all pairs j̸ = l. The parameters β and μ are referred to as the temperature and magnetic moment, respectively. It should be noted that the expression for Pβ can be rewritten as 
+
+Pβ (x1, . . . , x K ) = exp 
+
+h
+
+β P  
+
+> j̸=l
+
+w∗
+
+> jl
+
+x∗ 
+
+> j
+
+x∗ 
+
+> l
+
++ βμ P 
+
+> k
+
+vkx∗
+
+> k
+
+iP  
+
+> (y1,...,y k)∈{ 0,1}K
+
+exp 
+
+h
+
+β P  
+
+> j̸=l
+
+w∗
+
+> jl
+
+x∗ 
+
+> j
+
+x∗ 
+
+> l
+
++ βμ P 
+
+> k
+
+vky∗
+
+> k
+
+i
+
+by defining wjl = 12 w∗ 
+
+> jl
+
+and inserting the definition above into the expression for P (x1, . . . , x K ).The Ising model’s moment of fame in psychometrics came when it was claimed that this probability distribution for K binary variables is very similar to that of the conditional Rasch model (Molenaar, 2004). Instead of assuming a latent variable θ and conditional independence of the Xk given θ, the promise of the Ising model was to provide a probabilistic description of a number of binary variables that relies only on weighted pairwise interactions wjl x∗ 
+
+> j
+
+x∗ 
+
+> l
+
+and the (weighted) sum of responses P 
+
+> k
+
+νkx∗
+
+> k
+
+. Research eagerly picked up this approach as an alternative to classical IRT models (Epskamp et al., 2018). However, replacing the parsimonious and arguably plausible assumptions of the Rasch model (von Davier, 2016) with those of the Ising model comes at a cost: The partition function Z grows rapidly with growing K, as it involves 2K func-tion evaluations. Another challenge is that the fully estimated Ising model re-quires K (K − 1) /2 interaction parameters wjl , plus K bias parameters vk, plus two parameters β, μ , so that the parameter count essentially grows quadratically with K, while the Rasch model requires parameters that grow linearly with K.von Davier (2018) suggests using noise contrastive estimation (Gutmann & Hyvärinen, 2012) to get around the estimation issue involving Z, but estimation of the model parameters of the unconstrained Ising model remains a challenge. In this paper, we will adopt a pseudo-likelihood approach for a reduced model that is expected to provide accurate and fast results even for large K. 
+
+31.2 Linguistic-Integrated Reliability Audit (LiRA) 
+
+In LiRA, we assume that there is a response variable Yi that encodes the answers provided by a sample of K test-takers to the i-th question on a test. Assume these are text-based (written) responses that need to be classified as either correct (= 1) or incorrect (= 0) , either by human raters, by a machine learning algorithm, or, more recently, by an LLM (Jung et al., 2026). Scoring can be viewed as a function that maps the K written responses 
+
+fM : ( y1, . . . , y K ) 7 → (XM 1, . . . , X M K ) ∈ { 0, 1}K
+
+where fM stands for a specific approach ( M = Ha may denote a human rater, 
+
+M = Cb an ML algorithm used for scoring, and M = Ac an AI [LLM] scorer). Scoring agreement assessment involves using two different mappings and calcu-lating a divergence measure, e.g., 
+
+0 ≤ EA [fHa (y1, . . . , y K ) , f Cb (y1, . . . , y K )] = #
+
+n
+
+f [k] 
+
+> Ha
+
+(yk) = f [k] 
+
+> Cb
+
+(yk)
+
+o
+
+K ≤ 1
+
+where XM k = f [k] 
+
+> M
+
+(·) refers to the k-th component of the image vector. The first expression gives the proportion of exact agreement, while 
+
+0 ≤ κ (fHa (y1, . . . , y K ) , f Cb (y1, . . . , y K )) ≤ 1
+
+gives Cohen’s kappa (Cohen, 1960). Linguistic similarity can be assessed by mapping the written responses yk using sentence embeddings (e.g. Feng et al., 2022) or even a Bag-of-Words (BoW) approach. The current approach used in LiRA is based on multilingual em-beddings (Bezirhan, Jung & von Davier, 2026). Under this approach, each raw response is transformed into a latent variable representation 
+
+emb (yk) = ek ∈ Rd
+
+of length d, which represents the dimension of the embedding. Typical dimen-sions are d > 500 . For example, Microsoft’s mE5-large maps sentences into 1024 dimensions, while Google’s LaBSE maps sentences into 768 dimensions (Wang et al., 2024; Feng et al., 2022). After all responses y1, . . . , y K are mapped into the latent variable space, the embeddings (e1, . . . , e K ) are assessed for similarity, 4independent of how they were scored. A popular approach is to use the cosine similarity (Gomaa & Fahmy, 2013), which gives 
+
+skl = sim (ek, e l) = ekel
+
+∥ek∥ ∥ el∥ = sim (el, e k) ∈ ]−1, 1[ .
+
+The cosine similarities of all pairs of embeddings form a symmetric K × K
+
+matrix 
+
+Sim =
+
+
+
+1 e1e2 
+
+> ∥e1∥∥ e2∥
+
+... e1eK  
+
+> ∥e1∥∥ eK∥
+> e2e1
+> ∥e2∥∥ e1∥
+
+1 ... e2eK 
+
+> ∥e2∥∥ eK∥
+
+... ... 1 ...      
+
+> eKe1
+> ∥eK∥∥ e1∥
+> eKe2
+> ∥eK∥∥ e2∥
+
+... 1
+
+
+
+which contains all similarities twice, mirrored around the diagonal. The LiRA approach as proposed by Jung et al. (2026) uses this matrix Sim as follows: 1. Starting with k = 1 : For each response yk and associated embedding ek,find the h most similar embeddings among the remaining responses, using the row Sim [k] \k, i.e., excluding the diagonal element, which trivially equals 1. 2. Record the similarities for the h most similar responses, multiply each by the score assigned to the corresponding response, and divide the sum of these products by the sum of the recorded similarities. This provides a weighted reference score. 3. Compare this reference score based on the weighted scores of the most similar responses to the score assigned to yk.4. Repeat for k + 1 .This algorithm creates K reference scores ˆrk = g  xr1(k), x r2(k), . . . , x rh(k)
+
+ using the scores assigned to the h most similar responses xrj (k), excluding the target response itself. This imputed reference score ˆrk can be based on the same scoring engine and provides a measure of scoring consistency similar to a scoring reliability assessment with multiple scorers, or a reference score based on expert judgment. This approach can be understood as a non-parametric approach to imputation, such as mean replacement or predictive mean matching (Rubin, 1987), in that it uses simple statistics calculated from a sub-sample of other observations and 5replaces the unknown reference scorer’s response with that statistic. 
+
+# 2 Fusing Network Psychometrics and Linguistic Similarity-Based Scoring Reliability 
+
+The central idea in this article is to modify the Ising model so that it remains a probability function for a set of K binary variables (x1, . . . , x K ), but is applied to the human- or AI-generated scores given to K written responses (y1, . . . , y K ),for which we assume that 
+
+wjl ∼ sim (ej , e l)
+
+where wjl = sim (ej , e l) ∈ ]−1, 1[ is the corresponding weight, and g [z] with 
+
+z =  x∗ 
+
+> j
+
+, x ∗
+
+> l
+
+ is an activation function. Examples are g [z] = x∗ 
+
+> j
+
+x∗ 
+
+> l
+
+, as well as 
+
+g [z] = LeakyReLU x∗ 
+
+> j
+
+x∗ 
+
+> l
+
+, α . We also include a simplified bias function in the form of 
+
+μ X
+
+> k
+
+hk (x∗
+
+> k
+
+) ,
+
+where typically hk [x∗
+
+> k
+
+] = ReLU ( x∗
+
+> k
+
+) = xk. This ensures that the parameter μ
+
+is related to how many responses were scored as correct in the sample. The rationale for using activations such as LeakyReLU [ z] is somewhat different from why they are used in multilayer neural networks. For example, 
+
+lR α
+
+ x∗ 
+
+> j
+
+x∗
+
+> l
+
+ = LeakyReLU x∗ 
+
+> j
+
+x∗ 
+
+> l
+
+, α  =
+
+
+
+1 xj = xl
+
+−α otherwise Here, this activation function assigns different weights depending on whether scores agree or disagree. Disagreement can be weighted higher, α > 1, or lower than agreement, α < 1. However, by default one can assume that agreement and disagreement are equally weighted, i.e., α = 1 .
+
+## 2.1 Integrating the Ising Model and LiRA 
+
+In the Ising model, the argument of the probability function is given by 
+
+I (x∗ 
+
+> 1
+
+. . . , x ∗ 
+
+> K
+
+, w, v, β, μ ) = β X 
+
+> j̸=l
+
+12 wjl x∗ 
+
+> j
+
+x∗ 
+
+> l
+
++ βμ X
+
+> k
+
+vkx∗
+
+> k
+
+6where β, μ > 0. Assuming non-negative weights, this function of the state 
+
+(x∗
+
+> 1
+
+, . . . , x ∗ 
+
+> K
+
+) ∈ {− 1, 1}K is maximized for a given set of weights (wjl )j̸ =l:1 ,...K 
+
+whenever pairs with the largest weights wjl > 0 agree and pairs with small weights disagree. It appears that, empirically, pairs of sentence embeddings are rarely negatively related when calculating their cosine similarity. This may be a limitation of how the embedding space spans the real numbers, but if this is indeed the case, this feature can be used in the LiRA Ising model. With the above approximate equating of the weights wjl = sim (ej , e l) to the similarity between responses, we generate a weight matrix that has large posi-tive entries for highly similar responses, which should, on average, receive the same score. For dissimilar responses, this means their cosine similarity is still positive, but closer to zero, whereas highly similar responses, by design of sen-tence embeddings, should yield similarity measures close to 1. This approach assumes that dissimilar responses are more likely to be scored differently, while more similar responses are assumed to be scored the same (both correct or both incorrect). For the term related to the bias, we can simplify it by setting λ = βμ 
+
+to avoid having a multiplicative expression. Taken together, the simplified Ising model can be written as 
+
+P (x1, . . . , x K ) = exp 
+
+h
+
+β P   
+
+> j̸=l12
+
+sim (ej , e l) x∗ 
+
+> j
+
+x∗ 
+
+> l
+
++ λ P 
+
+> k
+
+xk
+
+i
+
+Z
+
+to express the probability of a set of scores (x1, . . . , x K ) produced by humans, an algorithm, or a language model. The main difference from the fully parameter-ized Ising model is that we do not estimate the wjl . Instead, we assume that the similarity measures ek can be used to model these weights via wjl = sim (ej , e l).Under this assumption, the probability of a set of K scores can be expressed as above, with β and μ as the model parameters. 
+
+## 2.2 Relationship to Logistic Regression 
+
+For any k ∈ { 1, . . . , K }, the probability of xk given the other scoring variables 
+
+Rk = {xj : j̸ = k} equals 
+
+P (xk = 1 |xj : j̸ = k) = P (x1, . . . , x k = 1 , . . . , x K )
+
+P (x1, . . . , x k = 0 , . . . , x K ) + P (x1, . . . , x k = 1 , . . . , x K )
+
+7and further 
+
+P (xk = 1 |xj : j̸ = k) = 11 + P (x1,...,x k =0 ,...,x K )   
+
+> P(x1,...,x k=1 ,...,x K)
+
+.
+
+For the ratio in this expression, we have 
+
+P (x1, . . . , x k = 0 , . . . , x K )
+
+P (x1, . . . , x k = 1 , . . . , x K ) =exp 
+
+h
+
+β P  
+
+> j̸=k
+
+− 12 sim (ej , e k) x∗ 
+
+> j
+
++ μ
+
+hP  
+
+> l̸=k
+
+xl
+
+ii 
+
+exp 
+
+h
+
+β P   
+
+> j̸=k12
+
+sim (ej , e k) x∗ 
+
+> j
+
++ μ
+
+hP  
+
+> l̸=k
+
+xl + 1 
+
+ii 
+
+since the partition function cancels in the ratio, as do all terms that do not in-volve k, because these are identical in the numerator and denominator. Further, we find 
+
+P (x1, . . . , x k = 0 , . . . , x K )
+
+P (x1, . . . , x k = 1 , . . . , x K ) = exp 
+
+β X 
+
+> j̸=k
+
+−sim (ej , e k) x∗ 
+
+> j
+
+− μ
+
+ .
+
+Finally, we obtain the probability function 
+
+P (xk = 1 |xj : j̸ = k) = 11 + exp 
+
+h
+
+β
+
+P  
+
+> j̸=k
+
+−sim (ej , e k) x∗
+
+> j
+
+
+
+− μ
+
+i
+
+which equals 
+
+P (xk = 1 |xj : j̸ = k) = exp 
+
+h
+
+β
+
+P  
+
+> j̸=k
+
+sim (ej , e k) x∗
+
+> j
+
+
+
++ μ
+
+i
+
+1 + exp 
+
+h
+
+β
+
+P  
+
+> j̸=k
+
+sim (ej , e k) x∗
+
+> j
+
+
+
++ μ
+
+i
+
+for each of the response score variables xk when assuming the Ising model for the full set of scored responses (x1, . . . , x K ).This is a very useful result because it states that we can predict the scores 
+
+xk that the individual responses yk received based on all other response scores 
+
+{xj : j̸ = k} and the similarities between those responses and the target response 
+
+sim (ej , e k) when the response process is governed by the Ising model with weights equal to scaled similarities sim (ej , e k).
+
+## 2.3 Estimation 
+
+The similarities sim (ej , e k) will be taken as known constants, calculated from a (multilingual) embedding model such as those described by Bezirhan et al. 8(2026) and Wang et al. (2024). Thus, the only parameters to be determined are the temperature β and the bias μ in the modified Ising model. A straightforward way to perform estimation of these two parameters, that avoids calculation of the partition function Z, which is practically intractable for large K, is outlined in this section. For a more compact notation, we use 
+
+Ck =
+
+X 
+
+> j̸=k
+
+sim (ej , e k) x∗
+
+> j
+
+ = −
+
+− X 
+
+> j̸=k
+
+sim (ej , e k) x∗
+
+> j
+
+ .
+
+Then we have 
+
+P (xk = 1 |xj : j̸ = k) = exp [ βC k + μ]1 + exp [ βC k + μ] = 11 + exp [ −βC k − μ]
+
+and 
+
+P (xk = 0 |xj : j̸ = k) = 11 + exp [ βC k + μ] = exp [ −βC k − μ]1 + exp [ −βC k − μ] .
+
+Pseudo-likelihood estimation is an alternative that can be applied here because we have independent scores xk, and we use embeddings from a pretrained model to calculate wjk = 12 sim (ej , e k). We obtain the pseudo-likelihood function 
+
+Lp =
+
+> K
+
+X
+
+> k=1
+
+ln 
+
+" 11 + exp [ −βC k − μ]
+
+xk  11 + exp [ βC k + μ]
+
+1−xk
+
+#
+
+and further 
+
+Lp = −
+
+> K
+
+X
+
+> k=1
+
+xk ln (1 + exp [ −βC k − μ]) + (1 − xk) ln (1 + exp [ βC k + μ]) .
+
+The derivative of the pseudo-likelihood with respect to β is found as 
+
+∂∂β ln (1 + exp [ −βC k − μ]) = −Ck
+
+exp [ −βC k − μ]1 + exp [ −βC k − μ] = −Ck
+
+11 + exp [ βC k + μ]
+
+and ∂∂β ln (1 + exp [ βC k + μ]) = Ck
+
+exp [ βC k + μ]1 + exp [ βC k + μ] .
+
+9Therefore 
+
+∂L p
+
+∂β =
+
+> K
+
+X
+
+> k=1
+
+Ck
+
+
+
+xk
+
+11 + exp [ βC k + μ] − (1 − xk) exp [ βC k + μ]1 + exp [ βC k + μ]
+
+
+
+or alternatively 
+
+∂L p
+
+∂β =
+
+> K
+
+X
+
+> k=1
+
+Ck [xkP (xk = 0 |xj : j̸ = k) − (1 − xk) P (xk = 1 |xj : j̸ = k)] .
+
+Intuitively, this gradient approaches zero if we obtain a β that minimizes P (xk = 0 |xj : j̸ = k)
+
+whenever xk = 1 and minimizes P (xk = 1 |xj : j̸ = k) whenever xk = 0 . The sum over the xk is weighted by Ck =
+
+P  
+
+> j̸=k
+
+sim (ej , e k) x∗
+
+> j
+
+
+
+=
+
+P  
+
+> j̸=k
+
+sim (ej , e k) [2 xj − 1] 
+
+
+
+.
+
+Similarly, for μ, the following is obtained 
+
+∂∂μ ln (1 + exp [ −βC k − μ]) = exp [ −βC k − μ]1 + exp [ −βC k − μ] = 11 + exp [ βC k + μ]
+
+and ∂∂μ ln (1 + exp [ βC k + μ]) = exp [ βC k + μ]1 + exp [ βC k + μ]
+
+and hence 
+
+∂L p
+
+∂μ =
+
+> K
+
+X
+
+> k=1
+
+
+
+xk
+
+11 + exp [ βC k + μ] − (1 − xk) exp [ βC k + μ]1 + exp [ βC k + μ]
+
+
+
+or 
+
+∂L p
+
+∂μ =
+
+> K
+
+X
+
+> k=1
+
+[xkP (xk = 0 |xj : j̸ = k) − (1 − xk) P (xk = 1 |xj : j̸ = k)] .
+
+The intuition is the same: P (xk = 0 |xj : j̸ = k) should vanish whenever xk = 1 ,and P (xk = 1 |xj : j̸ = k) should vanish whenever xk = 0 , for this gradient to approach zero. For the second derivatives, let 
+
+f (x, a, b ) = exp ( ax + b)1 + exp ( ax + b) = 1 − (1 + exp ( ax + b)) −1
+
+10 and ∂f ∂a = ( −1) ( −1) x exp ( ax + b)[1 + exp ( ax + b)] 2 .
+
+For the second derivatives of the pseudo-likelihood, we have 
+
+∂L p
+
+∂β 2 = −
+
+> K
+
+X
+
+> k=1
+
+C2
+
+> k
+
+exp [ βC k + μ](1 + exp [ βC k + μ]) 2
+
+and 
+
+∂L p
+
+∂μ 2 = −
+
+> K
+
+X
+
+> k=1
+
+exp [ βC k + μ](1 + exp [ βC k + μ]) 2 .
+
+# 3 Example and Results 
+
+To illustrate the integrated Ising-LiRA framework, we applied the model to a simulated dataset of 500 responses to a constructed-response item. The re-sponses were generated to mimic fourth-grade students’ answers, with 300 scored as correct and 200 as incorrect. The question was “What is the relationship be-tween foxes and rabbits in nature?” Typical answers were: • “The fox eats the rabbit for food.” (correct) • “Rabbits are prey animals that foxes hunt.” (correct) • “In the wild the fox hunts rabbits to get food.” (correct) • “Foxes and rabbits share a water source.” (incorrect) • “They both need the same kind of shelter.” (incorrect) Sentence embeddings were obtained using the multilingual MPNet model (paraphrase-multilingual-mpnet-base-v2 ), which produced 768-dimensional vectors for each response. The average encoding time was approximately 3 sec-onds on a standard hardware laptop. A Python implementation of the full estimation procedure, including embed-ding generation, similarity computation, and parameter estimation via maxi-mum pseudo-likelihood, is available from the author. The code uses the limited memory Broyden–Fletcher–Goldfarb–Shanno algorithm (L-BFGS; e.g. Liu & Norcedal, 1989) for estimation and has been tested with cases up to 6000 re-sponses. This algorithm should work well with even larger samples, as the logis-11 tic regression reduces to a 2 parameter problem. The only memory intense step is the calculation the K (K − 1) /2 similarities sim (ej , e l) for 1 ≤ j < l ≤ K.
+
+## 3.1 Similarity and Feature Distributions 
+
+The pairwise cosine similarity matrix of the embeddings exhibited a minimum value of −0.033 and a maximum off-diagonal value of 1.000 , indicating that most responses had non-negative similarity, consistent with the assumption that embedding spaces rarely produce highly negative similarities for text in the same language. The pseudo-likelihood feature Ck = P  
+
+> j̸=k
+
+sim (ej , e k) x∗ 
+
+> j
+
+had a mean of 96 .41 , a standard deviation of 30 .87 , and ranged from −28 .03 to 
+
+127 .26 . The predominantly positive values reflect the tendency of responses to have many similar neighbors with the same score, which is expected when the scoring process is consistent. 
+
+## 3.2 Model Estimation 
+
+The parameters β and μ were estimated via maximum pseudo-likelihood using logistic regression, as described in Section 2.3. The estimates were 
+
+ˆβ = 0 .198 , ˆμ = −19 .781 .
+
+The positive value of β confirms that higher linguistic similarity between two responses increases the probability that they receive the same score. The large negative intercept μ reflects two things 1. the expected value of the similarity weighted sum of scored responses 2. the overall distribution of correct and incorrect scores While we have 300 correct and 200 incorrect responses, the distribution of sim-ilarities is such that the average similarity between correct response is 0.76, the average similarity between incorrect reponses is 0.62, and the average similarity between incorrect and correct responses is still 0.56. Therefore, the expected value of the sum of similarites is positive, and the negative intercept μ shifts the log-odds toward 0. This is consistent with the model’s ability to capture and control for the interplay between semantic similarity and the baseline tendency of the scoring process, as well as the average of the similarity measures overall. 12 3.3 Prediction Performance 
+
+Using the fitted model, we computed the predicted probability of a correct score for each response and assigned a predicted binary score by thresholding at 0.5. The predictions were compared with the actual scores. Table 1 summarizes the agreement metrics. Table 1: Agreement between actual and predicted scores (multilingual MPNet embeddings). Metric Value Accuracy 0.922 Precision 0.912 Recall 0.963 F1 score 0.937 Cohen’s κ 0.835 The high accuracy (92.2%) and F1 score (0.937) indicate that the Ising model, with weights derived solely from embedding similarities and only two free pa-rameters, can reproduce the original scoring decisions with high fidelity. The Cohen’s κ of 0.835 represents substantial agreement beyond chance, further supporting the model’s utility as a diagnostic tool for scoring reliability. The confusion matrix (not shown) revealed that the model misclassified only 39 out of 500 responses, with the majority of errors being false negatives (actual cor-rect predicted as incorrect), as reflected by the higher recall (0.963) relative to precision (0.912). 
+
+## 3.4 Interpretation 
+
+The strong predictive performance demonstrates that the modified Ising model, when combined with semantic embeddings, effectively captures the dependencies among scores that arise from the linguistic content of responses. This provides a model-based justification for the LiRA reference scoring procedure: the weighted majority vote used in LiRA can be seen as an approximation to the conditional logistic distribution derived from the Ising model. Moreover, the estimated parameters offer interpretable diagnostics: a large β suggests that similarity strongly influences scoring consistency, while the magnitude and sign of μ reflect the overall difficulty of the item. These results support the use of the integrated framework for automated reliability auditing in large-scale assessments without requiring extensive double-scoring. 13 4 Conclusions 
+
+This paper introduced a model-based foundation for the Linguistic-Integrated Reliability Audit (LiRA) by integrating network psychometrics using a mod-ified Ising model. In this framework, the pairwise interactions among binary score variables are directly determined by the cosine similarities of sentence embeddings derived from the written responses, and the model contains only two free parameters: the temperature β, which scales the influence of semantic similarity, and a bias term μ, which captures the overall tendency of the scoring process. The conditional distributions of this model reduce to logistic functions, showing that LiRA’s weighted majority voting over semantic neighborhoods can be understood as an approximation to the optimal conditional classifier under the Ising model. An empirical illustration using 500 simulated responses demonstrated the prac-tical utility of the approach. With multilingual MPNet embeddings, the model achieved an accuracy of 92.2%, an F1 score of 0.937, and a Cohen’s κ of 0.835, indicating strong agreement between the predicted and actual scores. These results suggest that the Ising–LiRA framework can effectively capture the de-pendencies among scores that arise from the linguistic content of responses, even with a minimal number of parameters. The estimated β and μ provide inter-pretable diagnostics: a large β indicates that similarity strongly drives scoring consistency, while μ reflects item difficulty, average embedding based similarity (average weight) and the baseline probability of a correct score. Several advantages of the proposed approach are noteworthy. First, it uses the full set of responses without requiring extensive double-scoring, thus reducing operational costs in large-scale assessments. Second, the probabilistic nature of the model supports uncertainty quantification, missing-label imputation via Gibbs sampling, and the generation of benchmark scores for evaluating rater performance. Third, the integration with LiRA’s scalable methodology offers a unified tool for reliability assessment that can be applied to international programs such as PIRLS, PISA, and TIMSS. Nevertheless, some limitations should be acknowledged. The model assumes that similarity weights are non-negative, which may not always hold for certain embedding models or cross-linguistic comparisons. The quality of the results depends heavily on the chosen sentence embedding; different models may yield varying degrees of semantic fidelity. The present illustration used simulated 14 data, and validation with real assessment responses, including multiple human and automated raters, is necessary to establish the method’s robustness in oper-ational settings. Finally, the pseudo-likelihood estimation, while computation-ally efficient, is an approximation to the full maximum likelihood and may be subject to bias in small samples. Future work should extend this framework in several directions. First, the model could be applied to real constructed-response items from international assess-ments to compare its reliability estimates with those obtained from traditional double-scoring. Second, more sophisticated activation functions and parame-terizations, such as those allowing for differential weighting of agreements and disagreements, could be explored. Third, uncertainty measures derived from the fitted model, such as posterior predictive checks or Gibbs-based imputation, could be used to identify responses with high scoring ambiguity. Finally, the ap-proach could be extended to polytomous scores and to multi-language responses using cross-lingual embeddings, thereby broadening its applicability in multilin-gual assessment contexts. In sum, the integration of network psychometrics and LiRA offers a promising, principled, and practical avenue for enhancing scoring reliability assessment in educational measurement. 
+
+# References 
+
+Bezirhan, U., Jung, J. Y., & von Davier, M. (2026). Multilingual sentence em-beddings for linguistic-integrated reliability audit. DOI:10.48550/arXiv.2607.17466. Cohen, J. (1960). A coefficient of agreement for nominal scales. Educational and Psychological Measurement, 20 (1), 37–46. Epskamp, S., Maris, G., Waldorp, L. J., & Borsboom, D. (2018). Network psy-chometrics. In P. Irwing, T. Booth, & D. J. Hughes (Eds.), The Wiley handbook of psychometric testing: A multidisciplinary reference on survey, scale and test development (pp. 953–986). Wiley Blackwell. DOI:10.1002/9781118489772.ch30 Feng, F., Yang, Y., Cer, D., Arivazhagan, N., & Wang, W. (2022). Language-agnostic BERT sentence embedding. Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics . DOI:10.48550/arXiv.2007.01852 Gomaa, W. H., & Fahmy, A. A. (2013). A survey of text similarity approaches. 
+
+International Journal of Computer Applications, 68 (13), 13–18. DOI:10.5120/11638-15 7118 Gutmann, M. U., & Hyvärinen, A. (2012). Noise-contrastive estimation of unnormalized statistical models, with applications to natural image statistics. 
+
+Journal of Machine Learning Research, 13 , 307–361. Ising, E. (1925). Beitrag zur Theorie des Ferromagnetismus. Zeitschrift für Physik, 31 (1), 253–258. Jung, J. Y., Bezirhan, U., & von Davier, M. (2026). Reconceptualizing Scor-ing Reliability Through Linguistic Similarity. Educational and Psychological Measurement , 86(4), 738–768. DOI:10.1177/00131644251397428 Liu, D. C.; Nocedal, J. (1989). "On the Limited Memory Method for Large Scale Optimization". Mathematical Programming B. 45 (3): 503–528. DOI:10.1007/BF01589116. S2CID 5681609 Molenaar, P. C. M. (2004). A Manifesto on Psychology as Idiographic Sci-ence: Bringing the Person Back Into Scientific Psychology, This Time For-ever. Measurement: Interdisciplinary Research and Perspectives, 2 (4), 201–218. DOI:10.1207/s15366359mea0204_1 Rubin, D. B. (1987). Multiple Imputation for Nonresponse in Surveys . Wiley. von Davier, M. (2018). Diagnosing Diagnostic Models: From von Neumann’s Elephant to Model Equivalencies and Network Psychometrics. Measurement: Interdisciplinary Research and Perspectives, 16(1), 59–70. DOI:10.1080/15366367.2018.1436827 Wang, L., Yang, N., Huang, X., Jiao, B., Yang, L., Jiang, D., Majumder, R., & Wei, F. (2024). Multilingual E5 text embeddings: A technical report. arXiv preprint arXiv:2402.05672 .16

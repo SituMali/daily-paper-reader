@@ -1,0 +1,2490 @@
+Title: Exploring complex dependence structures using Bayesian bi-clustering and log-linear graphical modelling
+
+URL Source: https://arxiv.org/pdf/2608.22375v1
+
+Published Time: Tue, 25 Aug 2026 01:07:46 GMT
+
+Number of Pages: 30
+
+Markdown Content:
+# Exploring complex dependence structures using Bayesian bi-clustering and log-linear graphical modelling 
+
+Michail Papathomas ∗∗ Corresponding author: School of Mathematics and Statistics, University of St Andrews, UK, The Observatory, Buchanan Gardens, St Andrews, KY16 9LZ, M.Papathomas@st-andrews.ac.uk, 0044 1334461818 
+
+ABSTRACT: Bayesian partitioning is utilised simultaneously on subjects and cat-egorical variables to reveal complex dependence structures. Clusters of variables are referred to as views. Variable selection highlights the variables that drive the clustering of the subjects within each view. We derive theoretical results on the relation between the variables’ dependence structure and the inferences derived from bi-clustering. The results relate to marginal independence and conditional independence. Using simulated and real data, we demonstrate the applicability of bi-clustering results in assisting log-linear graphical model determination, leading to the efficient exploration of typically vast model spaces. This work sheds light on the relation between two very different but equally popular Bayesian approaches; mixture modelling, that benefits from a large number of variables, and graphical log-linear modelling, which describes explicitly the variables’ dependence structure and allows to evaluate the uncertainty associated with model determination. 
+
+Key words: Bayesian model selection, sparse contingency tables, graphical models 
+
+## 1 Introduction 
+
+Inferring the dependence structure between a number of variables is crucial for understanding the manner in which they interrelate, impact each other and form possible pathways. For example, in multimorbidity studies, chronic medical conditions co-occur within populations (Jensen et al. 2014). In epidemiology, it is of interest to investigate risk factors for antibiotic resistance holistically, by combining microbiology, patient, household and community level data (Keenan et al. 2024). 1arXiv:2608.22375v1 [stat.ME] 23 Aug 2026 This manuscript concerns categorical variables. We demonstrate that simultaneous Bayesian partitioning on subjects and variables (referred to as bi-clustering), combined with variable selec-tion, can be part of an efficient algorithm that reveals complex dependence structures. Variables are partitioned into views while, within each view, subjects are partitioned into clusters. We adopt flexible Bayesian clustering because it allows for evaluation of the uncertainty through the rich MCMC output. We implement finite mixture modelling (Gr¨ un and Malsiner-Walli, 2022), allowing for empty clusters and views, as it provides with valid and plausible inferences with standard sampling approaches. Other options include mixtures of finite mixtures (Fr¨ uhwirth-Schnatter, Walli and Gr¨ un, 2022) or Dirichlet process mixture models (Liverani et al. 2015). Variable selection is integrated within the model, implementing the modified variable selection step described in Papathomas et al. (2012). This identifies variables that contribute substan-tially to the clustering of the subjects within each view. Note that the bi-clustering model is different to multi-view clustering (Franzolini et al.,2026; Dombowsky and Dunson, 2026) as the variables are not grouped into known views or domains. Variable allocations into views are estimated, similarly to the allocation of subjects into clusters within each view. We utilise Bayesian graphical log-linear model determination to evaluate the uncertainty as-sociated with the variables’ dependence structure, assisted by the output from bi-clustering. Log-linear modelling is the default approach for estimating the dependence structure among categorical variables. The search of a vast model space with algorithms such as the Reversible Jump (Green, 1995) is computationally challenging. For instance, 20 categorical variables with 2 levels each imply a contingency table with 2 20 cells and approximately 1 .5 × 10 57 possible log-linear models. Increasing the efficiency of the process by quickly locating areas of high probability is crucial. Models that combine clustering and variable selection highlight variables because they combine together to create homogenous clusters. It is therefore expected that this modelling could po-tentially determine variables that relate to each other and the manner in which this happens. In this manuscript, we show that inferences from bi-clustering inform on the existence of edges present in a log-linear graphical model. This is a major departure from the single-view approach of Papathomas and Richardson (2016), where the derived theoretical results led to consistent detection of variables that are independent of all others. Here, theoretical results concern inde-pendence between groups of variables and also conditional independence. These results allow to 2derive pseudo-probabilities for the existence of an edge by post processing the MCMC output from fitting the bi-clustering partition model. The probabilities are included in a matrix that informs on the possible structure of a likely graphical log-linear model. This matrix is fed to formal log-linear graphical model search that determines posterior probabilities for the models that comprise the typically large model space. The proposed model search identifies high proba-bility models in fewer iterations compared to a less informed approach, increasing the efficiency of the algorithm. For other studies relevant to the relation between mixture and log-linear modelling see Dunson and Xing (2009), Bhattacharya and Dunson (2012), Marbac et al. (2014), Johndrow et al. (2014) and Zhou et al. (2015). Mixture models are used extensively for the clustering of network populations; see, for example, Mantziou et al. (2024) or D’Angelo et al. (2023). In contrast to the modelling proposed here, the aim of these manuscripts is different to ours. They concern data from multiple networks, without implementing variable selection. In addition, no reversible jump model search algorithm is utilised for the detection of high probability graphical models. In Section 2, we provide a detailed description of the bi-clustering model and integrated vari-able selection approach, while Section 3 provides a brief account of the more familiar log-linear modelling. Section 4, contains theoretical results on the correspondence between marginal inde-pendence and conditional independence on one hand, and variable selection within bi-clustering on the other. The proposed model search approach for log-linear models is described within Section 4 too. Simulated data sets are analysed in Section 5, and two real data sets in Section 6. A discussion concludes the manuscript. 
+
+## 2 The bi-clustering Bayesian mixture model 
+
+For subject i, i = 1 , ..., n , a profile xi is a vector of categorical variable values xi = ( xi1, ..., x iP ), where P is the number of variables. We denote by x.p the pth categorical random variable, 
+
+p = 1 , ..., P . Variables are clustered into views, so that the clustering of the subjects can be different within each view; see Kirk et al. (2023). Let sp = v denote that x.p belongs to view v,3v = 1 , ..., V . Let also, 
+
+P (sp = v|ξ) = ξv,
+
+where ξ = ( ξ1, ..., ξ V ). Let zv = {zv 
+
+> 1
+
+, ..., z vn}, where zvi is an allocation variable, so that zvi = cv
+
+denotes that subject, i, belongs to cluster cv considering view v. Here, cv = 1 , ..., C v, where Cv
+
+is the maximum number of clusters for view v. Let, 
+
+P (zvi = cv|ψ) = ψvcv ,
+
+where, ψ is an irregular matrix that contains the elements ψvcv . For C1 = ... = CV = C, ψ is a V × C matrix. Denote by ϕcv 
+
+> p
+
+(x) the probability that the pth variable x.p , allocated to view 
+
+v, is equal to x, when the subject belongs to cluster cv. Given that zvi = cv, variable x.p has a multinomial distribution with cluster specific parameters ϕcv 
+
+> p
+
+= [ ϕcv 
+
+> p
+
+(1) , ..., ϕ cv 
+
+> p
+
+(Mp)]. Here, Mp
+
+denotes the number of categories of x.p . We assume that, a priori, ϕcv 
+
+> p
+
+∼ Dirichlet( λ1, ..., λ Mp ). Let ϕ = {ϕcv 
+
+> p
+
+, v = 1 , ..., V, c v = 1 , ..., C v, p = 1 , ..., P }. We adopt a flexible truncated stick-breaking prior on the allocation weights ψ, with a random parameter α (West, 1992; Ishwaran and James, 2001), as shown in the description of the model below. 
+
+xi|z, ϕ ∼
+
+> P
+
+Y
+
+> p=1
+
+ϕzvi 
+
+> p
+
+(xip ) for i = 1 , 2, ..., n, and v = 1 , 2, ..., V ϕcv 
+
+> p
+
+(xip ) ∼ Dirichlet( λ1, ..., λ Mp ) for c = 1 , 2, ..., C P (zvi = cv|ψ) = ψvcv
+
+ψvcv = wvcv
+
+Y
+
+> l<c v
+
+(1 − wvl ) for cv = 2 , ..., C v, with ψv 
+
+> 1
+
+= wv 
+
+> 1
+
+, and wvCv = 1 
+
+wvcv |α ∼ Beta(1 , α ) for cv = 1 , ..., C v − 1
+
+α ∼ U (0 , 10) 
+
+ξv = uv
+
+Y
+
+> l<v
+
+(1 − ul) for v = 2 , 3, ..., V ξ1 = u1, and uV = 1 ,uv|αξ ∼ Beta(1 , α ξ) for v = 1 , ..., V − 1
+
+αξ ∼ U (0 , 10) Alternatively, for ψv = {ψv 
+
+> 1
+
+, ..., ψ vCv } one can assume Dirichlet priors for the ψ and ξ parameters so that, 
+
+ψv|α ∼ Dirichlet( α, ..., α ),
+
+4i.e., 
+
+P (ψv|α) = 
+
+> Cv
+
+Y 
+
+> cv=1
+
+(ψvcv )α−1 ,
+
+and 
+
+ξ|αξ ∼ Dirichlet( αξ, ..., α ξ),
+
+i.e., 
+
+P (ξ|αξ) = 
+
+> V
+
+Y
+
+> v=1
+
+(ξv)αξ −1 .
+
+This implies the following mixture model for the likelihood of the observations, 
+
+P (xi|ϕ, ψ, ξ ) = 
+
+> V
+
+X
+
+> v1=1
+
+... 
+
+> V
+
+X 
+
+> vP=1
+> C1
+
+X
+
+> c1=1
+
+... 
+
+> CV
+
+X 
+
+> cV=1
+
+P (x.1 = xi1, ..., x .P = xiP |z1 
+
+> i
+
+= c1, ..., z Vi = cV , s 1 = v1, ..., s P = vP , ϕ, ψ, ξ )
+
+×P (z1 
+
+> i
+
+= c1, ..., z Vi = cV |s1 = v1, ..., s P = vP , ϕ, ψ, ξ )=
+
+> V
+
+X
+
+> v1=1
+
+... 
+
+> V
+
+X 
+
+> vP=1
+> C1
+
+X
+
+> c1=1
+
+... 
+
+> CV
+
+X 
+
+> cV=1
+
+Y
+
+> p:vp=1
+
+ϕc1 
+
+> p
+
+(xip ) × ... × Y
+
+> p:vp=V
+
+ϕcV 
+
+> p
+
+(xip )
+
+×ψ1 
+
+> c1
+
+× ... × ψVcV × ξv1 × ... × ξvP .
+
+Note that, for given s1 = v1, ..., s P = vP ,
+
+P (x.1 = xi1, ..., x .P = xiP |s1 = v1, ..., s P = vP , ϕ, ψ, ξ )=
+
+> C1
+
+X
+
+> c1=1
+
+... 
+
+> CV
+
+X 
+
+> cV=1
+
+Y
+
+> p:vp=1
+
+ϕc1 
+
+> p
+
+(xip ) × ... × Y
+
+> p:vp=V
+
+ϕcV 
+
+> p
+
+(xip ) × ψ1 
+
+> c1
+
+× ... × ψVcV . (1) The variable selection approach that identifies the variables that are important for the formation of clusters within views follows Papathomas et al. (2012). We assume cluster specific binary indicators, γcv 
+
+> p
+
+, so that γcv 
+
+> p
+
+= 1 when variable x.p is important for allocating subjects to cluster 
+
+cv, considering the view v where x.p is allocated; otherwise γcv 
+
+> p
+
+= 0. Denote by πp(xip ) the 5marginal probability that variable x.p takes the value xip , P (x.p = xip ). The probability that variable x.p is observed as xip , when subject, i, belongs to cluster c, is written as, 
+
+P (x.p = xip | zvi = cv) = [ ϕcv 
+
+> p
+
+(xip )] γcvp × [πp(xip )] (1 −γcvp ). (2) Now, we can write, 
+
+πp(xip ) = P (x.p = xip ) = X
+
+> cv
+
+ψcv [ϕcv 
+
+> p
+
+(xip )] γcvp × [πp(xip )] (1 −γcvp ).
+
+We assume that the γcv 
+
+> p
+
+are independent Bernoulli variables with γcv 
+
+> p
+
+∼ Bernoulli( ρp), 0 <ρp < 1. Here, ρp describes the probability that variable x.p is important for the partitioning of the subjects in relation to the entire process, rather than for a specific cluster only. For 
+
+ρp, one may choose to consider a sparsity inducing prior with an atom at zero, so that ρp ∼
+
+1{fp=0 }δ0(ρp) + 1 {fp=1 }Beta( αρ, β ρ), where fp ∼ Bernoulli(0 .5). We do not consider this option in this manuscript, as the number of variables we examine does not exceed 10. The model described in this Section is fitted using custom R code, available in the form of two R packages, one for bi-clustering and another for log-linear model search. The full conditional distributions for the MCMC sampler are given in the Supplemental material, Section S1. 
+
+## 3 Log-linear graphical models 
+
+Log-linear models represent the dependence structure between categorical variables. Impor-tantly, they allow to evaluate the uncertainty associated with this structure by formal Bayesian model comparison. Let P denote the finite set of the P categorical variables. The resulting data can be arranged as counts in a P -way contingency table. A Poisson log-linear interaction model is a generalized linear model where the data are the cell counts of the contingency table; see the Supplemental material, Section S2, for a formal definition of an interaction term in a log-linear model. The number of all possible log-linear models is 2 (2 P ). Graphical models are represented by a graph where each node (or vertex) is an element of P. Two nodes may be connected by an edge. Nodes not connected directly by an edge are independent conditionally on all other nodes (pairwise Markov property). Conditionally on nodes to which x.p is directly connected, x.p is independent of all other nodes (local Markov property). Two sets of nodes are independent when they are separated by another set, conditionally on the separating set (global Markov property); see Lauritzen (2011) for a more rigorous definition of Markov properties. The 6number of possible graphical models is 2 H , where H = P !/(2( P − 2)!), assuming the intercept and all factor main effects are included in the model. 
+
+## 4 Bi-clustering outcomes and dependence 
+
+4.1 Independence and conditional independence 
+
+Theorems 1 and 2 allow to detect independent groups of random variables. The remaining Theorems relate to conditional independence. 
+
+Theorem 1: If random variables {x.p 1 , . . . , x .p 2 } are allocated to view v, while variables 
+
+{x.q 1 , . . . , x .q 2 } are allocated to a different view v′
+
+, then {x.p 1 , . . . , x .p 2 } are independent of 
+
+{x.q 1 , . . . , x .q 2 }.
+
+Proof: See Appendix. 
+
+Theorem 2: Denote by vp the view variable x.p is allocated to. A set of random variables 
+
+{x.p 1 , . . . , x .p 2 } is independent of another set {x.q 1 , . . . , x .q 2 } if and only if vp̸ = vq for all p ∈{p1, ..., p 2} and q ∈ { q1, ..., q 2}.
+
+Proof: See Appendix. Assume that within some view v, the subjects are grouped into Cv clusters. Let Γ be a subset of {1, . . . , C v}. Denote by Γ ∁ the compliment of Γ with respect to {1, . . . , C v}. Without any loss of generality, consider that, for two variables x.p and x.q in that view, 
+
+γcp = 0, γcq = 1, for c ∈ Γ1,
+
+γcp = 1, γcq = 0, for c ∈ Γ2,
+
+γcp = 1, γcq = 1, for c ∈ Γ3,
+
+γcp = 0, γcq = 0, for c ∈ Γ4 = (Γ 1 ∪ Γ2 ∪ Γ3)∁.
+
+Proposition 1: For two variables x.p and x.q in the same view, it is not possible that the view only comprises clusters of type Γ 1 or Γ 2 or both, without any cluster in the Γ 3 or Γ 4 category. 7Proof: See Appendix. 
+
+Theorem 3: For two random variables x.p and x.q within the same view v, if only clusters of type Γ 3 are present, then the two variables are not conditionally independent. 
+
+Proof: See Appendix. 
+
+Theorem 4: For two random variables x.p and x.q within the same view v, if the view contains only clusters of type Γ 1 and Γ 3, or only clusters of type Γ 2 and Γ 3, then the two variables are conditionally independent. 
+
+Proof: See Appendix. The following notation is relevant to Theorem 5 below, and will also be used later within the manuscript. Consider two random variables x.p and x.q within the same view v. To simplify the notation, and without loss of generality, assume that the rest of the variables in this view are (x.1, ..., x .r ). Let, 
+
+frest (ϕ, π, c ) = 
+
+
+
+(ϕc
+
+> 1
+
+)γc 
+
+> 1
+
+π1−γc
+
+> 1
+> 1
+
+
+
+× ... ×  (ϕcr)γcr π1−γcr
+
+> r
+
+ .
+
+Theorem 5: Consider two random variables x.p and x.q within the same view v. Assume that the rest of the variables in this view are ( x.1, ..., x .r ). Assuming that only clusters of types Γ 1,Γ2 and Γ 3 are present, if 
+
+ X
+
+> c1∈Γ1
+
+ψc1 frest (ϕ, π, c 1)( ϕc1 
+
+> q
+
+− πq)
+
+ ×
+
+ X
+
+> c2∈Γ2
+
+ψc2 frest (ϕ, π, c 2)( πp − ϕc2 
+
+> p
+
+)
+
+ = 0 ,
+
+then the two variables are conditionally independent. 
+
+Proof: See Appendix. 
+
+4.2 Summary of the bi-clustering outcomes 
+
+The results in Section 4.1 provide a blueprint for building a summary matrix T that translates the bi-clustering output into information that is relevant to graphical log-linear model selection. Matrix T is constructed in such a manner so that if element t(p1, p 2), 1 ≤ p1 < p 2 ≤ P , is zero 8or close to zero, this implies that an edge between x.p 1 and x.p 2 is not likely to be present in a highly supported log-linear graphical model. At this stage, we should point out that graphical log-linear modelling does not describe all possible dependence structures between categorical variables. For example, the set of all pos-sible hierarchical models is larger than the set of possible graphical models. In addition, the Theorems in Section 4.1 do not cover all eventualities in terms of the types of clusters that can be present within a view. Finally, there is random variation within the MCMC sampler, and mixing/convergence considerations; see Chaumeny et al. (2022). This is why the derived theoretical results do not provide an exact template for a direct translation of the bi-clustering output into inferences on the variables’ dependence structure. The proposed construction below takes this into account by allowing for some variation within the bi-clustering output and setting thresholds for deciding on the presence or absence of different types of cluster. Denote by |Γl| the cardinality of the set of clusters of type Γ l, l = 1 , 2, 3, 4, within view v. Let 
+
+thres take a value within {0, 1, ..., C }. We assume that a type of cluster is not present within a view if |Γl| ≤ thres . So, in practice, thres should take some small non-zero value, and we suggest thres = 1 to allow for a small departure from |Γl| = 0 when clusters of type l are not present. Let also sumthres be a small positive number. This is a threshold that will allow for a small departure from zero for the sums described within Theorem 5. We further discuss the choice for the value of sumthres in Section 5.2. Consider two variables x.p and x.q in view v. As before, assume that the rest of the variables in this view are ( x.1, ..., x .r ). Ignoring the view specific indicators to simplify the notation, let, ΣΓl = X
+
+> c∈Γl
+
+ψcfrest (ϕ, π, c )( ϕcq − πq).
+
+The rules for the formation of the summary matrix T are given below. In brackets, we show the theoretical result that motivated each rule. Empirical studies informed on three additional rules that limit the number of false negative indications on the presence of an edge. 9• For iteration it form matrix T it , so that element t(p1,p 2) on row p1 and column p2,1 ≤ p1 < p 2 ≤ P , is initially set to zero. All other matrix cells are empty. 
+
+• t(p1,p 2) = 0 when x.p 1 and x.p 2 belong to different views. (Theorems 1,2.) 
+
+• When x.p 1 and x.p 2 belong to the same view, v:
+
+– t(p1,p 2) = 1 when |Γ1| ≤ thres and |Γ2| ≤ thres and |Γ3| ≥ | Γ4| and |Γ3| ≥ thres 
+
+(Theorem 3) 
+
+– t(p1,p 2) = 1 when |Γ1| > thres and |Γ2| > thres and |Γ3| ≥ thres and |Γ4| ≥ 
+
+thres (Reduce false negatives) 
+
+– t(p1,p 2) = 1 when |Γ1| ≤ thres and |Γ2| ≥ thres and |Γ3| ≥ thres and |Γ4| ≥ 
+
+thres (Reduce false negatives) 
+
+– t(p1,p 2) = 1 when |Γ1| ≥ thres and |Γ2| ≤ thres and |Γ3| ≥ thres and |Γ4| ≥ 
+
+thres (Reduce false negatives) 
+
+– t(p1,p 2) = 0 when ( |Γ1| ≥ thres or |Γ2| ≥ thres ) and |Γ3| < |Γ4| and |Γ3| ≤ thres 
+
+and |Γ4| ≤ thres (Proposition 1) 
+
+– t(p1,p 2) = 0 when |Γ1| ≥ thres and |Γ2| ≥ thres and |Γ3| ≥ thres and |Γ3| ≥ | Γ4|
+
+and |Γ4| ≤ thres and ( |ΣΓ1 | < sumthres or |ΣΓ2 | < sumthres ) (Theorem 5) 
+
+– t(p1,p 2) = 1 when |Γ1| ≥ thres and |Γ2| ≥ thres and |Γ3| ≥ thres and |Γ3| ≥ | Γ4|
+
+and |Γ4| ≤ thres and ( |ΣΓ1 | > sumthres and |ΣΓ2 | > sumthres ) (Theorem 5) 
+
+– t(p1,p 2) = 0 when |Γ1| < thres and |Γ2| ≥ thres and |Γ3| ≥ thres (Theorem 4) 
+
+– t(p1,p 2) = 0 when |Γ1| ≥ thres and |Γ2| < thres and |Γ3| ≥ thres (Theorem 4) 
+
+– t(p1,p 2) = 0 in any other case. 
+
+• Sum up all matrices T it , to create an information matrix T as a summary of all T it
+
+matrices into one. 
+
+• For ease of interpretation, re-weight the elements of T by dividing all elements with the maximum element, so that the resulting matrix has elements that take values within [0 , 1] and the maximum element is one. 10 4.3 The proposed log-linear model search algorithm 
+
+The proposed model comparison approach is based on the Reversible Jump MCMC algorithm (Green, 1995) implemented in Papathomas et al. (2011b). Following Papathomas and Richard-son (2016), to propose the addition of an edge to the currently accepted model, we consider the elements of T that correspond to pairs of variables not currently connected with an edge, transform so that they sum to one, and sample an edge using the derived probabilities. To suggest an edge for removal, we consider the elements of T that correspond to pairs of variables already connected with an edge, transform so that they sum to one, and sample an edge using complimentary probabilities. To choose one edge to replace another, we sample both edges as previously. Although in the simulation studies below we did not observe false negatives (cells within T that falsely indicate the absence of an edge), to avoid such an eventuality being detri-mental for the model search algorithm we also include completely random additions, removals or replacements within the model search. 
+
+## 5 Simulation studies 
+
+The specifications for the generated data for the 4 simulations are shown in Table 1. The model used for each one of the simulations is presented in Figure 1. Simulation 1 is based on two distinct sets of variables, where variables that belong to different sets are independent. Simulations 2 and 3 describe more complex structures compared to simulation 1, since interaction terms share variables. Simulation 4 is focused on the presence of conditional independence. We provide additional information on the design matrices and parameter coefficients of the adopted log-linear models in the Supplemental material, Section S3. 
+
+Table 1: Specifications for each one of the 4 simulations. Number Number Number of levels Number of cells Size of model of subjects of variable of variables in contingency table space 10000 10 2 1024 3.5184 × 10 13 
+
+11 Figure 1: The graphical models used for the four simulations 
+
+5.1 MCMC specifications, prior distributions and model search strategies 
+
+Information on the size of the chains, as well as run times, is provided in Table 2. For the bi-clustering analyses we specified a maximum number of 8 views and 8 clusters within each view. The following prior specifications were adopted. For the clustering Dirichlet process model we adopted the non-sparse prior for ρp. Conjugate Dirichlet priors with λ1 = ... = λMp = 0 .5 were adopted for the ϕcp parameters. Chains were initialized by allocating variables to 2 views using the distance based ‘kmodes’ approach and the ‘klaR’ R package (Huang, Z., 1997). Within each view, subjects were initially allocated to the same cluster. We found that starting with an initial view and cluster allocation where variables and subjects are allocated in such a small number of components favours faster convergence to the true undelying allocations. Initial values for all other model parameters were random. For the log-linear model comparison analyses, unit information priors (Ntzoufras et al., 2003) 12 were adopted for the model parameters. All possible graphs are equally likely a priori. The log-linear models were fitted and compared using the reversible jump MCMC algorithm described in Papathomas et al. (2011b). The obtained chains provide valuable information for the mixing performance of the algorithms, although time constraints led to acquiring a number of samples that is rather small for accurately estimating posterior probabilities of less prominent models, in model spaces as large as the ones we consider. Following standard practice when building a reversible jump MCMC chain, in 60% of the iter-ations, a new set of values for the parameters of the currently accepted model is proposed. A jump to a different graphical model is attempted in 40% of the iterations, where it is equally likely to attempt the addition, removal or replacement of one edge with another. We compare three model search strategies for selecting the edges to add,remove or replace: (a) Uniformly random selection. An unrefined search strategy where all candidate edges are equally likely to be selected. (b) A balanced combination of (a) and the single-view based approach described in Papath-omas and Richardson (2016), where the two model search approaches are each employed in 20% of the iterations. We refer to this approach as ‘Single-view 2016’. (c) A balanced combination of (a) and the bi-clustering based approach described in Sections 4.2 and 4.3, where the two model search approaches are each employed in 20% of the iterations. It is prudent to include random search steps in (b) and (c), not depended on the T matrix, as a safeguard, in case variable selection within clustering does not detect an existing edge in a high probability graphical model. In this hypothetical scenario, the search moves that do not depend on T will allow for the detection of the variable space that is not supported by the clustering. Although never observed edges of prominent graphical models not reflected in T , this is likely to happen for lower probability models. The majority of the specifications described above are also adopted in the real data analyses presented in Section 5, with differences indicated clearly therein. 13 5.2 Simulation results: the derived T matrices 
+
+The constructed T matrices are shown below, denoting the matrix that corresponds to simulation 
+
+j by T Sj , j = 1 , 2, 3, 4. We chose thres = 1 and sumthres = 0 .000005. These values were found empirically to provide a good balance between accounting for the variability in the MCMC sampling and adhering to the theoretical results in Section 4, for all simulations and real data analyses. We display with bold font the values of elements that correspond to an existing edge in the true model. In terms of surmising non-existing edges, it is clear that, overall, zero or considerably smaller weights are given to non-existing edges, compared to existing ones. Importantly, zero or very close to zero elements in the T matrices always correspond to a non-existing edge. They never indicate that an existing edge is absent, something that would be detrimental to a model search algorithm. Next to each T Sj matrix we show the corresponding matrix derived by the single-view approach of Papathomas and Richardson (2016), denoted by T SV . We observe that the T SV matrices tend to suggest that edges are present between distinct/independent sets of variables much more frequently than the T Sj ones.                         
+
+> Table 2: MCMC specifications for the clustering analyses, and also for the log-linear model comparison Reversible jump chains. Analyses for the simulated data were performed on a server with Intel(R) Core(TM) i9-13900K processor (8 performance cores + 16 efficiency cores) with 128GB DDR4 RAM. Analyses for the real data application were performed on a PC equipped with an Intel(R) Core(TM) i7-1355U CPU @ 1.70GHz with 64GB RAM Clustering algorithms Burn-in Iter. after burn-in (thin by 10) Run time (hours) Each simulation 395000 5000 183 CHD real data 395000 5000 13 GRACE real data 395000 5000 13 Reversible jump chains Burn-in Iterations Run time in hours Each simulation 2000 10000 86 CHD real data 20000 10 51GRACE real data 20000 10 51
+
+14 Assume underlying true 0 or 1 elements for the T matrices, where 1 corresponds to the presence of an edge according to Figure 1. The mean squared differences between the elements of the underlying true T matrices and the elements of T Sj , j = 1 , 2, 3, 4, are (0 .045 , 0.021 , 0.077 , 0.097) respectively. The mean squared differences between the elements of the underlying true T matri-ces and the T SV matrices for the 4 simulations are (0 .110 , 0.104 , 0.185 , 0.188), which are roughly twice as large for 3 simulations, when compared to considering the proposed T Sj matrices, and almost 5 times larger for simulation 2. These results confirm the utility of bi-clustering in the detection of complex dependence structures. In the next subsection we demonstrate the utility of the bi-clustering output in formal log-linear model comparison. 
+
+T s1 =
+
+
+
+A B C D E F G H I JA .88 .52 1.00 .00 .00 .00 .00 .00 .00 
+
+B .70 0.34 .00 .00 .00 .00 .00 .00 
+
+C .35 .00 .00 .00 .00 .00 .00 
+
+D .00 .00 .00 .00 .00 .00 
+
+E .00 .00 .00 .00 .00 
+
+F .00 .00 .00 .00 
+
+G .00 .00 .00 
+
+H 0.29 .40 
+
+I .48 
+
+
+
+T SV =
+
+
+
+A B C D E F G H I JA .65 0.77 .82 .10 .12 .10 .63 .47 .47 
+
+B .46 0.45 .05 .07 .07 .41 .32 .34 
+
+C .67 .07 .10 .07 .54 .43 .41 
+
+D .09 .14 .11 .80 .69 .63 
+
+E .03 .02 .12 .09 .09 
+
+F .03 .15 .12 .12 
+
+G .10 .09 .09 
+
+H 1.00 .97 
+
+I .90 
+
+
+
+T s2 =
+
+
+
+A B C D E F G H I JA 1.00 .44 .88 .00 .99 .96 .00 .00 .00 
+
+B .95 .38 .00 .24 .31 .00 .00 .00 
+
+C .92 .00 .29 .29 .00 .00 .00 
+
+D .00 .42 .28 .00 .00 .00 
+
+E .00 .00 .00 .00 .00 
+
+F .99 .00 .00 .00 
+
+G .00 .00 .00 
+
+H .00 .00 
+
+I .00 
+
+
+
+T SV =
+
+
+
+A B C D E F G H I JA 1.00 .45 .94 .09 .82 .79 .11 .11 .16 
+
+B .54 .99 .10 .82 .77 .11 .12 .19 
+
+C .54 .05 .33 .31 .05 .06 .11 
+
+D .08 .76 .74 .11 .11 .17 
+
+E .07 .06 .01 .03 .02 
+
+F .70 .10 .09 .15 
+
+G .08 .08 .13 
+
+H .02 .03 
+
+I .03 
+
+
+
+T s3 =
+
+
+
+A B C D E F G H I JA .54 .50 .42 .00 .61 .63 .00 .00 .00 
+
+B 1.00 .39 .00 .24 .36 .00 .00 .00 
+
+C .85 .00 .32 .28 .00 .00 .00 
+
+D .00 .70 .38 .00 .00 .00 
+
+E .00 .00 .00 .00 .00 
+
+F .90 .00 .00 .00 
+
+G .00 .00 .00 
+
+H .40 .22 
+
+I .54 
+
+
+
+T SV =
+
+
+
+A B C D E F G H I JA .70 .59 1.00 .17 .82 .67 .57 .48 .64 
+
+B .45 .73 .11 .49 .40 .41 .36 .45 
+
+C .65 .10 .40 .30 .38 .26 .41 
+
+D .18 .74 .61 .66 .52 .67 
+
+E .15 .13 .13 .12 .14 
+
+F .71 .54 .46 .59 
+
+G .53 .48 .58 
+
+H .67 .79 
+
+I .69 
+
+
+
+15 T s4 =                                                                                                              
+
+> 
+> ABCDEFGHIJA.37 .33 .18 .00 .00 .00 .00 .00 .00
+> B1.00 .62 .00 .00 .00 .00 .00 .00
+> C.65 .00 .00 .00 .00 .00 .00
+> D.00 .00 .00 .00 .00 .00
+> E.52 .00 .53 .00 .00
+> F.00 .26 .00 .00
+> G.00 .00 .00
+> H.00 .00
+> I.00
+> 
+> TSV =
+> 
+> ABCDEFGHIJA.69 .97 .81 .58 .67 .13 .51 .14 .09
+> B.80 .68 .42 .49 .10 .41 .11 .07
+> C.96 .84 1.00 .17 .82 .17 .13
+> D.59 .66 .12 .53 .14 .10
+> E.90 .15 .79 .14 .11
+> F.17 .85 .14 .12
+> G.16 .03 .02
+> H.13 .10
+> I.03
+> 
+
+5.2.1 Simulation results: log-linear model selection 
+
+To assess the efficiency of the model search algorithm, we run the reversible jump chain 20 times for each of the 4 simulations, and recorded the number of iterations required to reach the true model, starting from the model that only contains main effects. We report the median, quartiles, and minimum and maximum observed number of iterations to true model. We also report the observed acceptance rate. Under the MCMC specifications in Table 2, the posterior probabilities for the true underling model for Simulations 1 to 4 are estimated as (0 .52 , 0.54 , 0.34 , 0.47). In Table 3, we present results from the different reversible jump chains and three search strate-gies. The simulations show the benefit of a search strategy where information from variable selection within bi-clustering is included in log-linear model search. In terms of iterations re-quired to reach the best model, the proposed bi-clustering approach outperforms the other two search strategies, with the completely random model search performing worse than the other two. There are no large differences between the three search strategies in terms of acceptance rate, although there is a downwards trend from the completely random search to the one based on bi-clustering. We observe a trade-off between acceptance rate and number of iterations to the best model. The intuitive interpretation is that with more targeted moves the overall chance of jumping decreases, but the chain moves more quickly to the high posterior probability region. Finally, Papathomas and Richardson (2016) demonstrated the utility of variable selection within the simpler single-view clustering model for detecting variables that are independent of all others. Our approach also reveals such variables by placing them in different views over the MCMC sampling. For example, this is the case for variables {E, F, G, H } in Simulation 1. 16 6 Real data analyses 
+
+6.1 Risk factors for coronary heart disease (CHD) 
+
+Edwards and Havr´ anek (1985) presented a 2 6 contingency table in which 1841 men were cross-classified by six risk factors for coronary heart disease. We assume that main effects are always present and compare the 32768 possible graphical log-linear models. Due to the large number of times this data set has been analysed in the past [see, for example, Dellaportas and Forster (1999)] the top two graphical models (‘ADE+AC+BC+BE+F’ and ‘AE+DE+AC+BC+BE+F’, following the notation in Agresti, 2002) and associated posterior model probabilities (0.28 and 0.23 respectively for unit information parameter priors) are known. All other graphical models have posterior probabilities lower than 0.1. For both real data analyses, MCMC specifications as well as run times, are given in Table 2. Prior distributions were the same as the ones adopted in the analysis of the simulated data, described in Section 4.2. To assess the efficiency of the model search algorithm, we run the reversible jump chain 50 times, and recorded the number of iterations required to reach the highest probability model. The two-way interactions ‘AC’, ‘AE’, ‘BC’, ‘BE’ and ‘DE’, that are present in the highest probability model, are clearly captured by T CHD ; see below. Element t(1 , 4) = 0 .47 completes the three-way interaction ‘ADE’. Elements that correspond to edges in high probability models are at least one order of magnitude larger compared to the five elements that correspond to ‘F’. Factor ‘F’ does not interact with any other variable, and this matches its presence in a different view for many iterations, something reflected in T CHD . Using T CHD to inform the model search algorithm, results in the identification of a large part of the model space that is associated with low probability. For comparison, we also provide below matrix T CHD,SV created by the single-view clustering approach. The two matrices are quite similar, as the first 5 variables are placed in the same view by the bi-clustering, which captures notably better the ‘AD’ and ‘DE’ edges. In Table 4, we present model search results. It is clear that adopting the search strategy that incorporates information from bi-clustering reduces the average number of iterations to the best model to a larger extent compared to single-view clustering or a completely random search. 17 T CHD =                                         
+
+> 
+> ABCDEFA.94 .95 .43 .47 .14
+> B1.00 .33 .51 .07
+> C.35 .43 .06
+> D.60 .12
+> E.26
+> 
+> TCHD,SV =
+> 
+> ABCDEFA.81 .81 .14 .56 .04
+> B1.00 .16 .75 .05
+> C.16 .75 .05
+> D.12 .01
+> E.05
+> 
+
+6.2 GRACE data 
+
+The GRACE dataset (Hosmer et al.,2008) is available from R in 
+
+https://mlr3proba.mlr-org.com/reference/grace.html?q=grace#ref-usage}. 
+
+It contains clinical measurements for 1000 subjects, as well as time-to-event and follow-up time. We include in our analysis: 
+
+• A, Follow-up-time (0-less or equal to 20 days, 1-greater than 20 days) 
+
+• B, Death (0-death, 1-censored) 
+
+• C, Revascularisation (0-not performed, 1-performed) 
+
+• D, Revascularisation days (0-revascularisation performed less than or equal to 20 days since admission, 1-more than 20 days or no revascularisation) 
+
+• E, Systolic blood pressure (0-less or equal to the median 140 mm Hg, greater than 140 mm Hg) 
+
+• F, ST-segment deviation on index ECG (0-No, 1-yes) 0.5 was added to 0 cell-counts in the contingency table to avoid numerical instability. In such analyses it is advisable to also include age in the model. As age relates to almost all measured variables, its inclusion creates a connected graph, and all variables are placed in a single view. This would make the analysis redundant in terms of demonstrating aspects of our approach, and thus age was excluded. 18 The top four graphical models are ‘ABC+ACD+BE+BF’, ‘ABC+ACD+AE+BF’, ‘ABD+ACD+BE+BF’, and ‘ABD+ACD+AE’, with associated posterior model probabilities 0.16, 0.14, 0.13 and 0.12 respectively for unit information priors, with the remaining models with probabilities at least one order of magnitude smaller. The T matrices below indicate with bold the edges present in all four highest probability models. Both matrices capture these edges. Because there are four prevalent models of almost equal probability, it is not clear which matrix captures better the underlying truth. Edge ‘AB’ is not captured as well by the bi-clustering approach, but the single-view approach gives a much larger weight to edges ‘BC’ and ‘BD’ not present in the best model. Even though the best model is not one that stands out compared to the other three, from the model selection results in Table 4 we see that utilizing information from bi-clustering reduces markedly the average number of iterations to the best model compared to single-view clustering or a completely random search.                                           
+
+> TGRACE =
+> 
+> ABCDEFA.15 0.54 1.00 .00 .02
+> B.14 .15 .04 .07
+> C.56 .17 .02
+> D.00 .02
+> E.05
+> 
+> TGRACE,SV =
+> 
+> ABCDEFA.78 1.00 1.00 .20 .09
+> B.77 .78 .16 .06
+> C.99 .19 .09
+> D.19 .09
+> E.02
+> 
+
+## 7 Discussion 
+
+In this manuscript, the theoretical results in Section 4 establish that bi-clustering outcomes inform on the dependence structure of categorical variables in a more holistic manner compared to single-view modelling. The analysis of simulated and real data showed that a log-linear model search algorithm is more efficient in terms of reaching high-probability areas when informed by bi-clustering outcomes, compared to utilising single-view outcomes or adopting completely random jumps. Note that bi-clustering results are only used to assist the model search algorithm, and not to form the log-linear modelling prior distributions. So, the data are not used twice and there is no ad-verse effect regarding model selection and the evaluation of uncertainty. The prior distributions adopted for bi-clustering and log-linear modelling are largely non-informative. Nevertheless, as 19 future work, it would be of interest to investigate if the two priors match or how they should be formed to effect prior matching. Any mismatch between the prior distributions may be an additional reason that explains bi-clustering results not translating exactly to the variables’ dependence structure described by the graphical log-linear model. We observed through empirical results that variables that do not contribute to any clustering tend to form an individual view. This means that if many variables are each one independent of all others, then a large maximum number of potential views would be required. This would result in a clustering MCMC algorithm that is very demanding computationally. This issue can be addressed easily by identifying and removing such variables following the approach of Papathomas and Richardson (2016). It is of interest to consider how the inherent randomness within the MCMC sampling, including possible lack of convergence, may affect the derived T matrices. To this end, and for Simulation 1, we run an MCMC bi-clustering chain fixing the view allocation to the real one, producing matrix T F ixedV iews As shown below, results in terms of the derived matrix are similar to the ones when the view allocation is unknown and sampled. The weight placed on edges is not the same, but it is demonstrably not zero for the same elements of the two matrices.                                                                                                                 
+
+> Ts1=
+> 
+> ABCDEFGHIJA.88 .52 1.00 .00 .00 .00 .00 .00 .00
+> B.70 0.34 .00 .00 .00 .00 .00 .00
+> C.35 .00 .00 .00 .00 .00 .00
+> D.00 .00 .00 .00 .00 .00
+> E.00 .00 .00 .00 .00
+> F.00 .00 .00 .00
+> G.00 .00 .00
+> H0.29 .40
+> I.48
+> 
+> TF ixedV iews =
+> 
+> ABCDEFGHIJA.58 .62 .69 .00 .00 .00 .00 .00 .00
+> B.45 0.55 .00 .00 .00 .00 .00 .00
+> C.65 .00 .00 .00 .00 .00 .00
+> D.00 .00 .00 .00 .00 .00
+> E.00 .00 .00 .00 .00
+> F.00 .00 .00 .00
+> G.00 .00 .00
+> H1.00 .76
+> I.68
+> 
+
+As seen in Table 2, implementing the proposed approached can be computationally expensive and requires a significant amount of time. This manuscript provides the underlying theory and proof of concept analyses regarding the utility of bi-clustering. Future work will include the 20 development of faster computational resources, to allow for the implementation of the proposed methodology to large datasets. 
+
+Table 3: Mixing performance of samplers. Median of iterations to best model is calculated after 20 runs of the reversible jump MCMC chain. Minimum, first and third quartiles and maximum values are given in parentheses in this order. Uniformly random refers to the unrefined model search strategy adopted in Papathomas et al (2011b). Single-view 2016 refers to the approach by Papathomas and Richardson (2016). Bi-clustering refers to the approach proposed in this manuscript. Simulation 1 Acceptance rate Iterations (median) to highest as a percentage posterior probability model (a) Uniformly random 5.7 721 (302,492,844,1592) (b) Single-view 2016 (20%,20%) 5.4. 320 (153,298,458,1167) (c) Bi-clustering (20%,20%) 3.8 132 (36,98,220,547) Simulation 2 Acceptance rate Iterations (median) to highest as a percentage posterior probability model (a) Uniformly random 4.9 735 (256,546,936,1187) (b) Single-view 2016 (20%,20%) 4.72 353 (198,284,477,734) (c) Bi-clustering (20%,20%) 3.9 214 (53,138,295,714) Simulation 3 Acceptance rate Iterations (median) to highest as a percentage posterior probability model (a) Uniformly random 4.7 801 (165,560,1062,1401) (b) Single-view 2016 (20%,20%) 4.6 575 (239,366,671,953) (c) Bi-clustering (20%,20%) 4.4 408 (256,363,571,1472) Simulation 4 Acceptance rate Iterations (median) to highest as a percentage posterior probability model (a) Uniformly random 5.6 541 (269,479,689,1165) (b) Single-view 2016 (20%,20%) 6.3 509 (176,417,636,904) (c) Bi-clustering (20%,20%) 4.8 243 (99,190,357,1388) 
+
+Table 4: Mixing performance of samplers. Median of iterations to best model is calculated after 50 runs of the reversible jump MCMC chain. Minimum, first and third quartiles and maximum values are given in parentheses in this order. Uniformly random refers to the unrefined model search strategy adopted in Papathomas et al (2011b). Single-view 2016 refers to the approach by Papathomas and Richardson (2016). Bi-clustering refers to the approach proposed in this manuscript. Edwards and Havranek data (CHD) Acceptance rate Iterations (median) to highest as a percentage posterior probability model ‘ADE+AC+BC+BE+F’ (a) Uniformly random 5.2 277 (52,197,478,1364) (b) Single-view 2016 (20%,20%) 4.4 271 (40,185,432,1793) (c) Bi-clustering (20%,20%) 5.6 270 (43,145,361,2060) GRACE data Acceptance rate Iterations (median) to highest as a percentage posterior probability model ‘ABC+ACD+BE+BF’ (a) Uniformly random 5.01 5943 (224,1265,30884, more than 50000 on 9 occasions) (b) Single-view 2016 (20%,20%) 4.9 2410 (136,652,21845, more than 50000 on 3 occasions) (c) Bi-clustering (20%,20%) 4.9 1347 (94,430,4093, more than 50000 on 1 occasion) 
+
+Acknowledgments 
+
+21 We would like to thank Professor Sylvia Richardson and Dr Paul Kirk for valuable discussions during the preparation of this manuscript. 
+
+References 
+
+Agresti, A., 2002. Categorical data analysis. 2nd edition. John wiley & Sons. New Jersey. Bhattacharya, A., Dunson, D.B., 2012. Simplex factor models for multivariate unordered cate-gorical data. J. Am. Stat. Assoc. 107, 362-77. D’Angelo, S., Alf´ o, M., Fop, M. 2023. Model-based clustering for multidimensional social net-works, J. Roy. Stat. Soc. A, 186, 481-507. Dellaportas, P., Forster, J.J., 1999. Markov chain Monte Carlo model determination for hierar-chical and graphical log-linear models. Biometrika, 86, 615-633. Dombowsky, A., Dunson, D.B., 2026. Product Centred Dirichlet Processes for Bayesian Multi-view Clustering. J. Roy. Stat. Soc. B. https://pmc.ncbi.nlm.nih.gov/articles/PMC12392789/ Dunson, D.B., Xing C., 2009. Nonparametric Bayes modelling of multivariate categorical data. J. Am. Stat. Assoc. 104, 1042-1051. Edwards, D., Havr´ anek, T., 1985. A fast procedure for model search in multi-dimensional contingency tables. Biometrika, 72, 339-351. Franzolini, B., De Iorio, M., Eriksson, J., 2026. Conditional Partial Exchangeability: A Proba-bilistic Framework for Multi-View Clustering, J. Am. Stat. Assoc. DOI: 10.1080/01621459.2025.2609381 Fr¨ uhwirth-Schnatter, S., Malsiner-Walli, G. and B. Gr¨ un (2021). Generalized mixtures of finite mixtures and telescoping sampling. Bayesian Analysis, 16, 1279-1307. Green, P.J., 1995. Reversible jump MCMC computation and Bayesian model determination. Biometrika, 82, 711-732. Gr¨ un, B., Malsiner-Walli, G. 2022. Bayesian finite mixture models. In N. Balakrishnan, Theodore Colton, Brian Everitt, Walter Piegorsch, Fabrizio Ruggeri, and Jef L. Teugels, editors, Wiley StatsRef: Statistics Reference Online doi:10. 1002/9781118445112.stat08373. Hosmer, D.W., Lemeshow, S., May, S. 2008. Applied Survival Analysis: Regression Modeling of Time to Event Data: Second Edition, John Wiley and Sons Inc., New York, NY Huang, Z. (1997) A Fast Clustering Algorithm to Cluster Very Large Categorical Data Sets in Data Mining. in KDD: Techniques and Applications (H. Lu, H. Motoda and H. Luu, Eds.), pp. 21-34, World Scientific, Singapore. Ishwaran, H.,James, L., 2001. Gibbs sampling methods for stick-breaking priors. J. Am. Stat. Assoc. 96, 161-73. 22 Jensen AB, Moseley PL, Oprea TI, et al. 2014. Temporal disease trajectories condensed from population-wide registry data covering 6.2 million patients. Nature Communications, 5(1): 4022. DOI: 10.1038/ncomms5022. Johndrow, J.E., Bhattacharya, A., Dunson, D.B., 2014. Tensor decompositions and sparse log-linear models. arXiv:1404.0396v1. Keenan, K., Papathomas M., et al. 2024. Intersecting social and environmental determinants of multidrug-resistant urinary tract infections in East Africa beyond antibiotic use. Nature Communications. 15, 11 p. Kirk, P., Pagani, F. Richardson, S. 2023. Bayesian outcome-guided multi-view mixture models with applications in molecular precision medicine. arXiv:2303.00318 Lauritzen, S.L., 2011. Elements of graphical models. Lectures from the XXXVIth International Probability Summer School in St-Flour, France. http://www.stats.ox.ac.uk/ steffen Liverani, S., Hastie, D. I., Azizi, L., Papathomas, M., Richardson, S., 2015. PReMiuM: An R package for Profile Regression Mixture Models using Dirichlet Processes. Journal of Statisti-cal Software, 64(7), 1-30. Mantziou, A., Lunag´ omez, S., Mitra, R. 2024. Bayesian model-based clustering for populations of network data. Ann. Appl. Stat., 18, 266-302. Marbac, M., Biernacki, C., Vandewalle, V., 2014. Model-based clustering for conditionally correlated categorical data. arXiv:1401.5684v2 Ntzoufras, I., Dellaportas, P., Forster, J.J., 2003. Bayesian variable and link determination for generalized linear models. J. Stat. Plan. Infer. 111, 165-180. Papathomas, M., Dellaportas, P., Vasdekis, V.G.S., 2011b. A novel reversible jump algorithm for generalized linear models. Biometrika, 98, 231-236. Papathomas, M., Molitor, J., Hoggart, C., Hastie, D., Richardson, S., 2012. Exploring data from genetic association studies using Bayesian variable selection and the Dirichlet process: application to searching for gene-gene patterns. Genet. Epidemiol. 36, 663-674. Papathomas, M., Richardson, S., 2016. Exploring dependence between categorical variables: Benefits and limitations of using variable selection within Bayesian clustering in relation to log-linear modelling with interaction terms. Journal of Statistical Planning and Inference. 173, 47-63. West, M., 1992. Hyperparameter estimation in Dirichlet process mixture models. Institute of Statistics and Decision Sciences. Zhou, J., Bhattacharya, A., Herring, A.H., Dunson, D.B., 2015. Bayesian factorizations of big 23 sparse tensors. J. Amer. Statist. Assoc. 110, 1562-1576 
+
+Appendix. Proof of Theorem 1: To simplify the notation, we suppress the x and x′
+
+from 
+
+P (x.p = x, x .q = x′
+
+), and write P (x.p , x .q ). We also write ϕcp instead of ϕcp(x), and πp instead of 
+
+πp(x). Without any loss of generality, assume that v = 1 and v′
+
+= 2. Then, 
+
+P (x.p 1 , . . . , x .p 2 , x .q 1 , . . . , x .q 2 ) = 
+
+C1
+
+X
+
+c1=1 
+
+C2
+
+X
+
+c2=1 
+
+ψ1
+
+c1 × ψ2
+
+c2
+
+×{ (ϕc1
+
+p1 )γc1 
+
+> p1
+
+(πp1 )1−γc1 
+
+> p1
+
+}× . . . ×{ (ϕc1
+
+p2 )γc1 
+
+> p2
+
+(πp2 )1−γc1 
+
+> p2
+
+}×{ (ϕc2
+
+q1 )γc2 
+
+> q1
+
+(πq1 )1−γc2 
+
+> q1
+
+×. . . ×{ (ϕc2
+
+q2 )γc2 
+
+> q2
+
+(πq2 )1−γc2 
+
+> q2
+
+}} 
+
+Also, 
+
+P (x.p 1 , . . . , x .p 2 ) × P (x.q 1 , . . . , x .q 2 )=
+
+C1
+
+X
+
+c1=1 
+
+ψ1
+
+c1 {(ϕc1
+
+p1 )γc1 
+
+> p1
+
+(πp1 )1−γc1 
+
+> p1
+
+} × . . . × { (ϕc1
+
+p2 )γc1 
+
+> p2
+
+(πp2 )1−γc1 
+
+> p2
+
+}×
+
+C2
+
+X
+
+c2=1 
+
+ψ2
+
+c2 {(ϕc2
+
+q1 )γc2 
+
+> q1
+
+(πq1 )1−γc2 
+
+> q1
+
+× . . . × { (ϕc2
+
+q2 )γc2 
+
+> q2
+
+(πq2 )1−γc2 
+
+> q2
+
+}
+
+As, 
+
+nX
+
+k=1 
+
+mX
+
+j=1 
+
+akbj =
+
+nX
+
+k=1 
+
+ak
+
+! 
+
+mX
+
+j=1 
+
+bj
+
+ ,
+
+we have, 
+
+P (x.p 1 , . . . , x .p 2 , x .q 1 , . . . , x .q 2 )=
+
+C1
+
+X
+
+c1=1 
+
+ψ1
+
+c1 {(ϕc1
+
+p1 )γc1 
+
+> p1
+
+(πp1 )1−γc1 
+
+> p1
+
+} × . . . × { (ϕc1
+
+p2 )γc1 
+
+> p2
+
+(πp2 )1−γc1 
+
+> p2
+
+}×
+
+C2
+
+X
+
+c2=1 
+
+ψ2
+
+c2 {(ϕc2
+
+q1 )γc2 
+
+> q1
+
+(πq1 )1−γc2 
+
+> q1
+
+× . . . × { (ϕc2
+
+q2 )γc2 
+
+> q2
+
+(πq2 )1−γc2 
+
+> q2
+
+}
+
+= P (x.p 1 , . . . , x .p 2 ) × P (x.q 1 , . . . , x .q 2 ).
+
+This proves Theorem 1. 
+
+Proof of Theorem 2: Different views ⇒ Independence Consider the representative x.p 1 from the set of variables {x.p 1 , . . . , x .p 2 }. so that, vp1̸ = vq, for 
+
+q ∈ { q1, . . . , q 2}. Without loss of generality, assume that {v1, . . . , v d} represent the distinct set of values from {vq1 , . . . , v q2 }. Then, 
+
+P (x.p 1 , x .q 1 , . . . , x .q 2 |ϕ, ψ, ξ ) = 
+
+Cvp 1
+
+X
+
+cvp 1 =1 
+
+Cv1
+
+X
+
+cv1 =1 
+
+. . . 
+
+Cvd
+
+X
+
+cvd =1 
+
+24 ψvp1
+
+cvp 1 {(ϕcvp 1
+
+p1 )γcvp 1 
+
+> p1
+
+(πp1 )1−γcvp 1 
+
+> p1
+
+} × ψv1
+
+cv1
+
+Y
+
+q:vq =v1
+
+{(ϕcv1
+
+q )γcv1 
+
+> q
+
+(πq)1−γcv1 
+
+> q
+
+}×... × ψvd
+
+cvd
+
+Y
+
+q:vq =vd
+
+{(ϕcvd
+
+q )γcvdq (πq)1−γcvdq }
+
+As, 
+
+nX
+
+k=1 
+
+mX
+
+j=1 
+
+akbj =
+
+nX
+
+k=1 
+
+ak
+
+! 
+
+mX
+
+j=1 
+
+bj
+
+ ,
+
+we have, 
+
+P (x.p 1 , x .q 1 , . . . , x .q 2 |ϕ, ψ, ξ ) = 
+
+Cvp 1
+
+X
+
+cvp 1 =1 
+
+ψvp1
+
+cvp 1 {(ϕcvp 1
+
+p1 )γcvp 1 
+
+> p1
+
+(πp1 )1−γcvp 1 
+
+> p1
+
+}
+
+Cv1
+
+X
+
+cv1 =1 
+
+. . . 
+
+Cvd
+
+X
+
+cvd =1 
+
+ψv1
+
+cv1
+
+Y
+
+q:vq =v1
+
+{(ϕcv1
+
+q )γcv1 
+
+> q
+
+(πq)1−γcv1 
+
+> q
+
+} . . . ψ vd
+
+cvd
+
+Y
+
+q:vq =vd
+
+{(ϕcvd
+
+q )γcvdq (πq)1−γcvdq }
+
+= P (x.p 1 |ϕ, ψ, ξ ) × P (x.q 1 , . . . , x .q 2 |ϕ, ψ, ξ )Therefore, xp1 , a representative for any element from {x.p 1 , . . . , x .p 2 }, is independent of {x.q 1 , . . . , x .q 2 }.Independence ⇒ Different views Consider the representative x.p 1 from the set of variables {x.p 1 , . . . , x .p 2 }. Assume that x.p 1 is independent of {x.q 1 , . . . , x .q 2 }. Assume that {v1, . . . , v d} represent the distinct set of values from {vq1 , . . . , v q2 }. Then, 
+
+P (x.p 1 , x .q 1 , . . . , x .q 2 |ϕ, ψ, ξ ) = P (x.p 1 |ϕ, ψ, ξ ) × P (x.q 1 , . . . , x .q 2 |ϕ, ψ, ξ )=
+
+Cvp 1
+
+X
+
+cvp 1 =1 
+
+ψvp1
+
+cvp 1 {(ϕcvp 1
+
+p1 )γcvp 1 
+
+> p1
+
+(πp1 )1−γcvp 1 
+
+> p1
+
+}×
+
+Cv1
+
+X
+
+cv1 =1 
+
+. . . 
+
+Cvd
+
+X
+
+cvd =1 
+
+ψv1
+
+cv1
+
+Y
+
+q:vq =v1
+
+{(ϕcv1
+
+q )γcv1 
+
+> q
+
+(πq)1−γcv1 
+
+> q
+
+} . . . ψ vd
+
+cvd
+
+Y
+
+q:vq =vd
+
+{(ϕcvd
+
+q )γcvq q (πq)1−γcvdq }. (3) Now, assume that one or more variables in {q1, . . . , q 2} are allocated to the same view as p1.Without loss of generality, assume that vp1 = v1. Then, 
+
+P (x.p 1 , x q1 , . . . , x .q 2 |ϕ, ψ, ξ ) = P (x.p 1 |ϕ, ψ, ξ ) × P (x.q 1 , . . . , x .q 2 |ϕ, ψ, ξ )=
+
+C1
+
+X
+
+c1=1 
+
+ψ1
+
+c1 {(ϕc1
+
+p1 )γc1 
+
+> p1
+
+(πp1 )1−γc1 
+
+> p1
+
+}
+
+C1
+
+X
+
+c1=1 
+
+Cv2
+
+X
+
+cv2 =1 
+
+. . . 
+
+Cvd
+
+X
+
+cvd =1 
+
+ψ1
+
+c1
+
+Y
+
+q:vq =1 
+
+{(ϕc1
+
+q )γc1 
+
+> q
+
+(πq)1−γc1 
+
+> q
+
+}×ψv2
+
+cv2
+
+Y
+
+q:vq =v2
+
+{(ϕcv2
+
+q )γcv2 
+
+> q
+
+(πq)1−γcv2 
+
+> q
+
+} × . . . × ψvd
+
+cvd
+
+Y
+
+q:vq =vd
+
+{(ϕcvd
+
+q )γcvdq (πq)1−γcvdq }.
+
+25 For this expression to be equal to (3) in general, we need, 
+
+> C1
+
+X
+
+> c1=1
+
+ψ1 
+
+> c1
+
+{(ϕc1 
+
+> p1
+
+)γc1 
+
+> p1
+
+(πp1 )1−γc1 
+
+> p1
+
+} Y 
+
+> q:vq=1
+
+{(ϕc1 
+
+> q
+
+)γc1 
+
+> q
+
+(πq)1−γc1 
+
+> q
+
+}
+
+=
+
+> C1
+
+X
+
+> c1=1
+
+ψ1 
+
+> c1
+
+{(ϕc1 
+
+> p1
+
+)γc1 
+
+> p1
+
+(πp1 )1−γc1 
+
+> p1
+
+}
+
+> C1
+
+X
+
+> c1=1
+
+ψ1
+
+> c1
+
+Y 
+
+> q:vq=1
+
+{(ϕc1 
+
+> q
+
+)γc1 
+
+> q
+
+(πq)1−γc1 
+
+> q
+
+}
+
+This is not possible as, in general, ψ1
+
+> c1
+
+̸ = ( ψ1 
+
+> c1
+
+)2. As we assumed at the start that x.p 1 is independent of {x.q 1 , . . . , x .q 2 }, it is not possible that one or more variables in {q1, . . . , q 2} are allocated to the same view as p1.
+
+Proof of Proposition 1: As this proof concerns variables within the same view, to simplify the notation, we omit the view indicators where relevant. Assume that only clusters of type Γ 1 and Γ2 exist for variables x.p and x.q that are allocated in the same view. 
+
+P (x.p , x .q ) =
+
+> C
+
+X
+
+> c=1
+
+ψc{(ϕcp)γcp (πp)1−γcp }{ (ϕcq)γcq (πq)1−γcq }
+
+= πp
+
+X
+
+> c∈Γ1
+
+ψcϕcq + πq
+
+X
+
+> c∈Γ2
+
+ψcϕcp.
+
+Also, 
+
+P (x.p )P (x.q ) =
+
+ X
+
+> c∈Γ1
+
+ψcπp + X
+
+> c∈Γ2
+
+ψcϕcp
+
+ ×
+
+ X
+
+> c∈Γ1
+
+ψcϕcq + X
+
+> c∈Γ2
+
+ψcπq
+
+
+
+=
+
+πp
+
+X
+
+> c∈Γ1
+
+ψc
+
+ X
+
+> c∈Γ1
+
+ψcϕcq
+
+ +
+
+πq
+
+X
+
+> c∈Γ2
+
+ψc
+
+ X
+
+> c∈Γ2
+
+ψcϕcp
+
+
+
++
+
+πp
+
+X
+
+> c∈Γ1
+
+ψc
+
+πq
+
+X
+
+> c∈Γ2
+
+ψc
+
+ +
+
+ X
+
+> c∈Γ1
+
+ψcϕcq
+
+ X
+
+> c∈Γ2
+
+ψcϕcp
+
+ .
+
+Therefore, 
+
+P (x.p , x .q ) − P (x.p )P (x.q ) = πp
+
+X
+
+> c∈Γ1
+
+ψcϕcq
+
+1 − X
+
+> c∈Γ1
+
+ψc
+
+ + πq
+
+X
+
+> c∈Γ2
+
+ψcϕcp
+
+1 − X
+
+> c∈Γ2
+
+ψc
+
+
+
+−πpπq
+
+X
+
+> c∈Γ1
+
+ψc
+
+X
+
+> c∈Γ2
+
+ψc −
+
+ X
+
+> c∈Γ1
+
+ψcϕcq
+
+ X
+
+> c∈Γ2
+
+ψcϕcp
+
+
+
+=
+
+πp
+
+X
+
+> c∈Γ2
+
+ψc − X
+
+> c∈Γ2
+
+ψcϕcp
+
+ X
+
+> c∈Γ1
+
+ψcϕcq − πq
+
+X
+
+> c∈Γ1
+
+ψc
+
+ .
+
+26 This is always zero since, as πp(x) = P (x.p = x), 
+
+πp = P (x.p ) = X
+
+> c
+
+ψc(ϕcp)γcp (πp)1−γcp = πp
+
+X
+
+> c∈Γ1
+
+ψc + X
+
+> c∈Γ2
+
+ψcϕcp
+
+⇒ X
+
+> c∈Γ2
+
+ψcϕcp = πp − πp
+
+1 − X
+
+> c∈Γ2
+
+ψc
+
+
+
+⇒ X
+
+> c∈Γ2
+
+ψcϕcp = πp
+
+X
+
+> c∈Γ2
+
+ψc.
+
+Similar calculations hold for x.q . This means that the variables are independent, but this con-tradicts Theorem 2. Therefore, it is impossible to not have a cluster in the Γ 3 or Γ 4 category. The case where only clusters of type Γ 1 or Γ 2 exist can be shown trivially following a similar reasoning to the one above. 
+
+Proof of Theorem 3: As this proof concerns variables within the same view, to simplify the notation, we omit the view indicators where relevant. Consider that, for x.p and x.q , only clusters of type Γ 3 are present within their view v, i.e. γcp = γcq = 1, c = 1 , ..., C , so that, 
+
+P (x.p , x .q ) = X
+
+> c∈Γ3
+
+ψcϕcpϕcq
+
+Now, assume that x.p and x.q are conditionally independent given the other variables in the view. We will show that this is not possible, given the initial condition that only Γ 3-type clusters are present. Denote by ‘ rest ’ the rest of the variables within v. To simplify the notation, and without loss of generality, assume that the rest of the variables are ( x.1, ..., x .r ). Let, 
+
+frest (ϕ, π, c ) = 
+
+
+
+(ϕc
+
+> 1
+
+)γc 
+
+> 1
+
+π1−γc
+
+> 1
+> 1
+
+
+
+× ... ×  (ϕcr)γcr π1−γcr
+
+> r
+
+ .
+
+From the conditional independence assumption, 
+
+P (x.p , x .q |rest ) = P (x.p |rest )P (x.q |rest ) ⇔
+
+P (x.p , x .q , rest ) = P (x.p , rest )P (x.q , rest ) 1
+
+P (rest ) .
+
+This equality translates to, 
+
+> C
+
+X
+
+> c1=1
+
+ψc1 frest (ϕ, π, c 1)ϕc1 
+
+> p
+
+ϕc1 
+
+> q
+
+=
+
+PCc2=1 ψc2 frest (ϕ, π, c 2)ϕc2
+
+> p
+
+  PCc3=1 ψc3 frest (ϕ, π, c 3)ϕc3
+
+> q
+
+PCc4=1 ψc4 frest (ϕ, π, c 4)
+
+⇒
+
+> C
+
+X
+
+> c1=1
+
+ψc1 frest (ϕ, π, c 1)ϕc1 
+
+> p
+
+ϕc1
+
+> q
+
+!
+
+×
+
+> C
+
+X
+
+> c4=1
+
+ψc4 frest (ϕ, π, c 4)
+
+!
+
+27 =
+
+> C
+
+X
+
+> c2=1
+
+ψc2 frest (ϕ, π, c 2)ϕc2
+
+> p
+
+! CX
+
+> c3=1
+
+ψc3 frest (ϕ, π, c 3)ϕc3
+
+> q
+
+!
+
+⇒
+
+> C
+
+X
+
+> c1=1
+> C
+
+X
+
+> c4=1
+
+ψc1 frest (ϕ, π, c 1)ϕc1 
+
+> p
+
+ϕc1 
+
+> q
+
+ψc4 frest (ϕ, π, c 4)=
+
+> Cne
+
+X
+
+> c2=1
+> C
+
+X
+
+> c3=1
+
+ψc2 frest (ϕ, π, c 2)ϕc2 
+
+> p
+
+ψc3 frest (ϕ, π, c 3)ϕc3 
+
+> q
+
+.
+
+This equality does not hold in general, unless ϕ1 
+
+> p
+
+= ... = ϕCp =
+
+P
+
+> ϕcp
+
+
+
+/C , or ϕ1 
+
+> q
+
+= ... = ϕCq =
+
+P
+
+> ϕcq
+
+
+
+/C . This is not possible, because we have assumed that the relevant selection switches are equal to 1, and this implies differences in the cluster-specific x.p probabilities. (Similarly for 
+
+x.q .) 
+
+Proof of Theorem 4: As this proof concerns variables within the same view v, to simplify the notation, we omit the view indicators where relevant. Denote by ‘ rest ’ the rest of the variables within v. Without any loss of generality, assume that the rest of the variables in view v are (x.1, ..., x .r ), and define frest as in the proof for Theorem 3. Assume that only clusters of type Γ 1 and Γ 3 exist. (The proof follows similarly for the assumption that only clusters of type Γ 1 and Γ 2 exist.) Then, conditional independence translates to, 
+
+P (x.p , x .q |rest ) = P (x.p |rest ) × P (x.q |rest )
+
+⇔ P (x.p , x .q , rest ) × P (rest ) = P (x.p , rest ) × P (x.q , rest )
+
+⇔
+
+ X
+
+> c1∈Γ1
+
+ψc1 frest (ϕ, π, c 1)πpϕc1 
+
+> q
+
++ X
+
+> c1∈Γ3
+
+ψc1 frest (ϕ, π, c 1)ϕc1 
+
+> p
+
+ϕc1
+
+> q
+
+
+
+×
+
+ X
+
+> c4∈Γ1
+
+ψc4 frest (ϕ, π, c 4) + X
+
+> c4∈Γ3
+
+ψc4 frest (ϕ, π, c 4)
+
+
+
+=
+
+ X
+
+> c2∈Γ3
+
+ψc2 frest (ϕ, π, c 2)ϕc2 
+
+> p
+
++ X
+
+> c2∈Γ1
+
+ψc2 frest (ϕ, π, c 2)πp
+
+
+
+×
+
+ X
+
+> c3∈Γ1
+
+ψc3 frest (ϕ, π, c 3)ϕc3 
+
+> q
+
++ X
+
+> c3∈Γ3
+
+ψc3 frest (ϕ, π, c 3)ϕc3
+
+> q
+
+
+
+⇔ X
+
+> c1∈Γ1
+
+X
+
+> c4∈Γ1
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)πpϕc1 
+
+> q
+
++ X
+
+> c1∈Γ1
+
+X
+
+> c4∈Γ3
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)πpϕc1
+
+> q
+
++ X
+
+> c1∈Γ3
+
+X
+
+> c4∈Γ1
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)ϕc1 
+
+> p
+
+ϕc1 
+
+> q
+
++ X
+
+> c1∈Γ3
+
+X
+
+> c4∈Γ3
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)ϕc1 
+
+> p
+
+ϕc1
+
+> q
+
+28 = X
+
+> c2∈Γ1
+
+X
+
+> c3∈Γ1
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)πpϕc3 
+
+> q
+
++ X
+
+> c2∈Γ1
+
+X
+
+> c3∈Γ3
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)πpϕc3
+
+> q
+
+X
+
+> c2∈Γ3
+
+X
+
+> c3∈Γ1
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)ϕc2 
+
+> p
+
+ϕc3 
+
+> q
+
++ X
+
+> c2∈Γ3
+
+X
+
+> c3∈Γ3
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)ϕc2 
+
+> p
+
+ϕc3
+
+> q
+
+The expressions before and after the equality are identical, as only the dummy variables c1, c 2, c 3, c 4,used as summation indexes, change. So conditional independence holds. This completes the proof. 
+
+Proof of Theorem 5: As this proof concerns variables within the same view v, to simplify the notation, we omit the view indicators where relevant. Denote by ‘ rest ’ the rest of the variables within v. Without any loss of generality, assume that the rest of the variables in view v are (x.1, ..., x .r ), and define frest as in the proof for Theorem 3. Assume that x.p and x.q in view v are conditionally independent. Allowing for the three types of cluster, conditional independence translates to, 
+
+P (x.p , x .q |rest ) = P (x.p |rest ) × P (x.q |rest )
+
+⇔ P (x.p , x .q , rest ) × P (rest ) = P (x.p , rest ) × P (x.q , rest )
+
+⇔
+
+ X
+
+> c1∈Γ1
+
+ψc1 frest (ϕ, π, c 1)πpϕc1 
+
+> q
+
++ X
+
+> c1∈Γ2
+
+ψc1 frest (ϕ, π, c 1)ϕc1 
+
+> p
+
+πq + X
+
+> c1∈Γ3
+
+ψc1 frest (ϕ, π, c 1)ϕc1 
+
+> p
+
+ϕc1
+
+> q
+
+
+
+× X  
+
+> c4∈Γ1UΓ2UΓ3
+
+ψc4 frest (ϕ, π, c 4)=
+
+ X 
+
+> c2∈Γ2UΓ3
+
+ψc2 frest (ϕ, π, c 2)ϕc2 
+
+> p
+
++ πp
+
+X
+
+> c2∈Γ1
+
+ψc2 frest (ϕ, π, c 2)
+
+
+
+×
+
+ X 
+
+> c3∈Γ1UΓ3
+
+ψc3 frest (ϕ, π, c 3)ϕc3 
+
+> q
+
++ πp
+
+X
+
+> c3∈Γ2
+
+ψc3 frest (ϕ, π, c 3)
+
+
+
+⇔ X
+
+> c1∈Γ1
+
+X
+
+> c4∈Γ1
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)πpϕc1 
+
+> q
+
++ X
+
+> c1∈Γ1
+
+X
+
+> c4∈Γ2
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)πpϕc1
+
+> q
+
++ X
+
+> c1∈Γ1
+
+X
+
+> c4∈Γ3
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)πpϕc1 
+
+> q
+
++ X
+
+> c1∈Γ2
+
+X
+
+> c4∈Γ1
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)ϕc1 
+
+> p
+
+πq
+
++ X
+
+> c1∈Γ2
+
+X
+
+> c4∈Γ2
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)ϕc1 
+
+> p
+
+πq+ X
+
+> c1∈Γ2
+
+X
+
+> c4∈Γ3
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)ϕc1 
+
+> p
+
+πq
+
++ X
+
+> c1∈Γ3
+
+X
+
+> c4∈Γ1
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)ϕc1 
+
+> p
+
+ϕc1 
+
+> q
+
++ X
+
+> c1∈Γ3
+
+X
+
+> c4∈Γ2
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)ϕc1 
+
+> p
+
+ϕc1
+
+> q
+
++ X
+
+> c1∈Γ3
+
+X
+
+> c4∈Γ3
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)ϕc1 
+
+> p
+
+ϕc1
+
+> q
+
+29 = X
+
+c2∈Γ1
+
+X
+
+c3∈Γ1
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)πpϕc3
+
+q + X
+
+c2∈Γ1
+
+X
+
+c3∈Γ2
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)πpπq
+
++ X
+
+c2∈Γ1
+
+X
+
+c3∈Γ3
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)πpϕc3
+
+q + X
+
+c2∈Γ2
+
+X
+
+c3∈Γ1
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)ϕc2
+
+p ϕc3
+
+q
+
++ X
+
+c2∈Γ2
+
+X
+
+c3∈Γ2
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)ϕc2
+
+p πq+ X
+
+c2∈Γ2
+
+X
+
+c3∈Γ3
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)ϕc1
+
+p ϕc3
+
+q
+
++ X
+
+c2∈Γ3
+
+X
+
+c3∈Γ1
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)ϕc2
+
+p ϕc3
+
+q + X
+
+c2∈Γ3
+
+X
+
+c3∈Γ2
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)ϕc2
+
+p πq
+
++ X
+
+c2∈Γ3
+
+X
+
+c3∈Γ3
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)ϕc2
+
+p ϕc3
+
+q
+
+⇔ X
+
+c1∈Γ1
+
+X
+
+c4∈Γ2
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)πpϕc1
+
+q + X
+
+c1∈Γ2
+
+X
+
+c4∈Γ1
+
+ψc1 ψc4 frest (ϕ, π, c 1)frest (ϕ, π, c 4)ϕc1
+
+p πq
+
+= X
+
+c2∈Γ1
+
+X
+
+c3∈Γ2
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)πpπq + X
+
+c2∈Γ2
+
+X
+
+c3∈Γ1
+
+ψc2 ψc3 frest (ϕ, π, c 2)frest (ϕ, π, c 3)ϕc2
+
+p ϕc3
+
+q (4) Conditional independence holds when (4) holds. This translates to either, 
+
+X
+
+c1∈Γ1
+
+ψc1 frest (ϕ, π, c 1)ϕc1
+
+q = X
+
+c2∈Γ1
+
+ψc2 frest (ϕ, π, c 2)πq
+
+or X
+
+c4∈Γ2
+
+ψc4 frest (ϕ, π, c 4)πp = X
+
+c2∈Γ2
+
+ψc2 frest (ϕ, π, c 2)ϕc2
+
+p .
+
+This can be written as, 
+
+ X
+
+c1∈Γ1
+
+ψc1 frest (ϕ, π, c 1)( ϕcq − πq)
+
+ ×
+
+ X
+
+c4∈Γ2
+
+ψc4 frest (ϕ, π, c 4)( πp − ϕcp)
+
+ = 0 .
+
+When the equation above holds, then conditional independence holds. This proves Theorem 5, after we replace the dummy c4 with c2.30

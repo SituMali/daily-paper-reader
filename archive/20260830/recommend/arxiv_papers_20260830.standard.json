@@ -1,0 +1,198 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-30T19:32:47.996539+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.26790v1",
+      "source": "arxiv",
+      "title": "Integrating Network Psychometrics and LLMs: The Ising-Embeddings-Model applied to Reliability Auditing",
+      "abstract": "Scoring consistency for constructed-response items in large-scale assessments is typically estimated through double-scoring, which uses small samples and assumes independence among responses. We present an integrated framework combining network psychometrics with the Linguistic-Integrated Reliability Audit (LiRA) via a modified Ising model. The model defines a joint distribution over binary correctness labels with pairwise interactions set to the cosine similarity of sentence embeddings and a global bias parameter for item difficulty. LiRA's weighted majority voting over semantic neighborhoods is shown to approximate the conditional logistic distributions of this Ising model. The parametric framework supports benchmark score generation, uncertainty quantification, and missing label imputation; parameters are estimated by maximum pseudo-likelihood. The approach uses the full dataset without requiring extensive double-scoring, accounts for semantic dependencies, and provides diagnostics for rater inconsistencies. The integration of LiRA's scalable methodology with a probabilistic graphical model offers a comprehensive tool for reliability assessment in international assessments such as PIRLS, PISA, and TIMSS.",
+      "authors": [
+        "Matthias von Davier"
+      ],
+      "primary_category": "stat.AP",
+      "categories": [
+        "stat.AP"
+      ],
+      "published": "2026-08-27T08:20:30+00:00",
+      "link": "https://arxiv.org/pdf/2608.26790v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Integrates network psychometrics (Ising model) with LLM embeddings; directly relevant to symptom-level network analysis methods",
+      "llm_evidence_cn": "将网络心理测量（Ising模型）与LLM嵌入相结合，与症状级网络分析方法直接相关",
+      "llm_evidence": "将网络心理测量（Ising模型）与LLM嵌入相结合，与症状级网络分析方法直接相关",
+      "canonical_evidence": "将网络心理测量（Ising模型）与LLM嵌入相结合，与症状级网络分析方法直接相关",
+      "llm_tldr_en": "Presents an integrated framework combining network psychometrics with LLMs via a modified Ising model, applied to reliability auditing. LiRA's weighted voting approximates the model, offering a parametric foundation for network analysis and transfer to symptom networks.",
+      "llm_tldr_cn": "该论文提出一种将网络心理测量与大型语言模型相结合的框架，采用修正的Ising模型为二值正确性标签建模，其中成对交互由句子嵌入的余弦相似度决定，全局偏置代表题目难度。研究表明LiRA的加权多数投票可近似该Ising模型的条件逻辑分布，从而为信度审计提供参数化基准。该方法虽用于评估评分一致性，但其网络心理测量思路可迁移至症状级网络分析，为抑郁症状关联建模提供新工具。",
+      "llm_tldr": "该论文提出一种将网络心理测量与大型语言模型相结合的框架，采用修正的Ising模型为二值正确性标签建模，其中成对交互由句子嵌入的余弦相似度决定，全局偏置代表题目难度。研究表明LiRA的加权多数投票可近似该Ising模型的条件逻辑分布，从而为信度审计提供参数化基准。该方法虽用于评估评分一致性，但其网络心理测量思路可迁移至症状级网络分析，为抑郁症状关联建模提供新工具。",
+      "llm_tags": [
+        "query:dep-support"
+      ],
+      "matched_query_tag": "query:dep-support",
+      "matched_query_text": "network approach to analyzing symptom-level associations in psychopathology",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.21868v1",
+      "source": "arxiv",
+      "title": "HiMA-MDD: A Hierarchical Multi-Agent Harness for Interpretable Multimodal Depression Detection in Clinical Interviews",
+      "abstract": "Depression assessment from multimodal clinical interviews requires integrating dispersed evidence from multiple symptoms into a coherent PHQ-8 profile. This process is hierarchical: relevant evidence is often sparse and context-dependent within local question-answer exchanges, multiple exchanges jointly support symptom-level judgments, and the final assessment depends on the coherence of the complete symptom profile. Existing LLM systems either process interviews holistically or distribute work across generic agent roles; neither design necessarily provides an explicit orchestration mechanism that coordinates evidence access, item-score authority, bounded feedback, and state recording across these levels. To address this gap, we introduce HiMA-MDD, a hierarchical multi-agent harness that aligns this assessment hierarchy with three agent layers. After non-agentic preprocessing constructs context-preserving multimodal QA units, Layer 1 identifies candidate QA-to-item relations and supports bounded item-grounded evidence routing. Layer 2 assigns symptom groups to operational factor specialists, with one specialist responsible for each provisional item score. Layer 3 audits the complete provisional profile, requests at most one round of targeted revision, and reconstructs the verified PHQ-8 profile. This layered design naturally yields a Hierarchical Evidence Trace, preserves all intermediate evidence, judgments, and revisions for auditability. The final item scores then deterministically produce the total score and screening decision. Using Qwen2.5-72B-Instruct as the harness backbone, our experiments on E-DAIC demonstrate that HiMA-MDD outperforms the compared state-of-the-art methods.",
+      "authors": [
+        "Ao Chen",
+        "Xiaojiang Peng"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-22T09:26:42+00:00",
+      "link": "https://arxiv.org/pdf/2608.21868v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Depression detection from multimodal clinical interviews; directly relevant to depressive disorder but not specifically older adults or atypical features.",
+      "llm_evidence_cn": "从多模态临床访谈进行抑郁检测；直接相关于抑郁症但未专门针对老年或非典型特征。",
+      "llm_evidence": "从多模态临床访谈进行抑郁检测；直接相关于抑郁症但未专门针对老年或非典型特征。",
+      "canonical_evidence": "从多模态临床访谈进行抑郁检测；直接相关于抑郁症但未专门针对老年或非典型特征。",
+      "llm_tldr_en": "HiMA-MDD presents a hierarchical multi-agent system that coordinates evidence access, item-score authority, and state recording to interpretably map multimodal clinical interviews to a PHQ-8 depression profile.",
+      "llm_tldr_cn": "临床访谈中的抑郁评估需要将分散的跨模态信息整合为PHQ-8画像，但现有LLM系统缺乏层次化编排。HiMA-MDD构建层次化多智能体框架，显式协调证据获取、条目评分与状态记录，实现可解释的多模态抑郁检测。该方法在抑郁症状评估上优于通用agent方案，可望为老年抑郁症的临床量化评估提供可迁移技术，但未涉及老年或非典型特征。",
+      "llm_tldr": "临床访谈中的抑郁评估需要将分散的跨模态信息整合为PHQ-8画像，但现有LLM系统缺乏层次化编排。HiMA-MDD构建层次化多智能体框架，显式协调证据获取、条目评分与状态记录，实现可解释的多模态抑郁检测。该方法在抑郁症状评估上优于通用agent方案，可望为老年抑郁症的临床量化评估提供可迁移技术，但未涉及老年或非典型特征。",
+      "llm_tags": [
+        "query:dep-support"
+      ],
+      "matched_query_tag": "query:dep-support",
+      "matched_query_text": "depressive disorder in older adults with atypical features",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.26885v1",
+      "source": "arxiv",
+      "title": "Evaluating human and LLM screening workflows in a conceptually complex scoping review: Recall--workload trade-offs and run-to-run consistency",
+      "abstract": "Background. Large language models (LLMs) are increasingly used for screening in evidence synthesis, where false negatives can remove relevant studies before full-text assessment. We compared human and LLM title-and-abstract screening workflows in a preregistered study embedded in a conceptually complex scoping review.   Methods. After a conservative title-only screen, 1,131 records were screened by one review lead, four trained assistants screening non-overlapping subsets, and seven complete LLM runs using different models and processing configurations, including a nominally identical repeat run. We compared retained workload, operational recall against 316 verified eligible records, agreement, run-to-run consistency, and procedural burden. Because eligibility was verified only for records advanced and assessed in the parent review, recall estimates were operational.   Results. No workflow recovered all verified eligible records. The human workflows and two GPT-5.4 file-batch runs retained 42.2-45.0% of records while achieving 82.3-82.9% recall. Gemini 3.1 file batches achieved the highest recall (83.9%) but retained 56.7% of records. All-at-once configurations recovered fewer eligible records than corresponding file-batch configurations. Two nominally identical GPT-5.4 file-batch runs agreed on 91.7% of records but differed on 94 records, including 29 verified eligible records retained by only one run.   Discussion. LLM screening performance depended on the implemented workflow, not model identity alone. Processing configuration, workload, record-level variation, and human-LLM decision integration are therefore substantive properties of deployed systems. For high-recall tasks, LLMs are better suited to validated, auditable, human-supervised workflows than autonomous exclusion.",
+      "authors": [
+        "Nikol Figalová",
+        "Lynn Huestegge",
+        "Anne Böckler-Raettig"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.HC",
+        "cs.SE"
+      ],
+      "published": "2026-08-27T09:42:39+00:00",
+      "link": "https://arxiv.org/pdf/2608.26885v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Evaluates human vs LLM screening workflows for scoping reviews, enabling efficient literature search on complex topics",
+      "llm_evidence_cn": "评估人类与LLM筛选工作流用于范围综述，有助于复杂主题的高效文献检索",
+      "llm_evidence": "评估人类与LLM筛选工作流用于范围综述，有助于复杂主题的高效文献检索",
+      "canonical_evidence": "评估人类与LLM筛选工作流用于范围综述，有助于复杂主题的高效文献检索",
+      "llm_tldr_en": "This paper compares human and LLM-based screening workflows in a scoping review, measuring recall and workload trade-offs and consistency. It provides a framework for evidence synthesis screening that can improve recall in complex conceptual reviews.",
+      "llm_tldr_cn": "本文针对范围综述中复杂概念的标题摘要筛选，提出系统评估人类与LLM筛查工作流的方法。研究记录了多轮LLM与人工筛选的保留工作量和召回率，并检验了重复运行的稳定性。结果显示LLM能在降低筛选负担的情况下达到较高召回率，但存在运行间波动。该方法为老年抑郁非典型症状、社会支持等复杂主题的高效文献检索与持续追踪提供了实证依据。",
+      "llm_tldr": "本文针对范围综述中复杂概念的标题摘要筛选，提出系统评估人类与LLM筛查工作流的方法。研究记录了多轮LLM与人工筛选的保留工作量和召回率，并检验了重复运行的稳定性。结果显示LLM能在降低筛选负担的情况下达到较高召回率，但存在运行间波动。该方法为老年抑郁非典型症状、社会支持等复杂主题的高效文献检索与持续追踪提供了实证依据。",
+      "llm_tags": [
+        "query:dep-support:composite"
+      ],
+      "matched_query_tag": "query:dep-support:composite",
+      "matched_query_text": "Papers central to 请帮我查找并持续追踪有关老年抑郁非典型症状（认知衰退、睡眠障碍、运动迟缓、躯体症状、躯体衰弱等）相关文献、老年人社会支持相关研究文献以及社会支持与老年抑郁非典型症状间关联的相关文献，如果有网络分析的研究更好, especially work that connects or combines: depressive disorder in older adults with atypical features; non-typical depressive manifestations including cognitive, sleep, motor, somatic, and frailty signs; cognitive impairment or decline associated with geriatric depression; physical pain and somatic complaints in older adults with depression; social support as a protective factor against depression in late life; network approach to analyzing symptom-level associations in psychopathology; investigate atypical symptoms of late life depression including cognitive decline, sleep disturbance, psychomotor retardation, somatic symptoms, and physical frailty; explore the association between social support and depressive symptoms in elderly populations; identify network analysis studies that examine relationships between social support and atypical depressive symptoms in late life.",
+      "matched_requirement_id": "req-composite-dep-support",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.22073v1",
+      "source": "arxiv",
+      "title": "A mathematical model for depression and resilience",
+      "abstract": "A basic dynamical model for (clinical) depression is presented to describe the time evolution of two coupled states: a resilience level and a depression symptom. The resilience level can also be interpreted in terms of the memory of past symptoms. The model consists of a system of two coupled first order differential equations without free parameters that qualitatively captures different courses of illness, without the overhead of a derivation from neuroscientific first principles. A comprehensive mathematical analysis of the model is provided, including equilibria, stability properties, and monotonicity. The model can reproduce chronic, delayed, recovery, and resilience scenarios that are prominent in the literature, as well as scenarios such as improvement from pre-existing conditions, burnout from low-grade adversity, or isolated and recurrent depressive episodes. Supplementary to the manuscript are computational tools to replicate the figures and, without prior mathematical or programming skills, to experiment with the model interactively in the web browser (at https://rsmodel.org/).",
+      "authors": [
+        "Björn S. Rüffer",
+        "Michael Schönlein"
+      ],
+      "primary_category": "math.DS",
+      "categories": [
+        "math.DS"
+      ],
+      "published": "2026-08-22T18:34:46+00:00",
+      "link": "https://arxiv.org/pdf/2608.22073v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "A dynamical systems model of depression and resilience provides a transferable framework for studying protective factors like social support",
+      "llm_evidence_cn": "提出抑郁与心理韧性的动力系统模型，为研究社会支持等保护因素提供可迁移的建模框架",
+      "llm_evidence": "提出抑郁与心理韧性的动力系统模型，为研究社会支持等保护因素提供可迁移的建模框架",
+      "canonical_evidence": "提出抑郁与心理韧性的动力系统模型，为研究社会支持等保护因素提供可迁移的建模框架",
+      "llm_tldr_en": "This paper presents a parameter-free dynamical model coupling resilience and depression symptoms, capable of reproducing chronic, delayed, recovery, and resilience courses, offering a transferable mathematical framework for depression research.",
+      "llm_tldr_cn": "该研究建立了一个描述抑郁症状与心理韧性（对既往症状的记忆）相互作用的动力系统模型，采用两个耦合的一阶常微分方程且无自由参数，能定性再现慢性、延迟、康复和韧性等多种病程。模型还刻画了从既有状态改善等场景，并通过均衡点、稳定性与单调性分析提供完整的数学论证。该模型为理解抑郁的弹性保护机制提供了一种可迁移的数学框架，虽未针对老年人群或网络分析，但对相关抑郁研究具有方法论上的桥梁价值。",
+      "llm_tldr": "该研究建立了一个描述抑郁症状与心理韧性（对既往症状的记忆）相互作用的动力系统模型，采用两个耦合的一阶常微分方程且无自由参数，能定性再现慢性、延迟、康复和韧性等多种病程。模型还刻画了从既有状态改善等场景，并通过均衡点、稳定性与单调性分析提供完整的数学论证。该模型为理解抑郁的弹性保护机制提供了一种可迁移的数学框架，虽未针对老年人群或网络分析，但对相关抑郁研究具有方法论上的桥梁价值。",
+      "llm_tags": [
+        "query:dep-support:composite"
+      ],
+      "matched_query_tag": "query:dep-support:composite",
+      "matched_query_text": "Papers central to 请帮我查找并持续追踪有关老年抑郁非典型症状（认知衰退、睡眠障碍、运动迟缓、躯体症状、躯体衰弱等）相关文献、老年人社会支持相关研究文献以及社会支持与老年抑郁非典型症状间关联的相关文献，如果有网络分析的研究更好, especially work that connects or combines: depressive disorder in older adults with atypical features; non-typical depressive manifestations including cognitive, sleep, motor, somatic, and frailty signs; cognitive impairment or decline associated with geriatric depression; physical pain and somatic complaints in older adults with depression; social support as a protective factor against depression in late life; network approach to analyzing symptom-level associations in psychopathology; investigate atypical symptoms of late life depression including cognitive decline, sleep disturbance, psychomotor retardation, somatic symptoms, and physical frailty; explore the association between social support and depressive symptoms in elderly populations; identify network analysis studies that examine relationships between social support and atypical depressive symptoms in late life.",
+      "matched_requirement_id": "req-composite-dep-support",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.22375v1",
+      "source": "arxiv",
+      "title": "Exploring complex dependence structures using Bayesian bi-clustering and log-linear graphical modelling",
+      "abstract": "Bayesian partitioning is utilised simultaneously on subjects and categorical variables to reveal complex dependence structures. Clusters of variables are referred to as views. Variable selection highlights the variables that drive the clustering of the subjects within each view. We derive theoretical results on the relation between the variables' dependence structure and the inferences derived from bi-clustering. The results relate to marginal independence and conditional independence. Using simulated and real data, we demonstrate the applicability of bi-clustering results in assisting log-linear graphical model determination, leading to the efficient exploration of typically vast model spaces. This work sheds light on the relation between two very different but equally popular Bayesian approaches; mixture modelling, that benefits from a large number of variables, and graphical log-linear modelling, which describes explicitly the variables' dependence structure and allows to evaluate the uncertainty associated with model determination.",
+      "authors": [
+        "Michail Papathomas"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME"
+      ],
+      "published": "2026-08-23T11:45:30+00:00",
+      "link": "https://arxiv.org/pdf/2608.22375v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Bayesian bi-clustering and log-linear graphical models for uncovering dependence structures among categorical variables, transferable to symptom network analysis",
+      "llm_evidence_cn": "提出贝叶斯双聚类与对数线性图建模方法，用于揭示分类变量间的依赖结构，可应用于症状网络分析",
+      "llm_evidence": "提出贝叶斯双聚类与对数线性图建模方法，用于揭示分类变量间的依赖结构，可应用于症状网络分析",
+      "canonical_evidence": "提出贝叶斯双聚类与对数线性图建模方法，用于揭示分类变量间的依赖结构，可应用于症状网络分析",
+      "llm_tldr_en": "This paper introduces a Bayesian bi-clustering approach to discover groups of variables (views) and dependence structures, linked to graphical models. It enables efficient exploration of complex categorical data, potentially useful for symptom-level network analysis.",
+      "llm_tldr_cn": "该论文提出基于贝叶斯划分的双聚类方法，同时对对象和分类变量进行聚类，以揭示变量间复杂依赖关系，并利用变量选择识别每个视图中的驱动变量。理论结果阐明了双聚类推断与边际独立、条件独立的关系。通过模拟和真实数据展示了其在辅助对数线性图模型确定方面的有效性，为从高维多分类数据中构建依赖网络提供了新工具。",
+      "llm_tldr": "该论文提出基于贝叶斯划分的双聚类方法，同时对对象和分类变量进行聚类，以揭示变量间复杂依赖关系，并利用变量选择识别每个视图中的驱动变量。理论结果阐明了双聚类推断与边际独立、条件独立的关系。通过模拟和真实数据展示了其在辅助对数线性图模型确定方面的有效性，为从高维多分类数据中构建依赖网络提供了新工具。",
+      "llm_tags": [
+        "query:dep-support"
+      ],
+      "matched_query_tag": "query:dep-support",
+      "matched_query_text": "network approach to analyzing symptom-level associations in psychopathology",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
