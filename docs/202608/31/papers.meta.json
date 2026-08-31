@@ -1,0 +1,39 @@
+{
+  "label": "2026-08-31",
+  "date": "2026-08-31",
+  "generated_at": "2026-08-31T19:23:36",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202608/31/2608.22901v1-data-shared-neighbourhood-selection-for-multi-condition-network-inference",
+      "section": "quick",
+      "title_en": "Data Shared Neighbourhood Selection for multi-condition network inference",
+      "authors": "Blanche Francheterre, Ruben Colindres Zuehlke, Vivian Viallon, Marc Chadeau-Hyam, Julien Chiquet",
+      "date": "2026-08-24",
+      "pdf": "https://arxiv.org/pdf/2608.22901v1",
+      "score": "7.0",
+      "evidence": "面向保留与改变的条件关联结构的联合网络推断方法，可迁移至精神病理学症状网络比较",
+      "tldr": "针对多条件下分子关联网络推断，现有方法难以同时估计共享与条件特异性结构。本文提出DSNS，结合邻居选择与Data Shared Lasso，将系数分解为共享和稀疏偏差。模拟显示多条件下性能优于现有方法且计算更快。应用于肺癌蛋白组数据，发现CDCP1和IL10等差异关联。",
+      "tags": "query:dep-support",
+      "abstract_en": "External stresses may affect both the circulating levels of specific biomarkers and disturb the correlation structures across molecular entities. The contribution of both types of dysregulations to the subsequent risk of disease are yet to be evaluated. We propose Data Shared Neighbourhood Selection (DSNS), a joint network inference method for estimating preserved and altered conditional association structures across related conditions. DSNS combines neighbourhood selection with the Data Shared Lasso decomposition, representing each nodewise regression coefficient as the sum of a shared component and a sparse condition-specific deviation. This provides an interpretable decomposition of molecular associations while retaining the computational advantages of neighbourhood selection. We also adapt the Stability Approach to Regularisation Selection (StARS) to this two-parameter joint estimation setting. In simulations involving sparse, hub-based and rewiring perturbation mechanisms, DSNS matched the best joint estimation methods for two conditions and outperformed them as the number of conditions increased, while remaining substantially faster than graphical lasso frameworks. Applied to prediagnostic inflammatory proteomic data from future lung cancer cases and matched controls in the EPIC-Italy and NOWAC cohorts, DSNS highlighted altered associations involving CDCP1 and IL10, two established lung cancer risk markers, as well as differential associations involving proteins not selected by risk models.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/31/2608.22826v1-evaluating-cross-encoders-for-semantic-similarity-assessment-in-psychological-questionnaiers",
+      "section": "quick",
+      "title_en": "Evaluating cross-encoders for semantic similarity assessment in psychological questionnaiers",
+      "authors": "Isabella Kainz, Karin Labek, Roberto Viviani",
+      "date": "2026-08-24",
+      "pdf": "https://arxiv.org/pdf/2608.22826v1",
+      "score": "6.0",
+      "evidence": "检测问卷条目语义重叠的方法，与精神病理网络分析相关",
+      "tldr": "评分量表间相关常被解读为效度证据，但可能混杂项目措辞的语义相似性。本研究考察cross-encoder架构是否适合检测问卷项目的语义重叠，基于NEO-FFI与PID5BF+M数据（N=502），分析12个cross-encoder模型的语义距离与实证项目相关的关联，并与bi-encoders比较。结果显示在三分之二模型中语义距离与绝对相关显著负相关，R2最高达.37，但cross-encoders未一致胜过bi-encoders。结论认为语义成分的预测更多取决于模型训练特征而非编码器架构。",
+      "tags": "query:dep-support",
+      "abstract_en": "Correlations between rating scales are commonly interpreted as evidence of convergent or discriminant validity, yet prior studies suggest that part of these associations may be attributable to semantic similarity between item wordings rather than to genuine construct overlap alone. Building on this evidence, largely derived from bi-encoders, the present study explores whether cross-encoders, which jointly encode item pairs, offer a suitable technique for detecting semantic overlapping between questionnaire items. Using response data from the NEO-FFI and the PID5BF+M (N = 502, Labek et al., 2024), we examined whether cross-encoder-derived semantic similarity estimates are associated with empirical item correlations, and whether cross-encoders offer a systematic advantage over bi-encoders. Across twelve cross-encoder models, semantic distance was consistently negatively associated with absolute item correlations, reaching statistical significance in two-thirds of the models, with R2 values of up to .37. However, cross-encoders did not consistently outperform bi-encoders based on the same base models. These findings extend prior evidence for semantic components in scale intercorrelations to cross-encoder architectures, while indicating that predictive value depends more on model-specific training characteristics than on encoder architecture itself.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

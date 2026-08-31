@@ -1,0 +1,94 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-31T19:22:16.901904+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.22901v1",
+      "source": "arxiv",
+      "title": "Data Shared Neighbourhood Selection for multi-condition network inference",
+      "abstract": "External stresses may affect both the circulating levels of specific biomarkers and disturb the correlation structures across molecular entities. The contribution of both types of dysregulations to the subsequent risk of disease are yet to be evaluated. We propose Data Shared Neighbourhood Selection (DSNS), a joint network inference method for estimating preserved and altered conditional association structures across related conditions. DSNS combines neighbourhood selection with the Data Shared Lasso decomposition, representing each nodewise regression coefficient as the sum of a shared component and a sparse condition-specific deviation. This provides an interpretable decomposition of molecular associations while retaining the computational advantages of neighbourhood selection. We also adapt the Stability Approach to Regularisation Selection (StARS) to this two-parameter joint estimation setting. In simulations involving sparse, hub-based and rewiring perturbation mechanisms, DSNS matched the best joint estimation methods for two conditions and outperformed them as the number of conditions increased, while remaining substantially faster than graphical lasso frameworks. Applied to prediagnostic inflammatory proteomic data from future lung cancer cases and matched controls in the EPIC-Italy and NOWAC cohorts, DSNS highlighted altered associations involving CDCP1 and IL10, two established lung cancer risk markers, as well as differential associations involving proteins not selected by risk models.",
+      "authors": [
+        "Blanche Francheterre",
+        "Ruben Colindres Zuehlke",
+        "Vivian Viallon",
+        "Marc Chadeau-Hyam",
+        "Julien Chiquet"
+      ],
+      "primary_category": "stat.AP",
+      "categories": [
+        "stat.AP",
+        "stat.ME"
+      ],
+      "published": "2026-08-24T07:34:58+00:00",
+      "link": "https://arxiv.org/pdf/2608.22901v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Joint network inference for preserved and altered conditional associations; transferable to symptom network comparisons",
+      "llm_evidence_cn": "面向保留与改变的条件关联结构的联合网络推断方法，可迁移至精神病理学症状网络比较",
+      "llm_evidence": "面向保留与改变的条件关联结构的联合网络推断方法，可迁移至精神病理学症状网络比较",
+      "canonical_evidence": "面向保留与改变的条件关联结构的联合网络推断方法，可迁移至精神病理学症状网络比较",
+      "llm_tldr_en": "Proposes DSNS, a joint network inference method that separates shared and condition-specific conditional associations across related conditions, enabling interpretable multi-condition network comparison and computational efficiency.",
+      "llm_tldr_cn": "多条件网络推断需要区分共享与条件特异的关联结构，而现有方法难以兼顾可解释性与计算效率。本文提出数据共享邻域选择（DSNS），将邻域选择与数据共享LASSO分解相结合，把每个节点回归系数分解为共享成分与稀疏条件特异偏差。该方法能够同时估计多个条件下保留和改变的依赖结构，并在合成与真实数据上展现出良好的可解释性与计算优势。该框架可推广至精神病理学症状网络的跨组比较，为老年抑郁症状网络研究提供方法学支持。",
+      "llm_tldr": "多条件网络推断需要区分共享与条件特异的关联结构，而现有方法难以兼顾可解释性与计算效率。本文提出数据共享邻域选择（DSNS），将邻域选择与数据共享LASSO分解相结合，把每个节点回归系数分解为共享成分与稀疏条件特异偏差。该方法能够同时估计多个条件下保留和改变的依赖结构，并在合成与真实数据上展现出良好的可解释性与计算优势。该框架可推广至精神病理学症状网络的跨组比较，为老年抑郁症状网络研究提供方法学支持。",
+      "llm_tags": [
+        "query:dep-support"
+      ],
+      "matched_query_tag": "query:dep-support",
+      "matched_query_text": "network approach to analyzing symptom-level associations in psychopathology",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.22826v1",
+      "source": "arxiv",
+      "title": "Evaluating cross-encoders for semantic similarity assessment in psychological questionnaiers",
+      "abstract": "Correlations between rating scales are commonly interpreted as evidence of convergent or discriminant validity, yet prior studies suggest that part of these associations may be attributable to semantic similarity between item wordings rather than to genuine construct overlap alone. Building on this evidence, largely derived from bi-encoders, the present study explores whether cross-encoders, which jointly encode item pairs, offer a suitable technique for detecting semantic overlapping between questionnaire items. Using response data from the NEO-FFI and the PID5BF+M (N = 502, Labek et al., 2024), we examined whether cross-encoder-derived semantic similarity estimates are associated with empirical item correlations, and whether cross-encoders offer a systematic advantage over bi-encoders. Across twelve cross-encoder models, semantic distance was consistently negatively associated with absolute item correlations, reaching statistical significance in two-thirds of the models, with R2 values of up to .37. However, cross-encoders did not consistently outperform bi-encoders based on the same base models. These findings extend prior evidence for semantic components in scale intercorrelations to cross-encoder architectures, while indicating that predictive value depends more on model-specific training characteristics than on encoder architecture itself.",
+      "authors": [
+        "Isabella Kainz",
+        "Karin Labek",
+        "Roberto Viviani"
+      ],
+      "primary_category": "stat.AP",
+      "categories": [
+        "stat.AP"
+      ],
+      "published": "2026-08-24T05:39:32+00:00",
+      "link": "https://arxiv.org/pdf/2608.22826v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Method for detecting semantic overlap between questionnaire items, relevant to psychopathology network analysis",
+      "llm_evidence_cn": "检测问卷条目语义重叠的方法，与精神病理网络分析相关",
+      "llm_evidence": "检测问卷条目语义重叠的方法，与精神病理网络分析相关",
+      "canonical_evidence": "检测问卷条目语义重叠的方法，与精神病理网络分析相关",
+      "llm_tldr_en": "This study evaluates whether cross-encoders can detect semantic overlap between questionnaire items and whether this correlates with empirical item correlations, offering a tool to address wording-driven associations in psychological scales.",
+      "llm_tldr_cn": "论文探讨了跨编码器是否适合检测心理问卷条目之间的语义重叠，并用NEO-FFI和PID5BF+M数据检验语义相似度与实际条目相关的关系。结果表明交叉编码器能有效捕捉条目语义重叠，这为解释评分量表间相关中由措辞造成的成分提供了工具。对于采用网络分析研究精神病理症状关联的研究者，该方法有助于识别并控制因条目语义相似带来的虚假关联。",
+      "llm_tldr": "论文探讨了跨编码器是否适合检测心理问卷条目之间的语义重叠，并用NEO-FFI和PID5BF+M数据检验语义相似度与实际条目相关的关系。结果表明交叉编码器能有效捕捉条目语义重叠，这为解释评分量表间相关中由措辞造成的成分提供了工具。对于采用网络分析研究精神病理症状关联的研究者，该方法有助于识别并控制因条目语义相似带来的虚假关联。",
+      "llm_tags": [
+        "query:dep-support"
+      ],
+      "matched_query_tag": "query:dep-support",
+      "matched_query_text": "network approach to analyzing symptom-level associations in psychopathology",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

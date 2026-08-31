@@ -1,0 +1,41 @@
+{
+  "date": "20260831",
+  "date_label": "",
+  "generated_at": "2026-08-31 19:23:34 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2608.22901v1",
+      "route": "202608/31/2608.22901v1-data-shared-neighbourhood-selection-for-multi-condition-network-inference",
+      "title": "Data Shared Neighbourhood Selection for multi-condition network inference",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向保留与改变的条件关联结构的联合网络推断方法，可迁移至精神病理学症状网络比较",
+      "first_seen_at": "2026-08-31 19:23:34 UTC",
+      "updated_at": "2026-08-31 19:23:34 UTC"
+    },
+    {
+      "paper_id": "2608.22826v1",
+      "route": "202608/31/2608.22826v1-evaluating-cross-encoders-for-semantic-similarity-assessment-in-psychological-questionnaiers",
+      "title": "Evaluating cross-encoders for semantic similarity assessment in psychological questionnaiers",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "检测问卷条目语义重叠的方法，与精神病理网络分析相关",
+      "first_seen_at": "2026-08-31 19:23:34 UTC",
+      "updated_at": "2026-08-31 19:23:34 UTC"
+    }
+  ]
+}
