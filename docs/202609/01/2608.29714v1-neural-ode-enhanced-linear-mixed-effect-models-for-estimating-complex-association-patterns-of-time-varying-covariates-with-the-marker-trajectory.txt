@@ -1,0 +1,1156 @@
+Title: Neural ODE enhanced linear mixed effect models for estimating complex association patterns of time-varying covariates with the marker trajectory
+
+URL Source: https://arxiv.org/pdf/2608.29714v1
+
+Published Time: Tue, 01 Sep 2026 01:39:15 GMT
+
+Number of Pages: 43
+
+Markdown Content:
+# Neural ODE enhanced linear mixed effect models for estimating complex association patterns of time-varying covariates with the marker trajectory 
+
+## Zhe Aurore Li 1,2 , Quentin Clairon 1,2 , C´ ecilia Samieri 1, Rodolphe Thi´ ebaut 1,2,3 , M´ elanie Prague 1,2,3,* , C´ ecile Proust-Lima 1,*, †
+
+## * Equal contribution 
+
+## †Correspondence: cecile.proust-lima@u-bordeaux.fr 
+
+1Univ. Bordeaux, Inserm, BPH, UMR 1219, 33000 Bordeaux, France 
+
+2INRIA SISTM, 33000 Bordeaux, France 
+
+3Vaccine Research Institute, 94010 Creteil, France September 1, 2026 
+
+Abstract 
+
+Longitudinal cohort studies produce repeated data that enable the assessment of time-varying association patterns between exposures and health outcomes. Classical linear mixed-effects models (LMMs) can accommodate a large variety of association patterns while accounting for the irregularly spaced, partially observed measurement. But they require the analyst to pre-specify the functional form linking the exposure history to the outcome. We propose the Neural ODE-LMM, which embeds a Neural Or-dinary Differential Equation (Neural ODE) within the linear mixed-effects framework: a learned vector field encodes covariate trajectories into a continuous-time latent state that drives both the fixed- and random-effect design, while preserving the standard LMM observation model. This retains classical likelihood-based inference while learn-ing complex, potentially cumulative, covariate effects flexibly. All parameters are esti-mated by maximising a penalised marginal likelihood. To quantify covariate effects, we introduce contrasts of counterfactual predictions that compare the expected outcome under alternative covariate trajectories with variance estimated via the delta method. In simulations, the model recovers both instantaneous and cumulative-burden effects without prior specification of the functional form. Applied to the Trois-Cit´ es (3C) cohort, a population-based study of 7,324 participants, the method reveals trajectory-dependent associations of BMI and fasting glucose with cognitive decline. Neural ordinary differential equations; linear mixed-effects models; longitudinal data; counter-factual predictions; cognitive aging. 
+
+1arXiv:2608.29714v1 [stat.ML] 30 Aug 2026 Fundings 
+
+This work was supported by Inserm through the Exposome Booster Program.. This work was also carried out within project ANR EDyLES (ANR-25-CE36-0150) and the University of Bordeaux’s France 2030 program/RRI PHDS. 
+
+# Acknowledgments 
+
+We are deeply thankful to Christophe Tzourio, Thibault Mura Todesco and Catherine Helmer for the access to 3C data used in Section 5.1. The experiments presented in this paper were carried out using the PlaFRIM, supported by Inria, CNRS, Universit´ e de Bordeaux, Bordeaux INP and Conseil R´ egional d’Aquitaine. Parts of this manuscript were refined with the assistance of Claude (Anthropic) for language editing and clarity improvements. All AI-generated suggestions were reviewed and validated by the authors. The scientific conception, methodological design, analyses and interpretations are entirely the work of the authors. 
+
+Conflict of Interest : None declared. 
+
+# 1 Introduction 
+
+Longitudinal cohort studies are a cornerstone of modern epidemiology, producing repeated measurements on the same individuals at irregular intervals with partial missingness across visits. Leveraging longitudinal cohort data to understand how time-varying exposures shape long-term health outcomes requires both principled statistical inference and flexible repre-sentation of covariate effects, a combination that remains a central methodological challenge. It is particularly acute in life-course epidemiology where an individual’s health status likely reflects not the current exposure profile but the cumulative, dynamic and intricate evolution of risk factors over years (Wang and others , 2016). This is the case in cerebral aging, for in-stance with the association between cardiometabolic risk factors (adiposity, blood pressure, blood glucose and lipid levels) and cognitive trajectory (Wagner and others , 2018). Linear mixed-effects models (LMMs) (Laird and Ware, 1982; Verbeke and Molenberghs, 2000) have long been the workhorse for the repeated data irregularly measured in longitudi-nal studies. Decomposing variability into population-level fixed effects and subject-specific random effects yields interpretable association at population scale despite inter-subject vari-ability, and valid inference under missing-at-random mechanism. The framework nonetheless requires the analyst to pre-determine the structure of association between covariates and out-come, usually limiting them to simple functional forms (e.g., concomitant and independent associations), with the risk of providing misleading conclusions when the mechanisms are much more complicated. Several lines of work have addressed distinct limitations of the LMM. Generalized ad-ditive mixed models (Wood, 2017) relax the linear functional form through smooth splines but require pre-specified interactions and still operate on instantaneous covariate–outcome associations. Functional regression and its mixed-effects extensions (Ramsay and Silverman, 2005; Greven and Scheipl, 2017; Volkmann and others , 2023) treat covariate trajectories as functional objects and estimate their effect nonparametrically, but the model class must 2still be chosen a priori and the approach relies on basis expansions to reconstruct trajecto-ries rather than modelling their temporal dynamics directly. More recently, semi-parametric deep learning extensions of the LMM have replaced or augmented the fixed-effect component with a neural network while preserving the random-effect structure, addressing identifiabil-ity and inference for the parametric coefficients (R¨ ugamer, 2023; Dorigatti and others , 2023) or replacing the fixed- or random-effect predictor entirely with neural network as LMMNN of Simchoni and Rosset (2023) and GNMM of Mandel and others (2023). These methods accommodate interactions and nonlinearity but not accumulation. A separate line of work addresses continuous-time dynamics directly. Neural ODEs (Chen 
+
+and others , 2018) parameterize a latent state by a learned vector field, enabling principled modelling of irregularly sampled sequences. Neural Controlled Differential Equations (Neu-ral CDEs) (Kidger and others , 2020) drive the latent state with an exogenous control path, making the dynamics sensitive to the rate of change of covariates. Unlike mechanistic ODE models, in which the vector field encodes a known biological or physical mechanism, here Neural ODEs or Neural CDEs is a flexible nonparametric function learned entirely from data. Several works have incorporated random effects into the Neural ODE framework to capture inter-individual variability (Rubanova and others , 2019; Nazarovs and others , 2021; Br¨ am 
+
+and others , 2025). These approaches, however, have been designed for prediction rather than for understanding the association between time-varying covariates and an outcome. None embedded the Neural ODE within a classical LMM observation model with an ex-plicit marginal likelihood, nor addressed the interpretability requirements of epidemiological applications. One of the major limitation of non-parameteric and machine learning-based approaches is the very limited interpretability. A key challenge when replacing parametric fixed effects with a neural network is indeed the loss of directly interpretable coefficients. The machine learning literature has developed model-agnostic tools to address this, notably with variable importance measures and partial dependence plots (PDPs) (Friedman, 2001), which isolate the marginal effect of a covariate by averaging predictions over the empirical distribution of all other covariates (see Molnar, 2022, for a comprehensive review). In this paper we propose the Neural ODE-LMM, which embeds a Neural ODE within the linear mixed-effects observation model to directly learn the association structure between covariate trajectories and a marker trajectory. This hybrid technique encodes the covariate trajectories into a continuous-time latent state that drives both the fixed- and random-effect design matrices, thus preserving the LMM statistical properties. The complex patterns of association retrieved from the data are then estimated along with confidence intervals using contrasts of counterfactual predictions in the spirit of PDPs (Friedman, 2001). The remainder of this paper is organised as follows. Section 2 reviews the classical LMM, introduces its neural extensions like LMMNN and GNMM and develops the Neural ODE-LMM as a continuous-time extension. Section 3 presents the counterfactual prediction contrast and its variance estimation within the penalised-likelihood framework. Section 4 reports a simulation study that aimed at demonstrating the flexibility of the approach and validating the proposed estimator. Section 5 applies the methodology to the Trois-Cit´ es (3C) cohort (The 3C Study Group, 2003), a population-based aging study to assess the association between cardiometabolic health and cognitive trajectory. Section 6 discusses the results, limitations and future directions. 32 Method 
+
+## 2.1 Linear mixed-effects models 
+
+We begin with the standard LMM to establish notation. We consider a sample of N subjects (i = 1 , . . . , N ) with Ks time-invariant covariates Xsi ∈ RKs , as well as repeated data collected at ni visits at subject-specific times tij (j = 1 , . . . , n i): an outcome Yi(tij ) ∈ R and K
+
+time-varying covariates Xi(tij ) ∈ RK . Denoting by Zi(tij ) ∈ Rq the random-effect design vector, generally composed of a subset of Xi(tij ), the LMM can be written as Yi(tij ) = 
+
+Xs⊤ 
+
+> i
+
+βs +Xi(tij )⊤βx +Zi(tij )⊤bi +εij , where βs ∈ RKs and βx ∈ RK are fixed-effect coefficients, 
+
+bi ∼ N (0 , D ) are subject-specific random effects with q × q covariance D and random noise 
+
+εij ∼ N (0 , σ 2), generally assumed i.i.d.. Stacking the ni observations gives the outcome vector Yi =  Yi(ti1), . . . , Y i(tin i )⊤ and per-subject design matrices Xi ∈ Rni×p, Zi ∈ Rni×q.By denoting β = ( βs, β x) ∈ Rp which collects all fixed-effect coefficients, the estimation of (β, D, σ 2) relies on the marginal distribution of the outcome, obtained by integrating over bi:
+
+Yi ∼ N  Xiβ, V i
+
+ where Vi = ZiDZ ⊤ 
+
+> i
+
++ σ2Ini . We derive the marginal negative log-likelihood (NLL): NLL( β, D, σ 2) = 12
+
+> N
+
+X
+
+> i=1
+
+h
+
+(Yi − Xiβ)⊤V −1 
+
+> i
+
+(Yi − Xiβ) + log det Vi + ni log 2 π
+
+i
+
+. (1) The maximum-likelihood estimator ( ˆβ, ˆD, ˆσ2) is obtained by minimising the NLL over ( β, D, σ 2). Subject-specific predictions rely on the random effect predictor, often chosen as the condi-tional expectation of the random effect ˆbi = E(bi | Yi) = ˆD Z i(t)⊤ ˆVi
+
+> −1
+
+ Yi − X⊤ 
+
+> i
+
+ˆβ:ˆYi(t) = Xi(t)⊤ ˆβ + Zi(t)⊤ˆbi. (2) 
+
+## 2.2 Neural mixed-effects models 
+
+In the classical LMM, the fixed-effect structure Xi(t)⊤β requires the analyst to specify the form of association between covariates and outcome in advance. This parametric design is restrictive: interactions and nonlinear effects must be declared explicitly, and time-varying covariates usually enter through their current values only, implicitly assuming an instanta-neous association with no memory of past exposure. A natural solution is to replace the parametric fixed-effect and random-effect structures with flexible nonlinear functions learned from the data, while retaining the additive decomposition into population-level and subject-specific components. This idea has been pursued in two recent frameworks, both of which write the observation model as 
+
+Yi(tij ) = ρψ
+
+ Xi(tij )⊤β
+
+| {z }
+
+> neural fixed effects
+
++ gξ
+
+ Zi(tij )⊤bi
+
+| {z }
+
+> neural random effects
+
++εij , (3) where ρψ and gξ are neural networks: LMMNN (Simchoni and Rosset, 2023) replaces both the fixed- and random-effect design matrices with deep networks and estimates all parame-ters jointly by minimising the marginal NLL (1) using mini-batch stochastic gradient descent 4(SGD). The GNMM (Mandel and others , 2023) similarly embeds a feed-forward network, using a Laplace-approximated quasi-likelihood for estimation. They share a fundamental limitation: the neural network operates on the instantaneous covariate vector Xi(tij ) at each visit, with no mechanism to encode how covariates evolved between visits. Captur-ing trajectory-dependent effects (cumulative burden, rate of change) requires a model that integrates the covariate trajectory in continuous time. 
+
+## 2.3 The Neural ODE-LMM 
+
+We generalise the neural mixed-effects model (3) by introducing a d-dimensional continuous-time latent state Λ i(t) ∈ Rd that encodes the covariate trajectory up to time t (Figure 1). Since time-varying covariates Xi(tij ) may be partially missing, we fill unobserved covariate values by within-subject linear interpolation, yielding a continuous path ¯Xi(t) ∈ RK together with a binary mask Mi(t) ∈ { 0, 1}K indicating whether each covariate was observed at time t.The latent state evolves according to a Neural ODE driven by the time-varying covariates: 
+
+ddt Λi(t) = fϕ
+
+ Λi(t), ¯Xi(t), M i(t), t , (4) where fϕ is a neural network with nonlinear activation function. For predictive purposes, we need a starting point, or initial condition Λ i(0) = Enc η(Xi(0) , X si ), where Enc η is a feedforward network. Integrating the vector field forward gives Λi(t) = Λ i(0) + 
+
+Z t
+
+> 0
+
+fϕ
+
+ Λi(τ ), ¯Xi(τ ), M i(τ ), τ  dτ, (5) so that Λ i(t) encodes the full covariate history up to time t.The observation model preserves the LMM structure: 
+
+Yi(tij ) = ρψ
+
+ Λi(tij ), ¯Xi(tij ), M i(tij ), X si
+
+⊤β + gξ
+
+ Λi(tij )⊤ bi + εij . (6) The fixed-effect network ρψ : Rd+2 K+Ks → Rp receives both the latent state Λ i(tij ) which en-codes the accumulated covariate history and the current covariate values ( ¯Xi(tij ), M i(tij ), X si )which provide a direct instantaneous pathway that bypasses the ODE integration, hereafter referred to as the skip connection . This dual-input design lets the data determine whether each covariate operates through its accumulated history or its current value. In practice, however, the instantaneous pathway offers a shorter gradient path than the ODE encoder, so that gradient-based optimisation preferentially routes signal through the skip connection; without regularisation, the ODE may fail to learn cumulative representations even when they are present in the data. To address this, the direct covariate inputs to ρψ are organised in groups: for each time-varying covariate k, the interpolated value ¯Xi,k (tij ) and its mask 
+
+Mi,k (tij ) form one group; each static covariate forms a separate group. A group lasso penalty (Yuan and Lin, 2006) on the first-layer weights of ρψ shrinks entire groups toward zero, en-couraging the ODE pathway to absorb the covariate effect. Let W ∈ Rh1×(d+2 K+Ks) denote the first-layer weight matrix of ρψ, where h1 is the number of hidden units in its first layer, and let Wg ∈ Rh1×cg denote the submatrix corresponding to skip group g (g = 1 , . . . , G = K +Ks;
+
+cg = 2 for a dynamic covariate; cg = 1 for a static covariate). The group lasso penalty is 5λGL 
+
+PGg=1 ∥Wg∥F where ∥Wg∥F =  P h1
+
+> a=1
+
+Pcg 
+
+> b=1
+
+W 2
+
+> g,ab
+
+1/2. When ∥Wg∥F = 0, all weights connecting group g to the hidden layer vanish simultaneously and covariate g can influence the prediction only through the ODE latent state; when ∥Wg∥F > 0, the covariate retains a direct instantaneous pathway. 
+
+## 2.4 Estimation 
+
+The full parameter set is θ = {θnn , β, D, σ 2}, where θnn = {η, ϕ, ψ, ξ } collects the neural-network weights. Stacking the decoder outputs over the ni visits yields per-subject design matrices Xi,θ nn ∈ Rni×p and Zi,θ nn ∈ Rni×q, with rows ρψ(Λ i(tij ), ¯Xi(tij ), M i(tij ), X si )⊤ and 
+
+gξ(Λ i(tij )) ⊤ respectively. The marginal distribution for subject i is Yi ∼ N  Xi,θ nn β, V i
+
+,
+
+where Vi = Zi,θ nn D Z ⊤ 
+
+> i,θ nn
+
++ σ2Ini . All parameters are estimated jointly by minimising the penalised marginal NLL: 
+
+pL (θ) = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+12
+
+h
+
+log det Vi + ( Yi − Xi,θ nn β)⊤V −1 
+
+> i
+
+(Yi − Xi,θ nn β) + ni log(2 π)
+
+i| {z }
+
+> marginal NLL
+
++ λGL 
+
+> G
+
+X
+
+> g=1
+
+∥Wg∥F
+
+| {z }
+
+> group lasso
+
++ λwd 
+
+2 ∥θ−W 
+
+> nn
+
+∥2
+
+| {z }
+
+> weight decay
+
+,
+
+(7) where θ−W 
+
+> nn
+
+= θnn \ { Wg}Gg=1 excludes the first decoder layer weights which are already penalised by the group lasso term. The weight decay acts on θ−W 
+
+> nn
+
+to avoid overfitting; β, D,and σ2 are unpenalised. Both penalties depend only on model parameters and not on the data, giving the estimation the structure of a penalised likelihood (Commenges and others ,2015). The data are split into a training set and a validation set. All parameters are estimated simultaneously on the training set by mini-batch SGD using the Adam optimiser (Kingma and Ba, 2015). At each epoch, the penalised marginal NLL (7) is evaluated on the validation set; training stops when the validation NLL does not improve for P consecutive epochs, and the checkpoint with the lowest validation NLL is retained. 
+
+Variance of the estimator. We estimate the variance of ˆθ using the inverse of a shrinkage-regularised empirical Fisher matrix: ˆΣ = F −1reg . The Freg is defined as: 
+
+Freg = (1 − α∗) F + α∗ tr( F )dim( θ) I, (8) where α∗ ∈ [0 , 1] is the true shrinkage intensity that minimises the expected Frobenius loss (Ledoit and Wolf, 2004) and F = PNi=1 Ui U ⊤ 
+
+> i
+
+is the empirical Fisher matrix. The per-subject negative log-likelihood can be written as nll i(θ) = 12
+
+log det Vi + ( Yi − Xi,θ nn β)⊤V −1 
+
+> i
+
+(Yi − Xi,θ nn β) + ni log 2 π,
+
+6and the per-subject penalised score is Ui = ∇θ nll i(ˆθ)+ cpen , and cpen = λGL ∇θ
+
+PGg=1 ∥Wg∥F ˆθ +
+
+λwd ˆθ−W 
+
+> nn
+
+. The stationarity condition ¯U ≈ 0 is verified via the ratio ∥ ¯U ∥/∥Ui∥, where ¯U =
+
+> 1
+> N
+
+P 
+
+> i
+
+Ui and ∥Ui∥ = 1
+
+> N
+
+P 
+
+> i
+
+∥Ui∥.
+
+## 2.5 Prediction 
+
+Subject-specific predictions use the BLUP as in the classical LMM (2). Two modes are distinguished, both mirroring classical random effect predictor for LLM exposed in section 2.1. 
+
+Fit mode. All ni observations of subject i are used: ˆbi = ˆD Z ⊤ 
+
+> i, ˆθnn
+
+V −1 
+
+> i
+
+(Yi − Xi, ˆθnn 
+
+ˆβ), (9) ˆY fit  
+
+> i
+
+(t) = ρψ
+
+ Λi(t), ¯Xi(t), M i(t), X si
+
+⊤ ˆβ + gξ
+
+ Λi(t)⊤ˆbi. (10) 
+
+Forecast mode. Only observations up to a landmark time t are used: ˆbi(t) = ˆD Z (≤t)⊤ 
+
+> i
+
+V (≤t) −1
+
+> i
+
+ Y (≤t) 
+
+> i
+
+− X(≤t) 
+
+> i
+
+ˆβ, (11) ˆY fcst  
+
+> i
+
+(t∗) = ρψ
+
+ Λ(≤t) 
+
+> i
+
+(t∗), ¯X(≤t) 
+
+> i
+
+(t∗), M (≤t) 
+
+> i
+
+(t∗), X si
+
+⊤ ˆβ + gξ
+
+ Λ(≤t) 
+
+> i
+
+(t∗)⊤ˆbi(t), (12) where Y (≤t) 
+
+> i
+
+, X(≤t) 
+
+> i
+
+, Z(≤t) 
+
+> i
+
+, and V (≤t) 
+
+> i
+
+denote the outcome vector, design matrices and marginal covariance restricted to visits at or before t.
+
+## 2.6 Hyperparameter selection 
+
+The model involves several architectural and regularisation choices, including the latent dimension d, the fixed-effect and random-effect output dimensions p and q, the number of hidden units in each network, the ODE solver order, and the regularisation weights. Exhaustive search over the full configuration space is impractical; we therefore fix the network widths, the random-effect dimension q, and the ODE solver to a fourth-order Runge–Kutta scheme, and select the latent dimension d, the fixed-effect output dimension p, the penalty weight λGL , and the covariate pathway configuration by ranking candidates according to their marginal NLL on the validation set. 
+
+# 3 Interpretability and inference 
+
+Most applications in epidemiology aim to assess the association between a set of covariates (exposures) and an outcome (marker of the disease), thus requiring interpretable association measures to be extracted from the fitted model, along with uncertainty assessment. We therefore adopt a counterfactual strategy: we compare the model’s predictions under al-ternative covariate trajectories, holding everything else fixed, and summarise the difference through a partial dependence contrast. 73.1 Counterfactual prediction contrasts 
+
+For a given covariate k and subject i, replacing the observed path ¯Xi,k (·) with a counterfactual path v(·) while keeping all other covariates at their observed values yields the counterfactual conditional expectation: ˆμ(k←v) 
+
+> i
+
+(t) = E Y ∗ 
+
+> i
+
+(t) | ¯X(k) 
+
+> i
+
+(t) = v(t), ¯X(−k) 
+
+> i
+
+(t) = ¯ x(−k) 
+
+> i
+
+(t) = ρ ˆψ
+
+ Λi,v (t), ¯Xi,v (t), M i(t), X si
+
+⊤ ˆβ, 
+
+(13) where Λ i,v (t) denotes the latent state obtained by integrating the Neural ODE with covari-ate k set to v(·) and ¯Xi,v (t) the corresponding covariate vector with covariate k replaced. The population-level counterfactual mean under intervention v is then obtained by marginalising over the joint distribution of the remaining covariates, following the same principle as partial dependence (Friedman, 2001): ¯μ(v, t ) = EX−k , X s
+
+ˆμ(k←v)(t). (14) In practice, this expectation is estimated by averaging over the N observed subjects: 
+
+b¯μ(v, t ) = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+ˆμ(k←v) 
+
+> i
+
+(t). (15) The association between the covariate and the outcome is then quantified by the counter-factual contrast between two intervention paths v1(·) and v2(·) at any time t:∆¯ μ(v1, v 2; t) = b¯μ(v1, t ) − b¯μ(v2, t ). (16) In practice, the counterfactual contrast is evaluated at a grid of times t∗ 
+
+> 1
+
+< · · · < t ∗ 
+
+> L
+
+spanning the follow-up window. The paths v1(·) and v2(·) can be constant (e.g. the 25th and 75th percentiles of the observed distribution) or time-varying (e.g. a trajectory declining from Q75 to Q25 over follow-up); the latter allows the ∆¯ μ to detect trajectory-dependent effects. When the variables marginalized over satisfy the back-door criterion relative to v, the ∆¯ μ
+
+coincides with a causal contrast under Pearl’s do-calculus (Zhao and Hastie, 2021). 
+
+## 3.2 Variance estimation via delta method 
+
+The estimated c∆¯ μ(t) is a smooth function of ˆθ. Treating ˆθ as an M-estimator of the pe-nalised likelihood (7) with asymptotic variance F −1reg , the delta method yields the approximate variance of the ∆¯ μ at any time t:Var   c∆¯ μ(t) ≈ ∇ θ c∆¯ μ(t) ⊤ 
+
+> ˆθ
+
+F −1reg ∇θ c∆¯ μ(t) ˆθ, (17) where the gradient is evaluated at the estimated parameter value ˆθ and Freg is the regularised empirical Fisher information defined in (8). Pointwise 95% confidence intervals are c∆¯ μ(t) ±
+
+1.96 
+
+q
+
+Var   c∆¯ μ(t).84 Simulation study 
+
+We report this simulation study following the ADEMP framework of Morris and others 
+
+(2019), structuring the design around explicit Aims, the Data-generating process (DGP), the target Estimands, the Methods under comparison, and the pre-specified Performance measures. 
+
+## 4.1 Aims 
+
+The simulation study assesses the ability of the Neural ODE-LMM to recover the ∆¯ μ in two contrasting regimes: (i) an instantaneous linear association between the exposure and the outcome, modulated by a time-invariant covariate, which a correctly specified LMM can recover (S1); and (ii) a cumulative effect of the exposure, which an LMM could accommodate only if the analyst pre-specified the correct accumulation functional, whereas the Neural ODE-LMM learns it from the data (S2). 
+
+## 4.2 Data-generating process 
+
+The simulation design was anchored to the population-based 3C cohort described in Sec-tion 5.1, with a focus on the association between body mass index (BMI) and the cognitive trajectory. We considered the N = 5 ,859 participants of the analytical 3C sample and re-tained their observed time-independent covariates: centered baseline age (AGE i, centered at 74.86 years), sex and 3 educational levels. Each subject’s follow-up window ( tmin ,i , t max ,i )was preserved from the 3C data, but visit times within the window were set on a regular grid with spacing proportional to the window length, yielding between 3 and 15 visits per subject. For each of R = 100 replications, the time-varying covariate BMI was simulated from a linear mixed model (random intercept and slope on time) whose parameters were estimated from the BMI values of 3C data, producing realistic within-subject variability. Repeated outcome values Yij were then generated according to: Yij = X⊤ 
+
+> ij
+
+β∗ + fs
+
+ BMI ij , AGE i, t ij 
+
+ +
+
+Z⊤ 
+
+> ij
+
+bi + εij , where Xij contains a basis of natural splines for time (3 d.f., internal knots at the empirical quartiles of follow-up time), sex, and educational level; Zij contains the basis of natural splines for time used in the random-effect structure (2 d.f., internal knot at the median follow-up time); bi ∼ N (0 , D 0) with D0 ∈ R3×3; εij ∼ N (0 , σ 02); and fs is a parameterised function specifying the BMI–outcome association, detailed below. Parameter values and spline knots were all calibrated from a preliminary LMM fit on the 3C data (reported in Supplementary Table S1). 
+
+## 4.3 Scenarios 
+
+Scenario S1 (instantaneous BMI × age association). The BMI–outcome association is instantaneous and age-modulated: fs(BMI ij , AGE i, t ij ) = βBMI BMI ij + βint BMI ij · AGE i,
+
+with βBMI = −0.30 and βint = −0.05. A correctly specified LMM can recover this effect exactly; the scenario serves as a calibration benchmark to verify that the additional flexibility 9of the Neural ODE-LMM does not compromise inferential validity when the true effect is simple. 
+
+Scenario S2 (cumulative BMI burden). The outcome level depends on the time-integrated BMI trajectory: fs(BMI ij , AGE i, t ij ) = −0.05 R tij  
+
+> 0
+
+BMI i(τ ) dτ. There is no instantaneous BMI effect ( βBMI = 0) and no age interaction ( βint = 0). No standard LMM can recover this effect without an explicitly cumulative definition. More details are reported in Supplemen-tary Section S1. 
+
+## 4.4 Estimands 
+
+The primary estimand is the ∆¯ μ(vlo , v hi ; t) as defined in (16), evaluated at constant in-tervention values defined according to the 25th and 75th percentiles of the observed BMI distribution. We report the ∆¯ μ and its variance (17) for a grid of times spanning the follow-up window. 
+
+## 4.5 Methods 
+
+For all Neural ODE-LMM configurations, the sample was split into 80% for training and 20% for computing the early-stopping criterion. 
+
+Scenario S1. We compare the Neural ODE-LMM against a correctly specified true LMM that matches the DGP. The covariate pathway configuration was selected by validation NLL among the candidates described in Section 2.6; the best-performing configuration routed BMI and all static covariates through the skip pathway only, excluding BMI from the ODE vector field, with no group lasso penalty ( λGL = 0). The full pathway comparison is reported in Supplementary Table S6. 
+
+Scenario S2. We didn’t consider a LMM for this DGP. We only assessed the neural ODE-LMM, since fs = −0.05 R t 
+
+> 0
+
+BMI( τ ) dτ requires an explicit cumulative definition. The co-variate pathway configuration was again selected by NLL on the validation set; the best-performing configuration routed BMI through the ODE vector field, and a group lasso penalty ( λGL > 0) on the skip connection weights encouraged the ODE to learn the cu-mulative representation (Supplementary Table S6). To demonstrate that the model captures trajectory-dependent effects, we constructed two counterfactual BMI trajectories that reach the same terminal value but differ in their history: a “late spike” profile that starts at the 25th percentile of BMI and rises linearly to the 75th percentile, and a “late decline” profile that starts at the 75th percentile and falls to the 25th percentile. Under the cumulative-burden DGP, the late decline profile accumulates higher BMI over most of the follow-up and should therefore produce worse cognitive outcomes. 
+
+## 4.6 Performance measures 
+
+Over the R = 100 replications, we report four quantities. Let c∆¯ μ(r)
+
+denote the estimate from replicate r and ∆¯ μ0 the true value. 10 • Bias : ∆¯ μ − ∆¯ μ0, where ∆¯ μ = R−1 PRr=1 c∆¯ μ(r)
+
+.
+
+• Empirical variance : Var emp = ( R − 1) −1 P
+
+> r
+
+  c∆¯ μ(r)
+
+− ∆¯ μ2.
+
+• Estimated variance : Var est = R−1 P 
+
+> r
+
+dVar (r)
+
+, from the delta method (17). 
+
+• Coverage : proportion of replicates whose 95% confidence interval c∆¯ μ(r)
+
+± 1.96 
+
+qdVar (r)
+
+contains the true ∆¯ μ0.
+
+## 4.7 Results 
+
+Scenario S1: instantaneous BMI × age association Table 1 reports the quantitative results. The Neural ODE-LMM succeeds in retrieving the ∆¯ μ with small relative bias (ap-proximately 3-6%) and correct coverage rates of the 95% confidence interval at every time point, even though the bias remains larger than with the oracle LMM as expected. The pur-pose of S1 is not to demonstrate improved inference, but to verify that the model produces near-nominal coverage and bounded bias when the linear structure lies inside the hypothesis class the neural decoder can represent. 
+
+Scenario S2: cumulative BMI burden This scenario reveals the central advantage of the ODE encoder. Table 1 presents the quantitative summary. The Neural ODE-LMM recovers the cumulative effect across all evaluation times: the true ∆ μ0 grows linearly from 
+
+−0.50 at t = 2 to −2.50 at t = 10, reflecting the progressive accumulation of the BMI burden, and the estimated ∆¯ μ tracks this growth with small relative bias (approximately 3–5%). The delta-method variance estimator closely matches the empirical variance, with dVar est nearly identical to Var emp at later time points confirming that the uncertainty quantification remains well calibrated even as the cumulative effect grows. Coverage of the 95% confidence interval is near-nominal ranging from 0.92 to 0.98. Figure 2 confirms that the model correctly assigns worse outcomes to the “late decline” profile than to the “late spike” profile, despite both profiles reaching the same terminal BMI. More details about the model selection in the simulation can be found in Supplementary Section S6. The validity of regularized empirical Fisher matrix is checked empirically as shown in Supplementary Section S7. 
+
+# 5 Application to cardiometabolic health and cognitive decline 
+
+## 5.1 The 3C cohort 
+
+The Trois-Cit´ es (3C) study is a population-based cohort initiated in 1999, enrolling 9 ,294 participants aged ≥ 65 years from three French cities (Bordeaux, Dijon, Montpellier) and followed for up to 12 years with clinical visits every 2–3 years (The 3C Study Group, 2003). The 3C Study was approved by the ethics committee of Kremlin-Bicˆ etre University Hos-pital, Paris, and all participants gave written informed consent. Cognitive function was 11 assessed at each visit by the Isaacs Set Test truncated at 15 seconds (IST), a timed ver-bal fluency task. We considered K = 5 time-varying cardiometabolic covariates: BMI and blood pressure (systolic and diastolic), measured at every visit, and fasting glucose and HDL cholesterol, measured only at baseline, the 4-year, and the 10-year visits; all five covariates could additionally be missing at any given visit. Time-independent covariates ( Ks = 3) were baseline age AGE i (centered at the sample mean), sex, and 3 educational level. Missing time-varying covariates were handled in our method by within-subject linear interpolation, with last-observation-carried-forward at the boundaries. After excluding participants with missing baseline confounders ( n = 18), missing base-line cardiometabolic measurements ( n = 1 ,151), no follow-up visit ( n = 636), or prevalent dementia ( n = 165), the analytical sample comprised N = 7 ,324 participants with 2–7 visits. Twenty percent ( n = 1 ,465) was held out for external validation; all models were trained on the remaining 5 ,859 participants (with internal split of 4 ,685 for training and 1 ,174 for validation). Figure 3 displays the observed trajectories of time-varying covariates (BMI, fast-ing glucose, HDL cholesterol, and blood pressure) for a random subset of participants. Full cohort details and covariate availability across visits are reported in Supplementary Table S2. 
+
+## 5.2 LMM specification 
+
+As a benchmark we fitted a series of classical linear mixed-effects models using the lcmm 
+
+package in R (Proust-Lima and others , 2017). All LMMs shared a common random-effect structure (random intercept and random slopes on a natural cubic spline of time with 2 d.f.) and approximated the fixed-effect trajectory with a natural cubic spline of time (3 d.f.). We considered five nested specifications for the fixed-effect mean, progressively adding the time-varying covariates and their interactions with time through products of the spline basis with AGE i and/or BMI (Supplementary Section S3). The best model, including a time × AGE i
+
+interaction, was selected by BIC (Supplementary Table S3). 
+
+## 5.3 Neural ODE-LMM specification 
+
+The ODE vector field takes as input the K = 5 time-varying covariates and their binary observation masks. Static covariates entered through both the encoder network and the skip connection. A group lasso penalty on the first-layer decoder weights (Section 2.3) regulated the dynamic covariate skip pathway, encouraging time-varying covariates to be routed through the ODE when the cumulative representation improved the fit. The final architecture and regularisation configuration (latent dimension, regularisation mode, and decoder capacity) were selected by grid search on the held-out validation set (Supplementary Section S5; Supplementary Tables S5). Architecture details and hyperparameters are given in Supplementary Table S4. The model was trained with Adam optimizer (learning rate 10 −3, weight decay 10 −5), a batch size of 128 subjects, and early stopping with a patience of 300 epochs without the improvement of NLL on the validation data. 12 5.4 Results 
+
+5.4.1 Goodness of fit 
+
+Table 2 compares prediction performance of the two models on the 5 ,859 training partic-ipants. The Neural ODE-LMM achieves a slightly higher marginal log-likelihood on both training and test data, indicating a better fit to the observations, and comparable MSE at the subject level. Figure 4 displays the population-averaged BLUP predictions in fit mode on the test set, with pointwise 95% confidence intervals. The observed mean IST (blue) declines from approximately 34.1 at baseline to 32.0 at year 7, with a slight increase at years 10–12 likely reflecting survivorship bias. The Neural ODE-LMM (green) tracks the observed mean closely throughout, while the classical LMM (black) underestimates early time points. Con-fidence intervals for both models are narrower than those of the observed mean. Individual predictions for randomly selected subjects are shown in Supplementary Figures S1–S2. 
+
+5.4.2 Interpretation 
+
+To examine whether cardiometabolic risk factors exert trajectory-dependent effects on cog-nitive decline, we computed counterfactual predictions under trajectory profiles for BMI, fasting glucose, and HDL cholesterol. For each covariate, the six counterfactual profiles were defined according to the 25th and 75th percentiles of the covariate distribution (stable low, stable high, late spike Q25 →Q75, late decline Q75 →Q25, gradual rise, and gradual decline). We concentrate in the main document on BMI, presenting the trajectory-profile counter-factual predictions (Figure 5, top) and the pairwise ∆¯ μ with pointwise 95% delta-method confidence intervals (Figure 5, bottom). Analogous figures and interpretations for glucose and HDL are given in Supplementary S3—S6. The Neural ODE-LMM reveals a trajectory-dependent association between BMI trajec-tory shape and cognition (Figure 5, b). Subjects with gradually rising BMI trajectories (Q25 →Q75 over follow-up) maintain the highest predicted cognitive scores, while those with declining BMI (late decline Q75 →Q25, or gradual decline) experience the steepest cognitive decline. The late-decline profile produces worse outcomes than the late-spike profile at later visits, despite both profiles crossing the same BMI value at the midpoint: a declining BMI is associated with a worse cognitive outcome, while, although high initial BMI is associated with worse cognition early on, a rising BMI trajectory appears relatively protective over time. The LMM predicts trajectories that swap at the midpoint (Figure 5, a): the “late de-cline” profile (Q75 →Q25) drops to match the “stable low” profile after the crossover, while “late spike” (Q25 →Q75) rises to match “stable high.” The ∆¯ μ between late decline and late spike flips sign at the midpoint, because the LMM responds only to the current covariate value, whichever profile has the higher BMI at time t receives the worse predicted outcome, regardless of its earlier history. By contrast, the Neural ODE-LMM (Figure 5, b) produces a persistent negative ∆¯ μ after the crossover, confirming that the ODE encoder has learned trajectory-dependent associations that the LMM cannot represent. More analyses can be found in Supplementary Section S11—S14. 13 6 Discussion 
+
+We proposed the Neural ODE-LMM, which embeds a Neural ODE within the linear mixed-effects framework, thereby preserving its good statistical properties. A learned vector field encodes covariate trajectories into a continuous-time latent state that drives the fixed-and random-effect designs. To extract interpretable association measures from the fitted model, we introduced the counterfactual prediction contrast ∆¯ μ, which compares population-averaged predictions under alternative covariate paths in the spirit of PDP (Friedman, 2001), and whose variance is estimated via the delta method applied to the inverse empirical Fisher information stabilised by Ledoit–Wolf shrinkage. In simulations, the Neural ODE-LMM sucessfully retrieved with negligible bias and well calibrated confidence intervals both a classical instantaneous covariate association (S1) and a cumulative effect (S2), illustrating its ability to learn the pattern of an association. Ap-plied to the 3C cohort, the ∆¯ μ detected a trajectory-dependent association between BMI trajectory shape and cognitive decline, while revealing qualitatively distinct temporal mech-anisms for fasting glucose and HDL cholesterol. The cumulative BMI effect recovered by the Neural ODE-LMM is consistent with evidence that, in elderly populations, BMI decline is a marker of preclinical neurodegeneration rather than a sign of improved health. In the same 3C cohort, Wagner and others (2018) found that BMI declined significantly more in prodromal dementia cases than in controls ( p < 0.001 for group-by-time interaction), with trajectories diverging approximately 7 years before diagnosis. Using a weighted cumulative index of exposure technique, the same authors (Wagner and others , 2021) also estimated a time-dependent association of BMI with subsequent cognition in the Nurses’ Health Study: higher level of BMI measured long before the cognitive assessment was associated with lower cognition while higher BMI measured at the approach of the assessment was associated with higher cognition. Our trajectory-profile analysis recapitulates this time-dependent and cumulative association pattern without pre-specifying case-control status or a parametric form for the trajectory effect and provides formal inference via the delta-method confidence intervals on the ∆¯ μ.This work has limitations. First, the model treats covariates as measured without error, conditioning on values obtained by within-subject linear interpolation between irregularly spaced visits; this error, unlike in classical regression, propagates through the ODE integra-tion path and may accumulate over long inter-visit intervals. Jointly modelling the outcome and covariate processes as smooth latent trajectories with proper uncertainty would address this, but requires further development. Second, the delta-method variance via empirical Fisher information was demonstrated for parsimonious architectures (fewer than 2,000 pa-rameters); the Fisher matrix becomes computationally prohibitive and the outer-product estimator may deteriorate as dimension grows. Scaling frequentist uncertainty quantifica-tion to larger networks through low-rank approximations of the Fisher matrix or alternative strategies remains open. More broadly, the delta-method variance relies on M-estimator asymptotics whose regularity conditions, notably identifiability and local convexity, are not formally guaranteed for overparameterised networks; nevertheless, the simulations show near-nominal coverage (91–98% across scenarios), supporting the approximation in this setting. 14 7 Data and code availability 
+
+Anonymized Three-City Study data may be shared upon reasonably justified request to the 3C scientific committee (e3C.CoordinatingCenter@u-bordeaux.fr). Scripts replicating the application and simulations, with documentation, are available at https://github.com/ AuroraFr/NodeLmm . Models were trained using PyTorch 2.6.0 and Python 3.10+ on a dual-socket Intel Cascade Lake node (2 × 18 cores, 192 GB RAM) without GPU acceleration; the sequential nature of ODE integration offered no benefit from GPU offloading at this scale. Training a single Neural ODE-LMM on the 3C cohort took approximately 30 minutes, and each simulation replicate 30–40 minutes; the model can be trained on a standard laptop. Classical LMM comparison models were fitted in R using the lcmm package (Proust-Lima 
+
+and others , 2017). 
+
+# References 
+
+Br¨ am, D. S., Steiert, B., Pfister, M., Steffens, B. and Koch, G. (2025). Low-dimensional neural ordinary differential equations accounting for inter-individual variabil-ity implemented in Monolix and NONMEM. CPT: Pharmacometrics & Systems Pharma-cology 14 (1), 5–16. 
+
+Chen, R. T. Q., Rubanova, Y., Bettencourt, J. and Duvenaud, D. K. (2018). Neural ordinary differential equations. In: Advances in Neural Information Processing Systems , Volume 31. 
+
+Commenges, D., Bureau, J. and Putter, H. (2015). Inference with penalized likeli-hood. arXiv preprint arXiv:1401.7893 .
+
+Crane, P. K., Walker, R., Hubbard, R. A., Li, G., Nathan, D. M., Zheng, H., Haneuse, S., Craft, S., Montine, T. J., Kahn, S. E., McCormick, W., McCurry, S. M., Bowen, J. D. and others . (2013). Glucose levels and risk of dementia. 
+
+New England Journal of Medicine 369 (6), 540–548. 
+
+Crichton, G. E., Elias, M. F., Davey, A., Sullivan, K. J. and Robbins, M. A. 
+
+(2014). Higher HDL cholesterol is associated with better cognitive function: the Maine-Syracuse Study. Journal of the International Neuropsychological Society 20 (10), 961–970. 
+
+Dorigatti, E., Schubert, B., Bischl, B. and R¨ ugamer, D. (2023). Frequentist un-certainty quantification in semi-structured neural networks. In: International Conference on Artificial Intelligence and Statistics , Volume 206, Proceedings of Machine Learning Research. pp. 1924–1941. 
+
+Ferguson, Erin L., Zimmerman, Scott C., Jiang, Chen, Choi, Minhyuk, Swinnerton, Kaitlin, Choudhary, Vidhu, Meyers, Travis J., Hoffmann, Thomas J., Gilsanz, Paola, Oni-Orisan, Akinyemi, Whitmer, Rachel A., Risch, Neil, Krauss, Ronald M., Schaefer, Catherine A. and others . (2023). Low- and high-density lipoprotein cholesterol and dementia risk over 17 years of follow-up among members of a large health care plan. Neurology 101 (21), e2172–e2184. 15 Friedman, J. H. (2001). Greedy function approximation: A gradient boosting machine. 
+
+Annals of Statistics 29 (5), 1189–1232. 
+
+Greven, S. and Scheipl, F. (2017). A general framework for functional regression mod-elling. Statistical Modelling 17 (1–2), 1–35. 
+
+Kidger, P., Morrill, J., Foster, J. and Lyons, T. (2020). Neural controlled differ-ential equations for irregular time series. In: Advances in Neural Information Processing Systems , Volume 33. 
+
+Kingma, D. P. and Ba, J. (2015). Adam: A method for stochastic optimization. In: 
+
+International Conference on Learning Representations .
+
+Laird, N. M. and Ware, J. H. (1982). Random-effects models for longitudinal data. 
+
+Biometrics 38 (4), 963–974. 
+
+Ledoit, O. and Wolf, M. (2004). A well-conditioned estimator for large-dimensional covariance matrices. Journal of Multivariate Analysis 88 (2), 365–411. 
+
+Mandel, F., Ghosh, R. P. and Barnett, I. (2023). Neural networks for clustered and longitudinal data using mixed effects models. Biometrics 79 (2), 711–721. 
+
+Molnar, Christoph . (2022). Interpretable Machine Learning: A Guide for Making Black Box Models Explainable , 2nd edition. 
+
+Morris, T. P., White, I. R. and Crowther, M. J. (2019). Using simulation studies to evaluate statistical methods. Statistics in Medicine 38 (11), 2074–2102. 
+
+Nazarovs, J., Chakraborty, R., Tasneeyapant, S., Ravi, S. and Singh, V. (2021). A variational approximation for analyzing the dynamics of panel data. In: Uncertainty in Artificial Intelligence , Volume 161, Proceedings of Machine Learning Research. pp. 107–117. 
+
+Proust-Lima, C., Philipps, V. and Liquet, B. (2017). Estimation of extended mixed models using latent classes and latent processes: The R package lcmm. Journal of Statis-tical Software 78 (2), 1–56. 
+
+Ramsay, J. O. and Silverman, B. W. (2005). Functional Data Analysis , 2nd edition. Springer. 
+
+Rubanova, Y., Chen, R. T. Q. and Duvenaud, D. K. (2019). Latent ordinary differ-ential equations for irregularly-sampled time series. In: Advances in Neural Information Processing Systems , Volume 32. 
+
+R¨ ugamer, D. (2023). A new PHO-rmula for improved performance of semi-structured networks. In: International Conference on Machine Learning , Volume 202, Proceedings of Machine Learning Research. pp. 29291–29305. 
+
+Simchoni, Giora and Rosset, Saharon . (2023). Integrating random effects in deep neural networks. Journal of Machine Learning Research 24 (156), 1–57. 16 The 3C Study Group . (2003). Vascular factors and risk of dementia: Design of the Three-City study and baseline characteristics of the study population. Neuroepidemiology 22 (6), 316–325. 
+
+Verbeke, G. and Molenberghs, G. (2000). Linear Mixed Models for Longitudinal Data .Springer. 
+
+Volkmann, A., St¨ ocker, A., Scheipl, F. and Greven, S. (2023). Multivariate functional additive mixed models. Statistical Modelling 23 (4), 303–326. 
+
+Wagner, M., C., Helmer, Tzourio, C., Berr, C., Proust-Lima, C. and Samieri, C. (2018). Evaluation of the concurrent trajectories of cardiometabolic risk factors in the 14 years before dementia. JAMA Psychiatry 75 (10), 1033–1042. 
+
+Wagner, M., Grodstein, F., Leffondr´ e, K., Samieri, C. and Proust-Lima, C. 
+
+(2021). Time-varying associations between an exposure history and a subsequent health outcome: a landmark approach to identify critical windows. BMC Medical Research Methodology 21 (1), 266. 
+
+Wang, M., Liao X., Laden F. and D., Spiegelman . (2016). Quantifying risk over the life course – latency, age-related susceptibility, and other time-varying exposure metrics. 
+
+Statistics in Medicine 35 (13), 2283–2295. 
+
+Wood, S. N. (2017). Generalized Additive Models: An Introduction with R , 2nd edition. Chapman and Hall/CRC. 
+
+Yuan, M. and Lin, Y. (2006). Model selection and estimation in regression with grouped variables. Journal of the Royal Statistical Society: Series B (Statistical Method-ology) 68 (1), 49–67. 
+
+Zhao, Q. and Hastie, T. (2021). Causal interpretations of black-box models. Journal of Business & Economic Statistics 39 (1), 272–281. 17 Table 1: ∆¯ μ performance across R = 100 replications for Scenario S1 (instantaneous BMI 
+
+× age interaction) and Scenario S2 (cumulative BMI burden), evaluated at a grid of times t
+
+for the contrast between vlo = 23 and vhi = 28 kg/m 2. Bias, empirical variance (Var emp ), mean estimated variances from the delta method (Var est ) and coverage of the nominal 95% confidence interval based on estimated variance. 
+
+Scenario t ∆¯ μ0 Bias Var emp Var est Cov. 
+
+S1 — true LMM 
+
+0 −1.725 −0.038 0.009 0.007 0.94 4 −1.725 −0.038 0.009 0.007 0.94 8 −1.725 −0.038 0.009 0.007 0.94 10 −1.725 −0.038 0.009 0.007 0.94 
+
+S1 — Neural ODE-LMM 
+
+0 −1.725 −0.053 0.015 0.011 0.92 4 −1.725 −0.078 0.017 0.013 0.91 8 −1.725 −0.085 0.022 0.018 0.91 10 −1.725 −0.101 0.018 0.020 0.92 
+
+S2 — Neural ODE-LMM 
+
+2 −0.500 −0.027 0.008 0.012 0.98 4 −1.000 −0.028 0.012 0.015 0.96 8 −2.000 −0.061 0.024 0.024 0.93 10 −2.500 −0.096 0.033 0.033 0.92 
+
+Table 2: Prediction performance on the 3C cohort. MSE is computed on the IST. The LMM column reports results for the best model by BIC. 
+
+LMM Neural ODE-LMM Metric Train Test Train Test Log-likelihood −63 565 −20 200 −63 286 −19 993 MSE(pop) 44.81 45.67 43.92 44.99 MSE(fit mode) 9.11 9.32 9.27 9.62 MSE(forecast mode) 26.20 28.81 25.67 26.57 
+
+18 Xi(0) , X si , t i0
+
+Encoder Enc η
+
+Neural ODE 
+
+fϕ
+
+Λi(tij ) ρ⊤ 
+
+> ψ
+
+βg⊤ 
+
+> ξ
+
+bi
+
+ˆYi(t)¯Xi(t), M i(t), X si , t     
+
+> Λi(0) LMM observation model
+> t
+> Λi(t)
+> ti1ti2ti3ti4
+> Λi(tij )
+
+Figure 1: Architecture of the Neural ODE-LMM. Baseline covariates Xi(0) are mapped to an initial latent state Λ i(0) by the encoder. The Neural ODE integrates the latent state forward in continuous time, driven by interpolated time-varying covariates. At each visit, two learned networks ρψ and gξ produce fixed- and random-effect design vectors from Λ i(tij ), preserving the standard LMM observation model. Dashed arrow: the instantaneous pathway gives ρψ
+
+direct access to current covariate values; a group lasso penalty encourages parsimonious use of this pathway for time-varying covariates. Bottom inset: the continuous latent trajectory Λi(t), with filled dots marking the states Λ i(tij ) at (irregularly spaced) observation times. 19 Figure 2: Scenario S2 (cumulative BMI burden): counterfactual trajectory-profile diagnostic on a representative replicate. The two counterfactual BMI profiles share the same terminal value but differ in their history: “late spike” starts at Q25 and rises to Q75, while “late decline” starts at Q75 and falls to Q25. The Neural ODE-LMM correctly assigns worse predicted outcome to the “late decline” profile, which accumulated higher BMI over most of the follow-up. 20 0     0      0                                             
+
+>   
+> (
+> 0
+>   
+> (
+> 00 
+>     !
+> 00 0 0 0 0
+> "#  $  %  
+> (
+> 00 
+>     !
+> 0 0 0 0 &0 00
+> '  #  $  %  
+> (
+> 0
+>     !
+> 0( (0 ( ( ( ( (0
+> %'  
+> (
+> 00 
+>     !
+> 00 0 0 0 0
+> "
+> (
+
+Figure 3: Observed individual trajectories for a random subset of 50 participants in the 3C cohort. Panels (a)–(e) (blue): time-varying exposures; panel (f) (red): cognitive outcome. BMI = body mass index (kg/m 2); PAS = systolic blood pressure (mmHg); PAD = diastolic blood pressure (mmHg); HDL = high-density lipoprotein cholesterol (mmol/L); IST = Isaacs Set Test score. Time is measured in years since cohort inclusion. 21 Figure 4: Population-averaged predictions in fit mode on the 3C cohort. Blue: observed IST mean ± 95% CI. Green dashed: Neural ODE-LMM predictions with 95% CI. Black dashed: classical LMM predictions with 95% CI. 22 (a) LMM — BMI (b) Neural ODE-LMM — BMI  
+
+> (c) LMM — BMI ∆¯ μ(d) Neural ODE-LMM — BMI ∆¯ μ
+
+Figure 5: Counterfactual trajectory-profile predictions (top) and pairwise ∆¯ μ with pointwise delta-method 95% confidence intervals (bottom) for BMI. Left: LMM, where ∆¯ μ contrasts between crossing profiles flip sign at the midpoint, confirming that the model responds only to the instantaneous BMI value. Right: Neural ODE-LMM, where all four contrasts become increasingly negative over time; profiles with declining or sustained-high BMI are associated with steeper cognitive decline than profiles with rising or sustained-low BMI. The confidence intervals exclude zero at later follow-up times, indicating that the ODE encoder has learned trajectory-dependent associations. 23 Supplementary Materials S1 Simulation data-generating parameters 
+
+All simulated datasets are calibrated to the 3C cohort so that the marginal distributions, visit schedule, and variance components resemble those of the real data. 
+
+Reference model. A linear mixed-effects model is first fitted to the 3C analytic sample using the hlme() function of the lcmm package in R. The outcome is the IST score; the fixed-effect specification includes a natural-cubic-spline basis of follow-up time (3 d.f.), baseline age (centred), sex, education level, and BMI as a time-varying covariate. Random effects are placed on an intercept and a natural-spline basis of time (2 d.f.), yielding a 3 ×3 unstructured covariance matrix D. The estimated fixed-effect vector ˆβ, random-effect covariance D0, and residual variance σ20 serve as the reference parameters from which scenario-specific modifica-tions are derived. 
+
+Covariate generation. Each time-varying covariate is generated from its own auxiliary linear mixed-effects model fitted to the 3C data. Specifically, an auxiliary LMM is fitted for BMI with a linear function of time as fixed effect and a random intercept and slope, together with baseline covariates (centered age, sex, education level). The fitted fixed effects, random-effect covariance, and residual variance define the marginal model from which new covariate trajectories are drawn. For each simulated subject, a random effect is sampled from the estimated covariance, the fixed-effect trajectory is computed from the subject’s baseline covariates, and i.i.d. Gaussian noise is added to produce realistic measurement variability. 
+
+Visit schedule. Each simulated subject is assigned an adaptive time grid of 3–15 irreg-ularly spaced visits spanning the same follow-up window as the real data. The number of visits per subject is aligned with the subject’s observed follow-up duration in the 3C co-hort, so that subjects with shorter follow-up receive fewer visits. Natural-cubic-spline bases for time are evaluated at these simulated visit times using the same internal and boundary knots as in the reference model, ensuring that the spline bases in simulated data are exactly comparable to those in the 3C analysis. 
+
+Outcome generation (common structure). Given a simulated dataset with covariates and visit times, the outcome for subject i at visit j is generated as 
+
+Yij = X⊤ 
+
+> ij
+
+β∗ + fs(X(t≤tij ) 
+
+> i
+
+) + Z⊤ 
+
+> ij
+
+bi + εij , (18) where β∗ is a scenario-specific modification of the reference ˆβ, fs(·) is a scenario-specific func-tion of the covariate history (identically zero in the instantaneous scenario), bi ∼ N (0 , D 0), and εij ∼ N (0 , σ 20 ). The random effects and residual variance are held at the reference estimates across all scenarios, so that differences in performance are driven entirely by the fixed-effect structure. 24 Table S1: Parameter values for the data-generating model in Scenario S1. All values were calibrated from a preliminary LMM fit to the 3C data, except those marked with †, which were set to predefined values. 
+
+Component Parameter Value 
+
+Fixed effects (β∗)Intercept β∗ 
+
+> 0
+
+30 .71 Natural spline for time (3 d.f.) β∗ 
+
+> 1
+
+−2.82 
+
+β∗ 
+
+> 2
+
+0.02 
+
+β∗ 
+
+> 3
+
+−3.13 BMI † β∗ 
+
+> BMI
+
+−0.30 Centred age β∗ 
+
+> age
+
+−0.51 Sex (female) β∗ 
+
+> sex
+
+1.85 Education (medium) β∗ 
+
+> educ ,2
+
+2.67 Education (high) β∗ 
+
+> educ ,3
+
+3.32 BMI × centred age † β∗ 
+
+> BMI ×age
+
+−0.05 
+
+Random effects (bi ∼ N (0 , D 0)) 
+
+D0
+
+D0,11 28 .95 
+
+D0,22 44 .70 
+
+D0,33 27 .59 
+
+D0,12 −5.95 
+
+D0,13 −1.31 
+
+D0,23 26 .01 
+
+Residual 
+
+Standard deviation σ0 3.63 
+
+Scenario S1 (instantaneous effect). The covariate effect is purely instantaneous and linear: fs ≡ 0 and β∗ includes a non-zero coefficient for BMI and a BMI × centred-age interaction. The fixed-effect mean is thus 
+
+μij = β∗ 
+
+> 0
+
++
+
+> 3
+
+X
+
+> k=1
+
+β∗ 
+
+> k
+
+ns k(tij )+ β∗ 
+
+> BMI
+
+BMI ij +β∗ 
+
+> age
+
+AGE c,i +β∗ 
+
+> sex
+
+sex i+β∗ 
+
+> educ
+
+educ i+β∗ 
+
+> int
+
+BMI ij ·AGE c,i .
+
+The true ∆¯ μ for a contrast ∆ v = vhi −vlo is ∆ v·(β∗ 
+
+> BMI
+
++¯ a β ∗
+
+> int
+
+) at every evaluation time, where ¯a is the population mean of centred age. The LMM is fitted with the oracle specification (BMI × age interaction) as well as a general specification that replaces the BMI × age term with spline × age interactions, testing robustness to mild misspecification. 
+
+Scenario S2 (cumulative effect). The cumulative effect enters through fs(X(t≤tij ) 
+
+> i
+
+) = 
+
+α R tij  
+
+> 0
+
+BMI i(τ ) dτ, the time-integrated BMI exposure up to time tij , scaled by a coeffi-cient α < 0 so that greater accumulated BMI exposure is associated with worse cognitive scores. The integral is evaluated numerically from the simulated visit-level BMI values using the trapezoidal rule. Because the cumulative exposure depends on the full trajectory history 25 and not on the current BMI value alone, it cannot be recovered by any model that condi-tions only on the contemporaneous covariate. Under constant-BMI interventions at level v,the cumulative component reduces to α v t , so the oracle ∆¯ μ between two constant profiles 
+
+vhi and vlo is ∆ v · (β∗ 
+
+> BMI
+
++ ¯ a β ∗ 
+
+> int
+
++ α t ), which grows in magnitude with follow-up time—in contrast to Scenario S1, where the ∆¯ μ is time-invariant. 
+
+Replication and evaluation. For each scenario, D = 100 independent datasets are gen-erated. On each replicate, the HLME is fitted, and ∆¯ μ estimates are computed for the contrast BMI = 23 versus BMI = 28 at evaluation times t ∈ { 0, 4, 8, 10 } years. Delta-method standard errors are obtained from the fixed-effect variance–covariance matrix returned by 
+
+lcmm . The simulation summary reports bias, empirical variance, mean estimated variance and 95% coverage rate of the delta-method confidence intervals, aggregated over replicates and evaluation times. 
+
+# S2 Trois-Cit´ es cohort: data description 
+
+Of the initial 9,294 participants, we excluded 18 with missing educational data, 1,151 with missing baseline cardiometabolic measurements, 636 without a follow-up visit, and 165 with prevalent dementia. The final analytic sample comprised n = 7 ,324 participants. Table S2 summarises the availability of time-varying covariates across follow-up visits. 
+
+# S3 Classical LMM specification for 3C cohort 
+
+All five baseline LMMs share the observation model 
+
+Yij = μij + Z⊤ 
+
+> ij
+
+bi + εij , bi ∼ N (0 , D ), εij ∼ N (0 , σ 2),
+
+with a common random-effect design Zij =  1, ns 1(tij ), ns 2(tij )⊤ (random intercept + random slopes on a natural-spline basis of time with 2 d.f.), D ∈ R3×3, and i.i.d. residuals. Here ns k(t) denotes the k-th basis function of a natural cubic spline of time (boundary and internal knots placed at the empirical quantiles of follow-up time in the 3C cohort). The five models differ only in the fixed-effect mean μij :
+
+TV1 (demographics only). 
+
+μij = β0 +
+
+> 3
+
+X
+
+> k=1
+
+βk ns k(tij ) + βage AGE i + βsex sex i + βeduc ,1 educ i, 1 + βeduc ,2 educ i, 2.
+
+TV2 (time-varying covariates). 
+
+μij = μTV1  
+
+> ij
+
++ βBMI BMI ij + βSBP SBP ij + βDBP DBP ij + βgluc GLUC ij + βHDL HDL ij .
+
+26 Table S2: Time-varying cardiometabolic factors in the 3C cohort study across visits. An “—” indicates the variable was not measured at that visit.  Glucose and HDL were measured at T4 in Dijon and Bordeaux only, using centre-specific variable names. 
+
+> T0 (S0)  T2 (S1)  T4 (S2)  T7 (S4)  T10 (S5)  T12 (S6)
+> BMI  WEIGHT01, HEIGHT  WEIGHT1  WEIGHT2  WEIGHT4  WEIGHT5  WEIGHT6 SBP  SBP0 1 SBP0 2 SBP1 1 SBP1 2 SBP2 1 SBP2 2 SBP4 1 SBP4 2 SBP5 1 SBP5 2 SBP6 1 SBP6 2 DBP  DBP0 1 DBP0 2 DBP1 1 DBP1 2 DBP2 1 DBP2 2 DBP4 1 DBP4 2 DBP5 1 DBP5 2 DBP6 1 DBP6 2 Glucose  GLUC1  — GLUC2M (Dijon) GLUC S2 (Bordeaux)  — GLUC5  —HDL  HDL1  — HDL2M (Dijon) HDL S2 (Bordeaux)  — HDL5  —
+
+27 Table S3: BIC for the five classical LMM specifications fitted on the 3C cohort ( n = 5 ,859). Lower is better. 
+
+TV1 TV2 TV3 TV4 TV5 BIC 127,498 127,502 127,325 127,527 127,350 
+
+TV3 (time × AGE interaction). 
+
+μij = μTV2  
+
+> ij
+
++
+
+> 3
+
+X
+
+> k=1
+
+γk ns k(tij ) · AGE i.
+
+TV4 (time × BMI interaction). 
+
+μij = μTV2  
+
+> ij
+
++
+
+> 3
+
+X
+
+> k=1
+
+δk ns k(tij ) · BMI ij .
+
+TV5 (both interactions). 
+
+μij = μTV2  
+
+> ij
+
++
+
+> 3
+
+X
+
+> k=1
+
+γk ns k(tij ) · AGE i +
+
+> 3
+
+X
+
+> k=1
+
+δk ns k(tij ) · BMI ij .
+
+All models were fitted using the hlme() function of the lcmm package in R. Model TV3 was selected by BIC (Table S3). 
+
+# S4 Neural ODE-LMM architecture and hyperparame-ters 
+
+Table S4 reports the full architecture and hyperparameter configuration of the Neural ODE-LMM used in the 3C cohort analysis. The configuration was selected via the two-tier model selection procedure described in the main text (Section 5.4). 
+
+# S5 Model selection results 
+
+The Neural ODE-LMM exposes several architectural and regularisation choices whose impact on the IST predictor cannot be anticipated from theory alone. We carried out a held-out dataset of the 3C cohort to select the configuration used in the main analyses. 
+
+Protocol. The 3C cohort was partitioned at the subject level into three disjoint sets: training (4,687 subjects), validation (1,172 subjects), and test (1,465 subjects). For every configuration in the grid, the model was fitted on the training set with early stopping driven by the marginal NLL evaluated on the validation set; the best-validation checkpoint was 28 Table S4: Neural ODE-LMM architecture and training hyperparameters for the 3C cohort analysis. 
+
+Component Hyperparameter Value 
+
+Encoder 
+
+Input dimension ( K + Ks + 1) 10 Hidden layers 1Hidden units per layer 16 Activation SiLU Output dimension ( d = dim z) 16 
+
+ODE vector field ( fϕ)
+
+Input dimension ( d + 2 K + 1) 27 Hidden layers 2Hidden units per layer 16 Activation SiLU Output nonlinearity tanh 
+
+ODE solver 
+
+Method RK4 
+
+Fixed-effect network ( ρψ)
+
+Input dimension ( d + dim s) 24 Hidden layers 2Hidden units per layer 16 Output dimension ( p) 2
+
+Random-effect network ( gξ)
+
+Input dimension ( d) 16 Hidden layers 2Hidden units per layer 8Output dimension ( q) 3
+
+Gated skip connections 
+
+Static covariate groups ( Ks) 4Group lasso λGL 0.1 
+
+Training 
+
+Optimiser Adam Learning rate 1e-3 Batch size (subjects) 128 Weight decay λwd 1e-5 Maximum epochs 1000 Early stopping patience 300 
+
+Total parameters 
+
+dim( θ) ≈ 1,600 
+
+retained. Configurations were ranked by their validation-set NLL. The test set was touched exactly once, to report the unbiased performance of the selected configuration. Covariate standardisation statistics were computed from the training set only. 29 Table S5: Model selection results on the 3C cohort ( nval = 1 ,172). Total validation-set NLL (NLL per-subject ×nval ); lower is better. Tier 1 varies regularisation and skip-path configuration (all with d = 8, p = 4, q = 3). Tier 2 fixes the Tier-1 winner’s regularisation ( λGL = 0 .1, dynamic skip) and varies latent dimension d and fixed-effect output dimension p. The ρ-normalisation flag had no effect on NLL and is suppressed. The selected configuration is marked with ⋆.                                           
+
+> Tier Config Regularisation dpTotal val. NLL 11None 8415,871 2None (no skip) 8415,843 3Group lasso ( λGL = 0 .001) 8415,862 4Group lasso ( λGL = 0 .01) 8415,845 5Group lasso ( λGL = 0 .1) 8415,841 26Group lasso ( λGL = 0 .1) 8415,841 7⋆Group lasso ( λGL = 0 .1) 16 215,837 8Group lasso ( λGL = 0 .1) 16 415,845
+
+Grid. Two successive grids were explored. Tier 1 varied two axes: the regularisation mode (none, group lasso) with penalty weight λGL ∈ { 0.001 , 0.01 , 0.1}, and the presence or absence of dynamic covariates in the skip path. Configurations in which the skip path was absent while a penalty was active were omitted as vacuous. Tier 2 fixed the Tier-1 winner’s regularisation ( λGL = 0 .1) and skip choices and swept the decoder capacity: latent dimension d ∈ { 8, 16 } and fixed-effect output dimension p ∈ { 2, 4}. Table S5 reports both tiers. All other hyperparameters (learning rate, batch size, solver order) were held at the defaults reported in Table S4. 
+
+Tier 1 selection. In Tier 1, Config 2 (no skip, no regularisation; NLL = 15 ,843) and Config 5 (group lasso λGL = 0 .1; NLL = 15 ,841) achieve comparable predictive performance. We prefer Config 5 because it retains the skip pathway and allows the group lasso penalty to adjudicate covariate routing in a data-driven manner: the resulting near-zero skip weight norms (Section S13) provide empirical evidence that covariate effects are mediated through the ODE latent state, rather than imposing this routing by architectural constraint. That Config 2 and Config 5 reach essentially the same NLL is itself informative. It confirms that the group lasso recovers the no-skip solution when the data support it. 
+
+Tier 2 selection. Tier 2 configurations achieve similar validation NLL (within 8 units over nval = 1 ,172 subjects). Config 7 ( d = 16, p = 2) is selected as it attains the lowest NLL and the larger latent dimension provides richer trajectory encoding for the downstream counterfactual prediction analyses. 30 Table S6: Model selection for simulation: total test NLL and number of wins across 10 replicates. Scenario Config Mean total NLL SE Wins S1 A: skip only 32,495 85.7 9/10 B: both, no reg 32,504 90.6 0/10 C: both, group lasso 32,505 91.0 1/10 S2 A: ODE only 32,542 93.4 2/10 B: both, no reg 32,546 91.8 0/10 C: both, group lasso 32,540 93.6 8/10 
+
+# S6 Model selection validation (simulation) 
+
+To select the best model architecture for each simulation scenario, we compared three con-figurations on 10 replicates and ranked them by total test NLL. Ten replicates were sufficient to reveal a clear winner in both scenarios (Table S6). For Scenario S1 (instantaneous effect), the three configurations are: (A) BMI in skip only (ODE receives [Λ , t ]), (B) BMI in both ODE and skip, no group lasso, and (C) BMI in both, with group lasso ( λGL = 0 .01). For Scenario S2 (cumulative effect): (A) BMI in ODE only (no skip), (B) BMI in both, no group lasso, and (C) BMI in both, with group lasso ( λGL = 0 .5). Table S6 reports the total test NLL with ntest = 1 ,172 and the number of replicates in which each configuration achieved the lowest NLL. In S1, model selection consistently favours the skip-only configuration (9/10 wins), cor-rectly identifying the instantaneous mechanism. In S2, the group lasso configuration domi-nates (8/10 wins), confirming that the penalty correctly steers BMI toward the ODE pathway when the effect is cumulative. In both scenarios, the configuration without regularisation is never selected, indicating that the penalised likelihood criterion effectively distinguishes the two covariate pathways. 
+
+# S7 Stationarity and Fisher diagnostics 
+
+The validity of the empirical Fisher F as a variance estimator requires the first-order station-arity condition P 
+
+> i
+
+Ui ≈ 0 to hold at the estimated parameters. We report two diagnostics: the norm of the mean penalised score ∥ ¯U ∥ = ∥N −1 P 
+
+> i
+
+Ui∥ and the average individual score norm ∥Ui∥ = N −1 P 
+
+> i
+
+∥Ui∥.
+
+• Simulation. Table S7 reports these diagnostics averaged over the 100 replications for each simulation scenario. 
+
+• 3C cohort. For the selected Neural ODE-LMM model: ∥ ¯U ∥ = 1 .45, ∥Ui∥ = 41 .3, and stationarity ratio ∥ ¯U ∥/∥Ui∥ = 0 .035. We additionally verify that the ∆¯ μ gradient dℓ = ∂∆¯ μ(v1, v 2; t∗ 
+
+> ℓ
+
+)/∂ θ does not lie predom-inantly in the null space of the raw (unregularised) Fisher F . For each evaluation time t∗ 
+
+> ℓ
+
+,31 Table S7: Stationarity diagnostics for simulation results (mean ± SD across 100 replicates). The stationarity ratio ∥ ¯U ∥/∥Ui∥ quantifies how close the mean score is to zero relative to typical individual score magnitudes; values near zero indicate good stationarity. Scenario ∥ ¯U ∥ ∥Ui∥ Ratio S1 (skip only) 0.98 ± 0.75 23 .5 ± 1.5 0.031 ± 0.032 S2 (ODE + GL) 1.26 ± 0.75 40 .2 ± 2.7 0.036 ± 0.022 Table S8: Null-space fraction check for simulation results ∥dnull ∥2/∥d∥2 for the ∆¯ μ gradient at each evaluation time (mean across replicates). 
+
+t = 0 t = 4 t = 8 t = 12 S1 0.000 0.000 0.000 0.000 S2 0.000 0.000 0.000 0.000 we project dℓ onto the eigenvectors of F and compute the fraction of squared energy below a relative threshold ( λk < 10 −10 λmax ). Table S8 reports these fractions. The stationarity ratios ∥ ¯U ∥/∥Ui∥ < 0.05 confirm that the mean penalised score is small relative to typical individual score magnitudes, validating the first-order condition under-lying the empirical Fisher variance estimator. The null-space fraction is exactly zero at all evaluation times, indicating that the ∆¯ μ gradient has full support in the well-estimated subspace of parameter space and the delta-method variance is not inflated by near-singular Fisher directions. For Ledoit–Wolf shrinkage, the oracle shrinkage intensity α∗ was 0.0009 ± 0.0001 (S2) and 0.0030 ± 0.0005 (S1) across replicates. Values being close to zero indicate that the empirical Fisher F was already well-conditioned; the shrinkage target contributed less than 0.3% to the regularised estimator Freg , confirming that the delta-method variances are driven by the data rather than by the regularisation. 
+
+# S8 Subject-level predictions 
+
+Figures S1 and S2 display BLUP-based subject-level trajectory predictions for 25 randomly selected participants from the training and test sets, respectively. 
+
+# S9 Glucose counterfactual predictions 
+
+Figure S3 reports the trajectory-profile counterfactual predictions for fasting glucose, com-plementing the BMI analysis in the main text. For fasting glucose, the trajectory-profile analysis reveals a cumulative pattern. Profiles with sustained low glucose throughout follow-up (stable low, late spike) maintain the highest predicted cognitive scores, while profiles with sustained high glucose (stable high, gradual 32 Figure S1: Subject-level predictions in 3C cohort application (training set, 25 randomly selected subjects). Blue dots: observed IST. Green dashed: Neural ODE-LMM predictions in fit mode. Red dotted: Neural ODE-LMM population mean. Black dashed: LMM predic-tions. decline) produce the worst outcomes. Critically, the late spike profile (Q25 →Q75) remains substantially above the stable high profile (Q75) at late follow-up, despite both profiles reaching the same terminal glucose value. This indicates that the model has learned a cumulative association: early low-glucose exposure confers lasting protection even as glucose rises, while early high-glucose exposure continues to penalise cognition even after glucose drops. The approximately 5 IST-point spread between the best and worst profiles at t = 12 years suggests a substantial effect of accumulated glucose exposure on cognitive decline. Figure S4 displays the pairwise ∆¯ μ contrasts with 95% delta-method confidence intervals for four representative profile pairs. Under the LMM, the ∆¯ μ reflects the purely instan-taneous linear effect of glucose: pairs that share the same current value (e.g. after the late-decline crossover) produce ∆¯ μ = 0 exactly, while pairs with a constant level difference yield a flat ∆¯ μ proportional to ˆβgluc . Under the Neural ODE-LMM, the ∆¯ μ trajectories are smoother and persist even after profiles converge to the same current value, consistent 33 Figure S2: Subject-level predictions in 3C cohort application (test set, 25 randomly selected subjects). Same colour scheme as Figure S1. 
+
+Figure S3: trajectory-profile counterfactual predictions for fasting glucose in 3C cohort ap-plication. Left: LMM. Right: Neural ODE-LMM. with the cumulative encoding documented above. All four contrasts are significantly neg-ative throughout follow-up (CIs exclude zero), confirming that higher glucose trajectories are associated with worse cognition regardless of the specific profile shape. This cumula-34 Figure S4: Pairwise ∆¯ μ contrasts for fasting glucose in 3C cohort application. Left: Classical LMM. Right: Neural ODE-LMM with 95% delta-method CIs (shaded bands). Each panel shows ∆¯ μ(t) = ¯ μ(va, t ) − ¯μ(vb, t ) for one profile pair. 
+
+Figure S5: trajectory-profile counterfactual predictions for HDL cholesterol in 3C cohort application. Left: LMM. Right: Neural ODE-LMM. tive glucose-cognition association is consistent with epidemiological evidence from the Adult Changes in Thought (ACT) study (Crane and others , 2013), which demonstrated a graded relationship between average glucose levels over a five-year window and subsequent dementia risk, even among individuals without diabetes. In that cohort ( n = 2 ,067, mean age 76), each increment in average glucose was associated with increased dementia hazard, with no apparent safe threshold. Our trajectory-profile analysis extends this finding by showing that early glucose exposure leaves a persistent imprint on predicted cognition that is not erased by later normalisation. 
+
+# S10 HDL cholesterol trajectory-profile counterfactual predictions 
+
+Figure S5 reports the trajectory-profile counterfactual predictions for HDL cholesterol, com-plementing the BMI and glucose analyses in the main text (Figure 8). For HDL cholesterol, the trajectory-profile analysis reveals a qualitatively different pat-35 Figure S6: Pairwise ∆¯ μ contrasts for HDL cholesterol in 3C cohort application. Left: Clas-sical LMM. Right: Neural ODE-LMM with 95% delta-method CIs (shaded bands). The positive point estimates indicate that higher-HDL profiles are associated with better cogni-tion, but confidence intervals are wide and generally include zero, consistent with a weaker effect than glucose or BMI. tern from BMI and glucose. Profiles ending at high HDL at the final visit—stable high, late spike, and gradual rise—cluster at the top of the cognitive trajectory, while profiles ending at low HDL—stable low, early burden, and gradual decline—cluster at the bottom. In particular, late spike (Q25 → Q75) outperforms early burden (Q75 → Q25) at late visits, the opposite of the pattern observed for BMI and glucose. This ordering is consistent with a predominantly current-value effect of HDL in late life: the prognostic signal is carried by recent measurements rather than by accumulated exposure over the preceding years. Within the interquartile range examined here (Q25 → Q75), the recovered effect is mono-tonic: higher current HDL is associated with better cognition, in agreement with the cross-sectional findings of Crichton and others (2014) (2014) in a community cohort of adults aged 60 and older, where higher current HDL-cholesterol was positively associated with global cognition, Working Memory, and the MMSE after adjustment for cardiovascular risk factors. The Q25–Q75 contrast, however, cannot speak to behaviour at the extremes: the large Kaiser Permanente study of Ferguson and others (2023) ( n = 184,367, mean age 70) reported a U-shaped association in which both the highest and lowest HDL quintiles showed elevated dementia risk relative to the middle, with the upper-tail effect appearing mainly above ∼2.1 mmo/L. Our contrast lies well within the central range of that U and there-fore recovers its left arm only; testing for a turnaround at high HDL would require wider counterfactual contrasts, which is a natural extension of the analysis. Figure S6 displays the pairwise ∆¯ μ contrasts. Under the LMM, the pattern mirrors glucose but with reversed sign: pairs with higher current HDL show positive ∆¯ μ, and the contrast drops to zero as soon as the profiles converge. Under the Neural ODE-LMM, the ∆¯ μ point estimates are positive for all four pairs (higher HDL → better cognition), but the 95% delta-method confidence intervals are wide and include zero for most of the follow-up window. This is consistent with a weaker, predominantly current-value effect of HDL on cognition within the interquartile range, in contrast to the cumulative signal observed for glucose and BMI. 36 Figure S7: ODE-only trajectory-profile counterfactual predictions for BMI in 3C cohort application (skip connections zeroed). The persistent spread across profiles with identical endpoints but different trajectories confirms that the ODE encodes cumulative BMI expo-sure. 
+
+# S11 Zero-skip diagnostic: ODE-only trajectory-profile counterfactual predictions 
+
+To verify that the Neural ODE-LMM has learned cumulative covariate effects through the ODE pathway rather than relying exclusively on the instantaneous skip connections, we zero out all gated skip weights at evaluation time and recompute the trajectory-profile counterfactual predictions using only the ODE-decoded fixed effects. Formally, we set ˆμODE-only  
+
+> ij
+
+= ρψ(Λ i(tij )) and suppress the skip contribution W ⊤ 
+
+> g
+
+x(dyn)  
+
+> ij
+
+. If the ODE path-way encodes no covariate history, the resulting counterfactual predictions will collapse to a single curve regardless of intervention profile; conversely, persistent separation under different trajectory shapes confirms that the ODE has internalised cumulative exposure information. Figures S7–S9 display the ODE-only counterfactual predictions for BMI, fasting glu-cose, and HDL cholesterol, respectively. For all three covariates the trajectory ordering is preserved under zero-skip evaluation, confirming that the ODE latent state Λ( t) encodes information about past covariate trajectories that persists beyond the current value. The spread is somewhat attenuated relative to the full-model counterfactual predictions (Fig-ures 8 and S3 in the main text and above), consistent with the skip path carrying a portion of the contemporaneous effect, but the cumulative signal is clearly present in the ODE pathway alone. 
+
+# S12 Cumulative versus baseline-and-current diagnos-tic 
+
+A key question is whether the Neural ODE-LMM uses the full covariate trajectory or relies only on the baseline and current values. We construct a diagnostic that compares pairs of 37 Figure S8: ODE-only trajectory-profile counterfactual predictions for fasting glucose in 3C cohort application (skip connections zeroed). 
+
+Figure S9: ODE-only trajectory-profile counterfactual predictions for HDL cholesterol in 3C cohort application (skip connections zeroed). The ordering, profiles ending at high HDL outperform those ending at low HDL, is consistent with the full-model counterfactual pre-diction, albeit with reduced spread. counterfactual profiles that share the same starting and ending values but follow different paths. If the predicted cognitive trajectories under such pairs diverge, the model has learned to use the intermediate trajectory; if ∆ = E[IST | profile a] − E[IST | profile b] ≈ 0 at the endpoint, the model effectively reduces to a baseline-plus-current-value predictor. Three profile designs are used for each covariate: 1. Constant low vs. temporary spike (same start and end at Q25): one profile remains at Q25 throughout; the other rises to Q75 at the midpoint and returns. 2. Constant high vs. temporary dip (same start and end at Q75): one profile remains at Q75; the other drops to Q25 at the midpoint and returns. 38 Figure S10: Cumulative versus baseline-and-current diagnostic for BMI in 3C cohort applica-tion. Upper panels: covariate profiles; lower panels: predicted E[IST]. Left: constant low vs. temporary spike (∆ t=12 = 1 .28). Centre: constant high vs. temporary dip (∆ t=12 = −1.13). Right: linear vs. concave vs. convex paths (∆ convex–concave = 0 .77). Non-zero ∆ at endpoint confirms the model uses the full trajectory, not just baseline and current values. 3. Same start and end, different curvature (start at Q25, end at Q75): linear, concave (late rise), and convex (early rise) paths. Figures S10 and S11 display this diagnostic for BMI and glucose. For BMI, the diagnostic reveals substantial cumulative sensitivity: a temporary spike from Q25 to Q75 and back yields ∆ t=12 = 1 .28 IST points relative to constant Q25 (left panel), indicating that the transient high-BMI exposure leaves a lasting imprint on predicted cognition despite both profiles ending at Q25. Symmetrically, a temporary dip from Q75 to Q25 and back produces ∆ t=12 = −1.13 relative to constant Q75 (centre panel). The curvature comparison (right panel) shows that early BMI gains (convex path) are more detrimental than late gains (concave path), with ∆ convex–concave = 0 .77 at t = 12. For glucose, the pattern is qualitatively similar but smaller in magnitude: ∆ t=12 = −0.47 for the spike comparison and −0.28 for the dip comparison. The sign reversal relative to BMI (negative ∆ for the spike) reflects the fact that for glucose, all profile groups share a declining E[IST], and the spike profile declines slightly faster. These non-zero endpoint differences confirm that the Neural ODE-LMM has learned to encode cumulative covariate exposure for both BMI and glucose, consistent with the ODE-only zero-skip analysis of Section S11. 39 Figure S11: Cumulative versus baseline-and-current diagnostic for fasting glucose in 3C co-hort application. Left: constant low vs. temporary spike (∆ t=12 = −0.47). Centre: constant high vs. temporary dip (∆ t=12 = −0.28). Right: convex vs. concave (∆ = −0.43). All panels show non-zero endpoint differences, confirming cumulative sensitivity. 
+
+# S13 Skip-connection weight norms for real data appli-cation 
+
+Table S9 reports the Frobenius norm ∥Wg∥F of the first-layer decoder weights corresponding to each covariate skip group, for the Neural ODE-LMM fitted on the 3C cohort with group lasso penalty λGL = 0 .1. Concretely, the first layer of ρψ has weight matrix W ∈ Rh×(d+Kskip ),where the first d columns multiply the latent state Λ( t) and the remaining columns multiply the skip inputs (covariate values, masks, static covariates). For each covariate group g,
+
+Wg denotes the sub-matrix of columns assigned to that group. A norm near zero indicates that the group lasso has effectively eliminated the instantaneous pathway for that covariate, routing its effect exclusively through the ODE latent state. The norm of the latent-state columns is ∥W[: ,:d]∥F = 6 .27. All five time-varying covariates have skip norms below 10 −3, four to five orders of mag-nitude smaller than the latent-state pathway, confirming that the group lasso has driven the skip connections to near-zero for every covariate. This means the fitted model routes es-sentially all time-varying covariate information through the ODE, and the trajectory-profile counterfactual predictions reported in the main text and above reflect the ODE pathway al-most entirely, consistent with the zero-skip diagnostic of Section S11, which showed minimal attenuation when skip connections were explicitly zeroed. 40 Table S9: Skip-connection weight norms of the Neural ODE-LMM model fitted on the 3C cohort ( λGL = 0 .1). ∥Wg∥F is the Frobenius norm of the first-layer decoder columns assigned to each skip group. For reference, the norm of the columns multiplying the latent state Λ( t)is ∥W[: ,:d]∥F = 6 .27. Covariate group Type ∥Wg∥F
+
+BMI Dynamic 0.0008 Systolic BP Dynamic 0.0010 Diastolic BP Dynamic 0.0009 Fasting glucose Dynamic 0.0005 HDL cholesterol Dynamic 0.0005 
+
+Figure S12: Counterfactual intervention profiles for BMI, spanning the interquartile range Q25 = 23.1 to Q75 = 28.4. Analogous profiles are constructed for glucose and HDL choles-terol. 
+
+# S14 Latent state visualisation 
+
+To examine how the ODE encodes covariate information, we conduct two analyses on the fitted 3C model. First, we define a set of counterfactual profiles for each covariate (Fig-ure S12) spanning the interquartile range (Q25–Q75) with distinct trajectory shapes: stable low, stable high, late spike (Q25 →Q75), late decline (Q75 →Q25), gradual rise, and gradual decline. For each profile, we replace the target covariate with the prescribed trajectory for all subjects, re-integrate the ODE, and compute the population-averaged latent trajectory per dimension: ¯Λk(v, t ) = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+Λ(cov ←v) 
+
+> i,k
+
+(t), k = 1 , . . . , d. 
+
+Latent state divergence. To quantify whether the ODE distinguishes different covariate trajectories, we compute the L2 norm between the population-averaged latent states under pairs of profiles, ∥¯Λa(t)− ¯Λb(t)∥. Figure S13 shows this divergence for three BMI profile pairs and Figure S14 for glucose. Profiles that share the same endpoints but follow different paths 41 Figure S13: Latent state divergence ∥¯Λa(t) − ¯Λb(t)∥ for three pairs of BMI counterfactual profiles. The “same current value after crossover” pair (red) shows large divergence, confirm-ing that the ODE encodes trajectory history. The “same endpoints, different paths” pairs (blue and green) show smaller but non-zero divergence, confirming sensitivity to the path shape. (“same endpoints, different paths”) produce non-zero latent divergence, confirming that the ODE state encodes trajectory history rather than merely the current covariate value. The “same current value after crossover” pair (stable low vs. late decline, which share the same covariate value after the crossover point but have different histories) exhibits the largest divergence, consistent with the ODE accumulating distinct historical information. 
+
+Dimension-level latent counterfactual prediction Not all latent dimensions respond equally to covariate perturbations. Figures S15 and S16 display the population-averaged latent trajectory ¯Λk(v, t ) for the four most responsive dimensions (ranked by maximal inter-profile spread at t = 12). For BMI, dimensions Λ 9 and Λ 3 show clear separation by trajectory shape, while Λ 14 and Λ 7 respond with more moderate differentiation. For glucose, Λ 14 and Λ9 are the most responsive, with the stable-high profile producing the largest departures. The shared responsiveness of Λ 9 and Λ 14 to both BMI and glucose suggests that certain latent dimensions encode overlapping cardiometabolic exposure information. 42 Figure S14: Latent state divergence for three pairs of glucose counterfactual profiles. Same structure as Figure S13. 
+
+Figure S15: Latent counterfactual predictions for the four most responsive dimensions to BMI intervention profiles. Each panel shows one dimension Λ k(t) under the six counterfactual BMI profiles of Figure S12. 
+
+Figure S16: Latent counterfactual predictions for the four most responsive dimensions to glucose intervention profiles. 43

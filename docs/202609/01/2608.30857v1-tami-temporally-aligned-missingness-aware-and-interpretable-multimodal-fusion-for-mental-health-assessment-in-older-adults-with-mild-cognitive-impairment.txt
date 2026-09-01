@@ -1,0 +1,1358 @@
+Title: TAMI: Temporally Aligned, Missingness-Aware, and Interpretable Multimodal Fusion for Mental Health Assessment in Older Adults with Mild Cognitive Impairment
+
+URL Source: https://arxiv.org/pdf/2608.30857v1
+
+Published Time: Tue, 01 Sep 2026 02:47:01 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 1
+
+# TAMI: Temporally Aligned, Missingness-Aware, and Interpretable Multimodal Fusion for Mental Health Assessment in Older Adults with Mild Cognitive Impairment 
+
+Merna Bibars, Bolaji Omofojoye, Allan I. Levey, Rachel Hershenberg, Gari D. Clifford, Fellow, IEEE , and Hyeokhyen Kwon 
+
+Abstract —Depression and anxiety in older adults with Mild Cognitive Impairment (MCI) are frequently underdiagnosed due to limited access to care. Multimodal analysis of remote clinical interviews is a scalable screening approach, but existing methods have three limitations. First, they do not correct temporal misalignment across multimodal features extracted at different resolutions, inducing spurious cross-modal associations. Second, remote recordings exhibit uneven modality dropout, but miss-ing values are often zero-filled, making them indistinguishable from valid near-zero measurements. Finally, they do not jointly attribute predictions to modalities, questions, and interview mo-ments, limiting fine-grained clinical interpretation. We propose a Temporally-Aligned, Missingness-Aware, Interpretable (TAMI) multimodal fusion framework. TAMI aligns speech, language, fa-cial, and physiological features within question-answer segments on a shared timeline, encodes modality-level missingness over time, and conditions fusion on question context. In interviews with 49 older adults with MCI, TAMI achieved area under the receiver operating characteristic curve (AUROC) scores of 
+
+0.68 ± 0.04 (depression) and 0.69 ± 0.09 (anxiety). Fine-grained temporal alignment of multimodal features produced the largest performance gain ( ∆≥0.1 AUROC). Multi-level interpretability analysis revealed that depression classification relied on eyegaze and open-ended questions, while anxiety classification depended on eyegaze and head pose, with attribution uniformly distributed across questions. Using only responses to the open-ended ques-tions (5.1 min), the depression model achieved an AUROC score of 0.67 , which was not significantly different from using the full interview (19 min) ( p > 0.05 ). Our findings support 
+
+Hyeokhyen Kwon, Allan I. Levey, Rachel Hershenberg, Bolaji Omofojoye, and Gari Clifford are partially funded by the National Institute on Deafness and Other Communication Disorders (grant # 1R21DC021029-01A1). The Cognitive Empowerment Program is supported by a generous investment from the James M. Cox Foundation and Cox Enterprises, Inc. The authors thank the participants of the Charlie and Harriet Shaffer Cognitive Empowerment Program at Emory University. Merna Bibars is with the Wallace H. Coulter Department of Biomedical Engineering, Georgia Institute of Technology and Emory University, Atlanta, GA, USA, and the Department of Systems and Biomedical Engineering, Cairo University, Giza, Egypt. Bolaji Omofojoye is with the Department of Biomedical Informatics, Emory University, Atlanta, GA, USA. Allan I. Levey is with the Department of Neurology, Emory University, Atlanta, GA, USA. Rachel Hershenberg is with the Department of Psychiatry and Behavioral Sciences, Emory University, Atlanta, GA, USA. Gari D. Clifford is with the Wallace H. Coulter Department of Biomedical Engineering, Georgia Institute of Technology, and the Department of Biomed-ical Informatics, Emory University, Atlanta, GA, USA. Hyeokhyen Kwon is with the Wallace H. Coulter Department of Biomed-ical Engineering, Georgia Institute of Technology, and the Department of Biomedical Informatics, Emory University, Atlanta, GA, USA. (a)
+Sequence-index pairing 
+
+(b)
+Time-aligned pairing 
+
+0 s 
+
+W₁ 
+
+0 1
+
+0 s 
+
+W₁ 
+
+0 1
+
+W₂ 
+
+2
+
+W₂ 
+
+2
+
+4 s  Acoustic windows  Example (a) pairings W₃  Acoustic features  W₁  W₂ 
+
+> Coverage misalignment
+
+Facial features 
+
+3 4
+
+4 s 
+
+W₃  Example (b) pairings 
+
+W₁  W₁  W₁  W₂  W₂  W₂ 
+
+3 4
+
+2 s  1 s  3 s  2 s 
+
+2 s  1 s  3 s  2 s 
+
+Fig. 1. Temporal misalignment in multimodal behavioral feature process-ing in existing work. Conventionally, acoustic features are extracted with overlapping sliding windows (2s window, 1s hop), e.g., W1 (spanning 0– 2s), while facial features are frame-level observations sampled at 1 fps. (a) Existing work uses sequence-index pairing to associate feature time series by their position in each series rather than by recording time, linking each acoustic window to the single facial frame at the same index (dotted orange line). This produces coverage misalignment in behavioral analysis. (b) Our proposed multimodal temporal binning approach assigns features according to their temporal support based on the portion of the behavioral recording that each feature represents. Each acoustic window is associated with the facial frames occurring within the same time interval (dotted teal lines). Such temporal alignment of multimodal behavioral features is critical for capturing fine-grained behavioral congruence during remote mental health interviews. 
+
+designing interview protocols centered on open-ended questions for depression screening in older adults with MCI. 
+
+Index Terms —Anxiety, depression, explainable artificial intel-ligence, mild cognitive impairment, multimodal fusion. 
+
+I. I NTRODUCTION 
+
+# MILD Cognitive Impairment (MCI), a clinical condi-tion that precedes Alzheimer’s disease and related dementias, is projected to affect 21 million adults in the United States (U.S.) by 2060 [1]. It is characterized by cognitive decline greater than expected for healthy aging, while preserving daily functioning [2]. Depression affects 32% of adults with MCI [3], [4], while anxiety affects 10–50%, and both are associated with increased risk of progression to dementia [5]. Despite their clinical relevance, they remain underdiagnosed [6], [7], and older adults in the U.S. face multiple barriers to mental health care [8]. Diagnosis is further complicated by atypical late-life presentations: “depression arXiv:2608.30857v1 [cs.CV] 31 Aug 2026 IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 2    
+
+> (a) Temporal displacement (b) Visual degradation from occlusion, blur, and overexposure
+> Fig. 2. Challenges in multimodal interview analysis. (a) Existing methods associate misaligned behavioral features with temporal displacements of up to 22 seconds (more than 100 times the 200 ms window over which clinicians perceptually bind cross-modal behavioral cues). (b) Synthetic illustrations of visual degradation in remote interviews. Privacy constraints prevent the display of participant recordings, so we generate illustrative frames using OpenAI ChatGPT Images 2.0, accessed via ChatGPT [11], to reproduce artifacts observed in the real data, including face occlusion, low resolution with overexposure, and blur.
+
+without sadness” [9] and anxiety profiles poorly captured by criteria developed from younger populations [10]. Clinical assessment of mental health depends on behav-iors that are hard to observe in real time. For example, depression-related changes in speech and eye movements lie in the hundreds-of-milliseconds range [12], [13], too brief to be reliably observed by a clinician during an interview or documented in a clinical report [12]. Assessment also relies on affect, where the clinician judges whether a patient’s nonverbal behavior is congruent with their verbally stated mood [14]. Depressed and anxious individuals may smile and not show sadness while describing sad experiences [15] and anxious events [16]. Reading this congruence requires interpreting modalities jointly and at the moment they co-occur. Human perception binds audiovisual speech into a single event only within a window of 200 ms [17], and behavioral cues separated by intervals longer than 200 ms are unlikely to be perceived as a single event. Therefore, detecting congruence across modal-ities requires fine-grained and temporally aligned multimodal measurement. Remote video interviews provide a practical setting for measuring these behavioral signals, given that telehealth use among older adults has increased after the COVID-19 pan-demic [18] and that an estimated 140 million Americans have limited access to mental health care [19]. Recent work has shown that multimodal machine learning (ML) methods can objectively quantify facial, vocal, language, and physiological cues from video interviews [20], [21], providing measures that may support scalable screening of individuals at risk for psychiatric episodes or suicidal behavior, facilitate earlier triage, and complement clinician assessments [22]. However, prior multimodal ML approaches for remote video interviews remain limited in their ability to analyze multimodal behavioral time series associated with mental health in MCI. Multimodal features are extracted at different temporal resolutions and supports (time intervals over which a feature is computed): window-level features summarize signal content over an interval (e.g., acoustic or physiological features extracted with sliding windows over several seconds), frame-level features are measured at individual timestamps (e.g., facial features extracted at 1 frame per second (fps)), and word-level language features occupy variable temporal spans. Existing approaches temporally associate multimodal features by sequence-index pairing, aligning the features by their sequence position in each extracted feature time series rather than by the timestamps to which they correspond in the original recording [23]–[28]. Consequently, this sequence-index pairing creates temporal coverage misalignment (or displacement) across multimodal behavioral features, in which a multi-second window-level feature (e.g., acoustic) is as-sociated with a single frame-level observation (e.g., facial), despite the window covering multiple observations in time, as shown in Fig. 1(a). Fig. 2(a) also shows this issue for an example video: across a segment of consecutive indices, the acoustic, head pose, and eyegaze features assigned to the same index (e.g., 715) were recorded up to 22 seconds apart, more than 100 times the 200 ms window within which humans perceptually bind cross-modal behavioral cues [17]. This causes the model to fuse features from different time segments of the response, thereby learning misaligned be-havioral co-occurrences. In contrast, a temporally aligned representation fuses concurrent behavioral cues, supporting clinically meaningful interpretation across frame-, word-, and window-level behavioral features, as shown in Fig. 1(b). Interpretability is necessary for clinicians to trust a model’s prediction [29]. It requires attributing a prediction across modalities, questions, and time, so a clinician can identify which behavioral signals, in response to which questions, and at which moments in the interview drove the prediction. Comprehensive semi-structured interviews that combine open-ended questions with multiple screening instruments may require substantial administration time. In our protocol, in-terviews lasted from 21 to 67 minutes. Therefore, identifying which portions of the interview contain sufficient predictive evidence may inform shorter protocols that reduce clinician time and participant burden. These question- and time-level attributions are meaningful only when the modalities share a common timeline, making fine-grained cross-modal temporal alignment a prerequisite for interpretation. Remote video recordings collected in real-world settings also exhibit missingness across modalities over time. Partic-ipants complete interviews under varying lighting conditions and camera placements so that the video may include blur and occlusion (Fig. 2(b)), and unstable internet connectivity may cause frames to drop [30]. Under these conditions, feature extraction may fail at specific timesteps across the IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 3
+
+modalities [20], [28]. To handle missingness, previous studies zero-filled missing values [31], which makes true absence in-distinguishable from a valid near-zero measurement. A model must therefore explicitly encode feature missingness. Furthermore, participant answers are also question-dependent: a brief yes/no answer can carry different clinical meanings depending on the prompt that elicited it. The an-swer to a question is the co-occurring cross-modal behavior described above, so the question is more informative when it conditions the multimodal sequence at the moment the behavior occurs. Prior work on mental health prediction in the MCI population does not incorporate the question con-text [21], [32], [33]. Some of the existing depression prediction approaches incorporate question context, but do not apply this conditioning jointly across modalities at a fine-grained temporal resolution. One approach combines the question with temporally pooled text and audio representations for each answer segment [25]. Other approaches condition only a subset of the modalities on the question. For example, Guo 
+
+et al. [23] condition only the text modality on the question in their multimodal approach, while Niu et al. [34] condition audio and text in separate models before fusion. As a result, current approaches do not allow the question to influence the joint cross-modal behavior at the moment it occurs during modeling. We propose TAMI, a Temporally Aligned, Missingness-Aware, and Interpretable multimodal fusion framework for predicting depression and anxiety in older adults with MCI from remote interviews. TAMI integrates fine-grained cross-modal temporal alignment of features with heterogeneous sampling rates, modality-level missingness over time, and question conditioning. II. R ELATED WORK 
+
+A. Multimodal Mental Health Interview Analysis 
+
+Automated prediction of depression and anxiety from recorded interviews has been studied primarily in general adult populations using datasets such as DAIC-WOZ [25], [28], [35]–[37]. In contrast, interview-based pipelines in older adults with MCI have largely targeted cognitive assessment [38]– [40], whereas mental health prediction in this population re-mains underexplored [21], [32], [33]. Across both populations, multimodal approaches combine facial, acoustic, language, and physiological remote photoplethysmography (rPPG) fea-tures through late, early, or mid-fusion [24], [26], [28], [31], [41], [42]. Some combine facial with acoustic or language features but omit rPPG [43]–[45], while others include rPPG but omit eyegaze and head pose [21], [31]. We address these gaps with a multimodal deep learning model that predicts depression and anxiety in older adults with MCI from facial action units and landmarks, head pose, eyegaze, acoustic, language, and rPPG features collectively. 
+
+B. Cross-Modal Temporal Alignment 
+
+Prior multimodal approaches handle temporal misalignment across features in one of two ways. The first approach tem-porally pools each feature time series into a single vector per feature before multimodal fusion [23]–[25]. The second approach keeps per-feature time series but places each feature observation at a single point on the time axis [26]–[28], as illustrated in Fig. 1(a). These methods do not provide a shared timeline that aligns frame-level, window-level, and word-level features according to their temporal support. In contrast, our temporal binning approach preserves the time interval covered by each feature by constructing a shared time axis that reflects the original recording times. This allows the model to learn temporally aligned cross-modal interactions, reflecting how clinicians assess patient behaviors in real-world clinical settings. 
+
+C. Handling Missingness across Modality and Time 
+
+Most prior multimodal mental health work handles missing-ness at the modality level for each sample, treating whether a modality is present for the participant as a whole [31], [46]. Other studies replace missing values at the timestep level with zeros, which cannot be distinguished from valid zero values in observed timesteps [27], [31]. Gimeno-Gomez et al. [28] encode missingness more finely, with per-modality, per-frame presence masks that act as attention masks for depression prediction. We build on this fine-grained masking strategy but place the masks on answer-aligned temporal bins. As a result, at each timestep, the multimodal features, their temporal availability masks, and the corresponding question context share the same timeline. 
+
+D. Modeling Question and Answer Interaction 
+
+Prior work on mental health prediction in older adults with MCI ignores the question context in multimodal modeling and focuses only on the participant answer [21], [32], [33]. In general-population depression classification, some methods condition the multimodal response on the question but in a limited way. Zhang et al. [25] temporally pool the acoustic re-sponse time series and text into a single vector for each modal-ity, then fuse them with the question using gated addition. This discards fine-grained temporal information. Other approaches apply question conditioning separately to each modality rather than to a joint multimodal representation. Niu et al. [34] use additive attention to condition the response acoustic time series and text sequence independently on the question before fusion. Guo et al. [23] condition only the text modality on the question context by encoding the concatenated question and response text with RoBERTa [47], while the acoustic response is encoded independently before fusion. As a result, these methods do not condition the fused multimodal sequence on the question at a fine-grained temporal resolution within each answer. In addition, their conditioning incorporates only the acoustic and text modalities. In contrast, we add the question embedding to every timestep of the fused multimodal sequence, which also includes facial and physiological signals, allowing each moment of the answer to be interpreted in the context of the question that elicited it. IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 4t₀  t₁                                           
+
+> Answer 1: L = 5 s.
+> t₂ t₃ t₄ t₅ t₆ t₇
+> Answer 2: L = 3 s.
+> t₈ t₉ t₁₀ t₁₁ t₁₂ t₁₃ Time
+> (a) t₀
+> t₀
+> t₁
+> t₁
+> t₂
+> t₂
+> t₃
+> t₃
+> t₄
+> t₄
+> t₅
+> t₅
+> t₆
+> t₆
+> t₇
+> t₇ t₈ t₉ t₁₀ t₁₁ t₁₂ t₁₃
+> Bin index
+> t₈ t₈ t₉ t₉ t₁₀ t₁₀ t₁₁ t₁₂ t₁₃
+> b₁,₁ b₁,₂ b₁,₃ b₁,₄ b₁,₅ b₁,₆ b₂,₁ b₂,₂ b₂,₃ b₂,₄
+> (b)
+> Answer Segment
+> Acoustic
+> Eye gaze
+> Temporally Aligned Features
+> Missing
+> Temporal bin
+> 1
+> 1
+> 0
+> Mask
+> 1
+> 0
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 1
+> 1
+> 0
+> 1
+> 1
+> 1
+> 1
+> 1
+> 1
+> 0
+> 1
+> 1
+> 1
+> s₁ ... s₆ ... s₁₀ s₁ ... s₆ ... s₁₀
+> Acoustic
+> Eye gaze
+> rPPG
+> Fig. 3. Adaptive temporal binning for within-answer multimodal alignment. (a) Each participant’s recording is partitioned along the time axis into question-answer segments, as shown on the upper axis. Each segment is divided into a number of temporal bins depending on its duration, as shown on the lower axis. The bins define a shared timeline that aligns features of different temporal supports: frame-level features (e.g., eyegaze) are assigned to a bin by timestamp, and window-level features (e.g., acoustic) are assigned to every bin they overlap. (b) Bins from all answers are concatenated into a participant-level sequence, with a binary modality-timestep mask indicating observed and missing entries.
+
+E. Interpreting Predictions across Modality, Question, and Time 
+
+Multimodal mental health interviews produce structured evi-dence across modalities, questions, and time, with multiple be-havioral signals unfolding throughout the interview in response to specific prompts. Prior interpretability methods examine only a subset of these levels. Modality-level methods identify which modalities drive a prediction through performance com-parisons [20], [41] or post-hoc attribution scores [21], [31], without localizing importance to specific questions or mo-ments in time. Question-level methods attribute importance to interview questions or to modalities within a question through attention [23], [24] or performance comparisons [48], but do not identify when within an answer the relevant evidence is observed. Gimeno-Gomez et al. apply Integrated Gradients (IG) [49] to visualize modality importance over time within a selected short temporal window from a single participant’s video rather than across the full interview [28]. They do not incorporate question structure or extend the analysis to cohort-level summaries for modality and temporal importance [28]. No prior method derives modality-level, question-level, and interview-wide temporal importance jointly across partici-pants. We address this gap by deriving all three levels of explanation from IG [49] attributions at both cohort and individual levels over the full interview. III. M ETHOD 
+
+TAMI processes interviews in three stages: (1) temporally aligned multimodal feature time series with per-modality-feature per-timestep missingness masks; (2) question-conditioned multimodal feature fusion; and (3) post-hoc multi-level attribution that quantifies the importance of each modal-ity, question, and timestep. 
+
+A. Problem Formulation 
+
+Each participant i ∈ {1, . . . , N } provides a remote in-terview recording represented as a sequence of observed question-answer segments, Xi = {(qij , a ij )}Ji
+
+> j=1
+
+, where qij 
+
+is the j-th question answered by participant i and aij is the corresponding answer. Because participants may not answer all interview questions, Ji can vary across participants. Each answer spans a time interval of duration Lij , which we partition into Bij temporal bins. The bins form a shared timeline that aligns features of different temporal supports. For modality-feature m ∈ M with feature dimension Dm,bin bij,k with k ∈ { 1, . . . , B ij } corresponds to a feature vector 
+
+x(m) 
+
+> ij,k
+
+∈ RDm and a binary availability mask M (m) 
+
+> ij,k
+
+∈ { 0, 1},where 0 indicates that the observation is missing. Given an interview, the task is to predict a binary label, representing the presence or absence of depression or anxiety. Separate models are trained for each task. 
+
+B. Temporally Aligned Representation 1) Feature Extraction: Throughout the paper, we use 
+
+modality-feature to refer to each of the eight feature time series used as model inputs. The features are extracted from the participant-side audiovisual recordings. From the facial video, we extract frame-level features at 1 fps: combined facial action units and landmarks (AUs & LMs), head pose [50], and eye-gaze [51]. Physiological rPPG-derived heart rate is computed as a window-level feature with a sliding window of 6s and 1s hop [52]. From the audio, we extract window-level acoustic features with a sliding window of 2s and 1s hop: eGeMAPS, ComParE [53], and Wav2Vec2 embeddings [54], [55]. The language features are RoBERTa embeddings from WhisperX 
+
+word-level transcripts [47], [56]. Interview questions are en-coded separately using Sentence-BERT [55], [57] and used to condition the participant-side features. These feature sets have been used in previous mental health [20], [21], [24], [58], [59] and behavioral analysis [60], [61] pipelines. Full details are in the Supplementary in Section A-A. 
+
+2) Answer Segmentation and Temporal Alignment: For this feasibility study, the interviewer manually marked the start and end timestamps of each question-answer interval. This step can potentially be automated at deployment by aligning the WhisperX transcript to the known interview questions to locate each question-answer interval. If a participant did not answer a question, that question is excluded for the participant. Each answer segment is divided into temporal bins with a bin width of w = 1 s, as illustrated in Fig. 3(a). Because answer durations vary widely (1–926s), the number of bins adapts to each answer duration rather than truncating long answers or padding IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 5Acoustic              
+
+> Facial
+> rPPG
+> Masks
+> Q-A Segment 1
+> q₁ ...
+> Missing
+> s₁ ... s₆
+> Q-A Segment 4
+> q₄ ...
+> ... ... s₁₄
+> Linear/Non-linear projection backbone Proj. Backbone
+> qⱼ Question embedding
+> Conc. Concatenation [features || masks] Sum
+> Proj. Enc. Linear projection Transformer
+> Proj. Proj. Backbone
+> Conc. Proj. Backbone Enc. Proj. Prediction Proj. Backbone
+> Masks
+> q₁ q₄
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+> 1
+> 0
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+> 1
+> 0
+> 0
+> 1
+> 0
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+> 1
+> 1
+> 0
+
+Fig. 4. Question-conditioned fusion pipeline ( S = 14 for illustration). 
+
+short ones. The number of bins for answer j of participant i is set as Bij = clamp (round( Lij /w ) + 1 , B min , B max ), where 
+
+Bmin and Bmax are lower and upper bin-count bounds. These bounds ensure that every answered question is represented, while limiting the number of bins for long answers. When an answer exceeds the upper bound, the bin width is increased (w > 1s) so that the full answer is represented using Bmax 
+
+bins without truncation. Frame-level features are assigned to the bin containing their frame timestamp. Window-level features are assigned to all bins that overlap their feature windows. If multiple windows overlap the same bin, their feature vectors are averaged to form a single bin-level representation, treating all overlapping windows as an estimate of the signal within that bin. Transcript words are assigned using WhisperX times-tamps, and all words overlapping a bin are concatenated and encoded as a single bin-level language representation using RoBERTa embeddings. The bins from all answered questions are concatenated along the temporal axis as participant-level multimodal feature time series, shown in Fig. 3(b), with a length of Si = PJi 
+
+> j=1
+
+Bij , where bin index is s ∈ { 1, . . . , S i}
+
+in the concatenated participant-level sequence. 
+
+3) Modality-Timestep Missingness: The availability mask 
+
+M (m) 
+
+> ij,k
+
+for bin bij,k is set to 0 if no valid observation for feature m is available in that bin. This occurs when no frame-level feature value falls within the bin interval, no window-level feature overlaps the bin interval, or no transcript word is spoken in the bin. In that case, the corresponding feature vector is zero-filled x(m) 
+
+> ij,k
+
+= 0. Conversely, M (m) 
+
+> ij,k
+
+= 1
+
+denotes a valid observation for that feature in the bin, even when the feature vector contains zero-valued measurements, thereby distinguishing missing observations from valid low-signal behavior (Fig. 3(b)). 
+
+C. Question-Conditioned Fusion and Prediction 1) Projection Backbones and Fusion: We explored a lin-ear and a non-linear per-modality-feature projection back-bone (Fig. 4) to test whether the model would benefit from learning a per-modality-feature temporal representation before multimodal fusion. The linear projection backbone projects each modality-feature at each temporal bin s to dimension 
+
+d independently, with no temporal modeling (no mixing of information across time). Here, temporal modeling is deferred to the Transformer encoder (Enc.) shown in Fig. 4, which applies attention across temporal bins after multimodal fu-sion. The non-linear projection backbone instead uses a per-(a) Feature-level attribution           
+
+> feature dimensions
+> Acoustic ⋯Dₘ=88
+> Facial ⋯
+> rPPG Dₘ=1
+> |raw IG attribution|
+> missing / masked bin (contributes 0)
+> average
+> |attribution|
+> Dₘ=155 over Dₘ
+> Temporal importance
+> sum over modalities
+> group by question
+> Q1 Q2
+> Within-question modality importance
+> average over Question importance Q1 Q2
+> time
+> (b) Aggregate → multi-level summaries
+> arrows show the direction each level collapses
+> temporal sequence Q3 Q4
+> Modality
+> importance
+> average over
+> time
+
+Fig. 5. Multi-level interpretability in modality, question, and time. 
+
+modality-feature Transformer that applies attention across time before fusion. Thus, unlike the linear projection backbone, the non-linear projection backbone mixes information for each modality-feature across time before multimodal fusion. Both backbones take the aligned per-modality-feature time series X(m) 
+
+> i
+
+∈ RSi×Dm and availability masks M (m) 
+
+> i
+
+∈{0, 1}Si×1 as input. Then they both project each modality-feature onto a common dimension d, producing ˆX(m) 
+
+> i
+
+∈
+
+RSi×d:
+
+ˆX(m) 
+
+> i
+
+=
+
+
+
+M (m) 
+
+> i
+
+⊙  X(m) 
+
+> i
+
+W ⊤
+
+> m
+
+ (a) linear 
+
+fm
+
+ X(m) 
+
+> i
+
+W ⊤ 
+
+> m
+
+, M (m)
+
+> i
+
+ (b) non-linear (1) The linear projection gates each feature by its mask. The non-linear projection instead applies a per-modality-feature Transformer fm with temporal self-attention while using the mask as the attention mask. Regardless of which projection backbone is used, the resulting projected per-modality-feature representations ˆx(m) 
+
+> i,s
+
+∈ Rd at each bin s are then concatenated with their availability masks [62]. Before concatenation, a zero-filled missing bin and an observed value at the feature mean are both zero, so without appending the mask as a missingness indicator, the model cannot distinguish a missing observation from a valid zero measurement. The concate-nated representation and mask vectors are then projected to a single fused multimodal token zi,s ∈ Rd: zi,s =
+
+Wf
+
+ ˆx(1)  
+
+> i,s
+
+; · · · ; ˆ x(Nm) 
+
+> i,s
+
+; M (1)  
+
+> i,s
+
+; · · · ; M (Nm)
+
+> i,s
+
+, where Nm = 8 is the total number of modality-features. The tokens are stacked to form the fused multimodal sequence Zi ∈ RSi×d.
+
+2) Question Conditioning and Prediction: We condition the fused multimodal sequence, Zi, on the question context at each temporal bin. Let qij be the embedding of the j-th question for participant i. For each temporal bin s within the answer to question j, we add the question embedding to the fused multimodal token zi,s , ˜zi,s = zi,s + Wq qij ,where Wq maps the question embedding to dimension d. The conditioned tokens form a sequence ˜Zi ∈ RSi×d, which is then processed by a Transformer encoder (Enc. in Fig. 4) with a prepended [CLS] token, and a linear head maps the 
+
+[CLS] representation to the prediction logit. Within a batch, participant sequences of unequal length are padded to the longest and excluded from attention through a padding mask. 
+
+D. Post-hoc Multi-Level Attribution 
+
+After training, we attribute each prediction to the input fea-tures using IG, with a zero-vector baseline equal to the mean IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 6
+
+feature value after standardization [49]. This yields a single scalar attribution |A(m) 
+
+> c,s
+
+| for each feature c of modality-feature 
+
+m at each temporal bin s for each participant (Fig. 5(a)). We aggregate these feature-level attributions to build interpretable summaries along clinically interpretable axes: which question and which modality within that question drove the prediction, and when in the interview the relevant evidence occurred (Fig. 5(b)). The arrows in Fig. 5(b) show these aggregations, producing modality importance, question importance, within-question modality importance, and the temporal importance across the interview. Full derivations are provided in the Supplementary in Section A-B. IV. E XPERIMENTS 
+
+A. Dataset 
+
+Our dataset comprises remote semi-structured interviews from 49 older adults with MCI. Interviews were conducted over Zoom at participants’ preferred time and location, typi-cally at home, using their own devices, including tablets, lap-tops, and mobile phones. Participants were recruited from the Charlie and Harriet Shaffer Cognitive Empowerment Program (CEP) at Emory University. The study protocol was approved by Emory University Institutional Review Board (protocol #2025P012652). Participants provided written informed con-sent for research participation. Each interview included six question groups: open-ended narrative prompts including a TAT picture description task [63], an I-CONECT social and functional check [64], the Geriatric Depression Scale (GDS) [65], the Generalized Anxiety Disorder (GAD-7) scale [66], the UCLA Loneliness Scale [67], and the Lubben Social Net-work Scale (Social Engagement) [68]. Before each interview, participants were told that they could elaborate on any answer. However, answers to yes/no and Likert-scale questions were usually brief. Not every participant answered every question, owing to question skip logic, pilot-phase changes to the administered question groups, and occasional technical issues (details are provided in the Supplementary in Section B-A). Participants had a mean age of 73.4 ± 8.1 years, and 47% were female. Across all questions, answers had a median duration of 5s with a maximum duration of 926s ≈ 15 
+
+minutes (interquartile range: 3–12s). Full interview durations (including both participant and interviewer sides) ranged from 21 to 67 minutes, with a median of 31 minutes. Participant-side video resolution varied from 640 × 480 to 1920 × 1080 
+
+pixels. We define depression risk as GDS ≥ 10, corresponding to at least mild depressive symptoms [65] and anxiety risk as GAD-7 ≥ 5, corresponding to at least mild anxiety symp-toms [66]. One participant lacked a GAD-7 score, yielding 49 participants for depression (21 positive, 28 negative) and 48 for anxiety (17 positive, 31 negative). Per-modality-feature average temporal bin missingness was at most 3% except for language (37%). Structured question items usually elicit single-word or yes/no answers (median duration: 3s), so most one-second bins within an answer contain no transcribed word, leading to high language-feature missingness (average 
+
+≈ 44% across structured question groups), while open-ended questions elicit the longest answers (median duration: 87.5s) and the lowest missingness (16%). The Supplementary reports language-feature missingness and answer duration by question group in Fig. 8. 
+
+B. Implementation and Evaluation 
+
+Temporal bins are constructed with a minimum of Bmin = 1 
+
+bin and a maximum of Bmax = 64 bins per answer. The upper bound of 64 bins was chosen so that the majority of answers are represented at 1-second resolution. For the 4% of answers exceeding 64 seconds, bins were widened proportionally so that the full answer duration was still spread across all 64 bins, reducing temporal resolution rather than discarding con-tent (Section III-B2). All Transformer encoders use a hidden dimension d = 128 . The per-modality-feature encoders in the non-linear projection backbone use a single Transformer layer, while the common encoder (the Enc. in Fig. 4) in both backbones uses two Transformer layers. We train all models for 10 epochs (sufficient for plateauing the model training loss curve) [21] using the Adam optimizer with a learning rate of 0.001, a batch size of 4 participants, and binary cross-entropy loss. A class-balanced batch sampler is used to address class imbalance. Interpretability analysis is applied to the best-performing model variant for each task (Non-linear+T for depression and Linear+T for anxiety). We evaluated all models using participant-independent 5-fold cross-validation across 3 repetitions (15 runs). All feature time series were standardized using training-fold statistics before training to have zero mean and unit variance. We report AUROC scores with 95% confidence intervals (CIs) across all folds. We also report area under the precision-recall curve (AUPRC), macro-F1, precision, and recall scores for all models in the Supplementary in Table V. All performance comparisons use one-sided paired t-tests on fold-level AUROC score differences at p < 0.05 .
+
+C. Ablations 
+
+We evaluate temporal alignment (T) and question-conditioned fusion (Q) of the multimodal feature time series as two design options under both linear and non-linear projection backbones. The sequence-index-paired baseline model pairs feature time series by index rather than by the timestamp of the underlying behavior, following prior multimodal mod-els [26], [27]. Models that use Q only without T test two adaptations of prior question-conditioning methods on the temporally unaligned sequence-index-paired baseline. The first is pooled additive conditioning (+ Q, sum), adapted from the question conditioning approach of Zhang et al. [25]. In our variant, all answered-question embeddings are averaged into one interview-level vector and added uniformly across time to the fused multimodal sequence. The second is cross-attention conditioning (+ Q, cross-attn.), which generalizes the question-conditioned additive attention used in HCAG [34]. In our variant, cross-attention is instead applied between the fused multimodal sequence and the sequence of answered-question embeddings. Further details are provided in the Supplementary in Section B-C. IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 7
+
+TABLE I AUROC PERFORMANCE (MEAN ± 95% CI S) FOR DEPRESSION AND ANXIETY CLASSIFICATION . BOLD , UNDERLINE , AND italics DENOTE THE BEST , SECOND -BEST , AND THIRD -BEST RESULTS FOR EACH TASK ,
+
+> RESPECTIVELY
+
+. T IED RESULTS RECEIVE THE SAME RANK . T DENOTES TEMPORALLY ALIGNED FEATURES , AND Q DENOTES QUESTION CONDITIONING . L INEAR AND NON -LINEAR DENOTE THE DIFFERENT PROJECTION BACKBONES .
+
+Variant Depression AUROC ↑
+
+Anxiety AUROC ↑
+
+Sequence-index-paired baseline [26], [27] Linear 0.51 ± 0.06 0.58 ± 0.03 
+
+Non-linear 0.58 ± 0.11 0.56 ± 0.06 
+
+Linear + T 0 .64 ± 0 .08 ∗ 0.69 ± 0.09 ¶
+
+Non-linear + T 0.68 ± 0.04 0.58 ± 0.07 
+
+Linear + Q, sum [25] 0.52 ± 0.003 0.55 ± 0.06 
+
+Linear + Q, cross-attn. [34] 0.45 ± 0.07 0.56 ± 0.04 
+
+Non-linear + Q, sum [25] 0.55 ± 0.08 0.54 ± 0.07 
+
+Non-linear + Q, cross-attn. [34] 0.56 ± 0.11 0.56 ± 0.09 
+
+Linear + Q + T 0.67 ± 0.10 † 0.67 ± 0.07 §
+
+Non-linear + Q + T 0.67 ± 0.07 ‡ 0 .61 ± 0 .01 
+
+Selected AUROC comparisons using one-sided Student’s paired t-tests: Depression: ∗Linear+T > Linear baseline, p ≈ 0.05 ; †Linear+Q+T >
+
+Linear+Q (sum), p ≈ 0.009 and > Linear+Q (cross-attn.), p ≈ 0.001 , and 
+
+> Linear baseline, p ≈ 0.009 ; ‡Non-linear+Q+T > Non-linear+Q (sum), 
+
+p ≈ 0.02 , and > Non-linear+Q (cross-attn.), p ≈ 0.001 .Anxiety: ¶Linear+T > Linear baseline, p ≈ 0.05 ; §Linear+Q+T >
+
+Linear+Q (sum), p ≈ 0.04 . For all other pairwise comparisons, p > 0.05 .Full pairwise statistical comparisons are provided in the Supplementary in Table VI. Macro-F1, AUPRC, precision, and recall results are provided in the Supplementary in Table V. TABLE II MASK ABLATION RESULTS FOR DEPRESSION AND ANXIETY CLASSIFICATION IN TERMS OF AUROC ( MEAN ± 95% CI S). BOLD 
+
+> DENOTES THE BETTER RESULT WITHIN EACH PROJECTION BACKBONE AND TASK
+
+.
+
+Variant Depression AUROC ↑
+
+Anxiety AUROC ↑
+
+Linear + T (no mask) 0.65 ± 0.09 0.64 ± 0.05 
+
+Linear + T (mask) 0.64 ± 0.08 0.69 ± 0.09 
+
+Non-linear + T (no mask) 0.67 ± 0.09 0.56 ± 0.09 
+
+Non-linear + T (mask) 0.68 ± 0.04 0.58 ± 0.07 
+
+We also ablate the modality-timestep missingness mask on the T models with both linear and non-linear projection backbones. We replace the mask with an all-ones mask (no mask variant), which makes zero-filled bins indistinguishable from observed ones, reproducing the no-mask case used by prior work that zero-fills at the timestep level [27], [31]. V. R ESULTS 
+
+A. Overall Performance 
+
+Table I reports AUROC scores for depression and anxiety under each combination of projection backbone (Linear vs. Non-linear), temporal alignment (T), and question condition-ing (Q). Temporally aligning the multimodal features achieves the highest scores for both tasks: Non-linear+T reaches 0.68 ±
+
+0.04 for depression ( ∆=+0 .10 over the Non-linear baseline), and Linear+T reaches 0.69 ± 0.09 for anxiety ( ∆=+0 .11 over the Linear baseline, p=0 .05 ). Adding question conditioning on 
+
+TABLE III QUESTION -GROUP IG ATTRIBUTION SUMMARIES . V ALUES ARE SCALED BY 10 3 . S PREAD IS THE DIFFERENCE BETWEEN THE MAXIMUM AND MINIMUM GROUP MEANS WITHIN EACH TASK . BOLD , UNDERLINE , AND 
+
+italics DENOTE THE HIGHEST , SECOND -HIGHEST , AND THIRD -HIGHEST ATTRIBUTIONS ACROSS QUESTION GROUPS WITHIN EACH TASK .
+
+Depression Anxiety Question group Range Mean Range Mean Open 1.09–1.65 1.31 1.04–1.39 1.16 I-CONECT 0.66–2.15 1.03 0.91–1.58 1.17 
+
+GDS 0.42–1.03 0.68 0.74–1.76 1.17 
+
+GAD-7 0.73–1.07 0.90 0.80–1.17 1.03 Loneliness 0.64–1.35 0.88 0.77–1.14 0.93 Social engagement 0.83–1.70 1.17 0.74–1.64 1.10 Spread 0.63 0.24 
+
+top of alignment provides no significant gain over alignment alone (all Q+T vs. T p > 0.05 ), though Q+T variants remain competitive (Linear +Q+T: 0.67 for depression and anxiety). Without temporal alignment, neither summation nor cross-attention for question conditioning shows a consistent advan-tage across the two tasks (AUROC 0.45–0.56). Models with linear and non-linear projection backbones have overlapping confidence intervals, and their rankings are inconsistent across tasks. Replacing the modality-feature-timestep mask with all-ones, thereby treating all bins as observed (the no-mask variant in Table II), reduces performance for anxiety classification (Linear ∆ = −0.05 and Non-linear ∆ = −0.02 ). The effect on depression classification is smaller, where removing the mask increases AUROC by 0.01 for the linear model but decreases it by 0.01 for the non-linear model. 
+
+B. Modality Importance 
+
+The most important features differ across the two tasks (Fig. 6(a)). For depression, eyegaze accounts for 66% of the total attribution, followed by ComParE at 11.2%. For anxiety, the attribution is more evenly distributed between eyegaze at 44% and head pose at 37.2%. Together, the two leading features account for more than 77% of the total attribution in each task. AUs & LMs contribute less than 1% in both tasks, indicating that eyegaze and head pose capture most of the predictive facial signal once they are present. Language features contribute less than 3% in both tasks. Acoustic information is more prominent for depression, with ComParE ranking second overall, whereas no individual acoustic feature exceeds 6.5% for anxiety. This feature dominance holds at the question level for both tasks, as shown for the highest-ranked questions in the Supplementary in Fig. 11. 
+
+C. Question Importance 
+
+Both tasks distribute attribution across all interview ques-tions but differ in how that attribution spreads across question groups (Table III). Depression shows wider dispersion (spread: 
+
+0.63 × 10 −3), with the highest mean attribution assigned to the open-ended questions, followed by the social engagement questions. The open-ended questions are Q1 (“Tell me about IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 8Eye gaze ComParE Head pose rPPG Text eGEMAPS Wav2Vec2 AUs & LMs 020 40 60                    
+
+> Modality attribution %
+> 66.0% 11.2% 9.1% 8.3% 2.5% 1.7% 0.7% 0.4%
+> Depression
+> Eye gaze Head pose rPPG ComParE Text eGEMAPS Wav2Vec2 AUs & LMs 44.0% 37.2% 8.9% 6.4% 1.4% 0.9% 0.7% 0.5%
+> Anxiety
+> 0.0 0.25 0.5 0.75 1.0
+> Relative interview progress
+> 0.0 0.5 1.0 1.5 2.0 2.5
+> Mean attribution (×10⁻³)
+> Question group Open I-CONECT GDS GA D-7 Loneliness Social
+> Depression
+> 0.0 0.25 0.5 0.75 1.0
+> Relative interview progress
+> Open I-CONECT GDS GA D-7 Loneliness Social
+> Total Eye gaze Head pose ComParE
+> Anxiety
+> (a) Modality importance (b) Temporal importance
+
+Fig. 6. IG attribution for depression and anxiety across participants. (a) Modality importance across the entire video duration. (b) Temporal importance across interview progress, showing the total attribution together with the eyegaze, head pose, and ComParE time series attributions. Shaded bands indicate participant-level variability, and the colored strip below each plot marks the interview progress of each question group. 
+
+yourself”), Q2 (Best event in the past two years), Q3 (Worst event in the past two years), and Q4 (TAT picture description). At the individual question level, the four questions with the highest absolute attributions are Q10 (I-CONECT “In the past week, have you had visitors who stayed with you in your home for a night or more? If yes, then how many nights?”), Q89 (Social Engagement: “How often is one of your relatives available for you to talk to when you have an important decision to make?”), Q5 (I-CONECT: “So, would you say your health is Very good, Good, Fair, Poor, Excellent?”), and Q1 (open-ended: “Tell me about yourself”). Anxiety shows a tight group-mean range (spread: 0.24 ×
+
+10 −3), indicating roughly uniform reliance on the full in-terview, with the highest-attribution questions coming from multiple groups. The four questions with the highest attribution for anxiety are Q47 (GDS: crying frequency), Q91 (Social Engagement: “How often is one of your friends available for you to talk to when you have an important decision to make?”), Q90 (Social Engagement: “When one of your friends has an important decision to make, how often do they talk to you about it?”), and Q20 (I-CONECT: “Did you spend time communicating with any friends or family members in writing, such as email, text, or letter writing this week?”). The attribution scores for the highest-ranked questions across all question groups are presented for each task in the Supplementary in Fig. 10. Neither GDS nor GAD-7 ranks among the top question groups for its corresponding task, indicating that the model relies on participant behavioral responses across the video rather than on the screening tool itself. This suggests a novel opportunity for developing multimodal behavioral biomarkers associated with depression and anxiety in MCI beyond a brief self-report tool for clinical decision support. 
+
+D. Temporal Importance 
+
+Depression attribution peaks early and decays across the interview from ∼2.0 to ∼0.75 ( ×10 −3) by mid-interview (Fig. 6(b)). The decline is driven by eyegaze, whose con-tribution decreases from ∼1.25 to ∼0.50 ( ×10 −3) over the same period. The early peak aligns with the open-ended questions and is consistent with the question-level finding that these questions receive the highest mean attribution. In contrast, anxiety shows a uniform temporal importance profile. Total attribution decreases from ∼1.2 to ∼0.90 ( ×10 −3) near the end of the interview before returning to ∼1.2. The eye gaze and head pose attributions remain relatively uniform throughout the interview. Representative participant profiles are shown in the Supplementary in Fig. 12. 
+
+E. Open-Ended Question Performance 
+
+To evaluate whether the open-ended portion of the interview alone retains predictive performance, we train and evaluate the best-performing model for each task using only multimodal features extracted from participants’ responses to the four open-ended questions (median duration: 5.1 min). We use the Non-linear+T model for depression and the Linear+T model for anxiety. For depression, the open-ended-only model achieves an AUROC of 0.67 ± 0.13 , which is only 0.01 lower than that of the model trained on the full interview. This difference is not statistically significant (p > 0.05) . This result is consistent with the question importance analysis, which shows that depression predictions rely on responses to the open-ended questions. For anxiety, the open-ended-only model achieves an AUROC of 0.59 ± 0.06 . The model trained on the full interview achieves an AUROC that is 0.10 higher, and the difference is statistically significant ( p ≈ 0.02 ). This finding is also consistent with the question importance analysis, which suggests that anxiety predictions rely uniformly on the full interview. VI. D ISCUSSION 
+
+A. Temporal Alignment 
+
+Temporally aligning the multimodal features was the pri-mary driver of performance across both tasks, with models that used temporal alignment achieving the highest AUROC scores compared to the baseline models. Aligning features by timestamp corrects the temporal misalignment between the multimodal behavioral time series caused by sequence-index pairing used in prior approaches [26], [27] (Fig. 1 and Fig. 2(a)). 
+
+B. Question Conditioning 
+
+Question-conditioned fusion did not improve the perfor-mance of models that used temporally aligned multimodal features, and the temporally unaligned Q-only model variants IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 9
+
+showed no consistent gains over the baselines on either task. Question conditioning injects semantic context about what was asked, which is directly relevant to interpreting the answer content. However, because language alone contributed less than 3% of total attribution in both tasks, question content may have had limited influence on the prediction. Moreover, the Q-only variants do not use the explicit question-answer mapping provided by temporal alignment, so the model must recover this mapping, which may be difficult to learn in a data-driven manner. 
+
+C. Missingness Awareness 
+
+Overall, the modality–feature-timestep mask improved AU-ROC in three of the four model-task combinations, with the largest numerical gain for the Linear+T anxiety model and small, mixed effects for the depression models (Table II). To explore whether label-associated missingness might contribute to this pattern, we followed Che et al. [62] and computed Pearson correlations (r) across participants between modality missingness rates and the binary label for each task (depression or anxiety). We considered missingness informative when its rate correlated with the label and could therefore carry predictive information [62]. Based on the modality importance analysis, we examined this missingness-label association for the highest-ranked modalities in each task: eyegaze and head pose for anxiety prediction, and eyegaze for depression predic-tion. We also included text as a higher-missingness reference for anxiety prediction. Missingness in eyegaze and head pose had absolute correlations of |r| = 0 .19 and 0.18 , respectively, with the anxiety label, compared with |r| = 0 .04 for text (highest-missing modality). This suggests that missingness in the dominant anxiety modalities was informative and that the much higher rate of text missingness was not as informative. For depression, the correlation between eyegaze missingness and the label was small ( |r| = 0 .014 ), suggesting that miss-ingness was not informative for this task. 1 This task-specific pattern is consistent with the finding reported by Che et al. [62] that modeling missingness can improve prediction when it is associated with the label. In contrast, missingness with little or no label association provides limited benefit. This may explain why the mask numerically improved both anxiety models but had small, mixed effects on the depression models. However, the performance differences were not statistically significant at this sample size ( p > 0.05 ), and this interpretation requires validation in a larger sample. The mask is also important for the interpretability analysis because, without it, the modality, question, and temporal importance summaries could assign attribution to behavior that was not observed. 
+
+D. Modality Importance 
+
+Eyegaze was the dominant feature for both depression and anxiety, although anxiety distributed attribution more evenly between eyegaze and head pose. For depression, eyegaze accounted for 66% of the total attribution, consistent with 
+
+> 1These magnitudes are comparable to those reported in Fig. 1 in [62], where the missingness–label correlations were below 0.3.
+
+findings of eye movement differences between individuals with and without depression, including longer saccade dura-tions [69]. Among older adults specifically, depression was as-sociated with fewer fixations and saccades [69]. The ComParE acoustic feature set ranked second for depression with 11.2% attribution, supporting previous evidence that depression is as-sociated with distinct vocal characteristics such as monotony, reduced pitch variability, and slower speech [70]. For anxiety, eyegaze and head pose accounted for 44% and 37.2% of the total attribution, respectively. This is consistent with reduced face-directed gaze and shorter fixations in socially anxious individuals during real-time interactions [71], [72], as well as increased head movement and velocity during anxiety and stress states in video-based facial analysis [73]. All remaining acoustic and language features accounted for less than 6.5% of the attribution in both tasks, consistent with previous work on quantifying psychological well-being in older adults with MCI [21]. 
+
+E. Question Importance 
+
+The most notable result from the interpretability analysis is that the model did not assign its highest attribution to the question group that defined each label. GDS ranked last of six question groups for depression, and GAD-7 ranked second to last for anxiety. Attribution was instead distributed across question groups, suggesting that the model relied on participant behavior throughout the interview rather than on the screening questions. At the individual-question level, the highest-attributed questions for depression concerned social contact and support, and self-rated health. This is consistent with evidence that smaller social networks and lower social participation are associated with depressive symptoms in older adults [74], as well as evidence linking self-rated health to de-pressive symptoms in this population [75]. For anxiety, crying frequency received the highest attribution, which is consistent with evidence that greater attachment anxiety is associated with longer and more intense crying episodes [76]. Tearfulness is also included under the Tension item of the Hamilton Anxiety Rating Scale [77]. The next highest-attributed ques-tions concerned communication with and support from friends, which is consistent with evidence that low social support and social isolation are among the most reported factors associated with anxiety symptoms in older adults [78]. 
+
+F. Temporal Importance 
+
+Depression and anxiety differed in where the model’s at-tributions were concentrated. For depression, attribution was highest during the open-ended question block and declined across the later structured section. This is consistent with prior work that reported higher depression prediction performance from spontaneous speech than from a constrained sentence-reading task [79]. This suggests that spontaneous-speech re-sponse formats are more informative for depression screening. Anxiety, instead, showed a uniform spread of attribution across question groups. The most informative features, eyegaze and head pose, were expressed continuously rather than elicited by a particular question. This is consistent with accounts of IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 10 
+
+anxious hypervigilance as sustained monitoring of the sur-roundings through eye movements that occurs independently of the immediate stimulus [80], indicating that anxiety-related signals reflect a continual behavioral state. 
+
+G. Open-Ended Question Performance 
+
+Restricting the model input to participants’ responses to the four open-ended questions yielded a depression classification AUROC of 0.67, only 0.01 below the 0.68 achieved using the full interview, with no statistically significant difference between them ( p > 0.05 ). Although combined open-ended responses had a median duration of 5.1 minutes (range: 2.6– 11.5 min) for participants who answered all the open-ended questions ( n = 25 ), the short responses retained predic-tive information. This is consistent with the high attribution assigned to the open-ended question group from the inter-pretability analysis. For anxiety, however, restricting the input to the open-ended questions significantly reduced AUROC from 0.69 to 0.59 ( p ≈ 0.02 ). This result is consistent with the interpretability analysis, which indicates that anxiety-related information is distributed across the full interview. None of the four questions with the highest anxiety attribution belonged to the open-ended question group, suggesting that an abbreviated anxiety protocol may require questions selected from other parts of the interview. Given this cohort’s median participant-side-only interview duration of 19 minutes (maximum 60 min), a shorter protocol centered on open-ended questions (median duration: 5.1 min; maximum: 11.5 min) could reduce clinician time and participant burden for depression assessment. Our findings suggest that using the four open-ended questions alone may be sufficient to screen for depression. However, this finding requires validation in a larger sample. 
+
+H. Limitations and Future Work 
+
+One major limitation of this study is the small sample size (N = 49 ). In addition, the feature extractors for facial and acoustic features were pretrained on general-population data and may be less reliable on remote recordings from older adults with MCI, as reported in previous studies [21]. In future work, our findings should be validated in larger and more diverse cohorts, including populations with neuropsychiatric conditions who often have symptoms associated with depres-sion and anxiety. VII. C ONCLUSION 
+
+Depression and anxiety are often underdiagnosed in older adults with MCI. Current ML approaches can analyze multi-modal behavioral signals for screening. However, these ap-proaches overlook the importance of cross-modal temporal alignment, fail to account for time-varying modality missing-ness and question context, and provide limited interpretability for clinicians. We presented TAMI, a multimodal framework for detecting depression and anxiety in older adults with MCI from remote interviews, which incorporates cross-modal temporal alignment, modality-timestep missingness handling, question conditioning, and multi-level interpretability. The framework achieved 0.68 (depression) and 0.69 (anxiety) AUROC scores, with temporal alignment providing the largest performance gain over baselines. When restricted to mul-timodal responses from the four open-ended questions, the model achieved an AUROC score of 0.67 for depression. These responses had a median duration of 5.1 minutes, com-pared with 19 minutes for the participant-side full interview. This suggests that a shorter open-ended protocol may be sufficient to screen for depression. The proposed temporal alignment approach may benefit other applications involving multimodal time series, including emotion recognition [81] and human activity recognition [82], where features differ in sampling rates and temporal support, and cross-modal tem-poral correspondence is important for prediction. Clinically, TAMI supports remote mental health screening for adults who face barriers to in-person care or live in underserved regions. Its multi-level interpretability (modality, question, and temporal attributions) also allows clinicians to understand the reasoning underlying the model’s predictions, supporting informed clinical review. REFERENCES [1] K. B. Rajan, J. Weuve, L. L. Barnes, E. A. McAninch, R. S. Wilson, and D. A. Evans, “Population estimate of people with clinical Alzheimer’s disease and mild cognitive impairment in the united states (2020–2060),”                                         
+
+> Alzheimer’s & Dementia , vol. 17, no. 12, pp. 1966–1975, 2021. [2] S. Gauthier, B. Reisberg, M. Zaudig, R. C. Petersen, K. Ritchie, K. Broich, S. Belleville, H. Brodaty, D. Bennett, H. Chertkow, J. L. Cummings, M. de Leon, H. Feldman, M. Ganguli, H. Hampel, P. Schel-tens, M. C. Tierney, P. Whitehouse, and B. Winblad, “Mild cognitive impairment,” Lancet , vol. 367, no. 9518, pp. 1262–1270, 2006. [3] Z. Ismail, H. Elbayoumi, C. E. Fischer, D. B. Hogan, C. P. Millikin, T. Schweizer, M. E. Mortby, E. E. Smith, S. B. Patten, and K. M. Fiest, “Prevalence of depression in patients with mild cognitive impairment: A systematic review and meta-analysis,” JAMA Psychiatry , vol. 74, no. 1, pp. 58–67, 2017. [4] E. Martin and L. Velayudhan, “Neuropsychiatric symptoms in mild cognitive impairment: A literature review,” Dementia and Geriatric Cognitive Disorders , vol. 49, no. 2, pp. 146–155, 2020. [5] L. Ma, “Depression, anxiety, and apathy in mild cognitive impairment: Current perspectives,” Frontiers in Aging Neuroscience , vol. 12, p. 9, 2020. [6] S. E. Starkstein and R. Mizrahi, “Depression in Alzheimer’s disease,”
+> Expert Review of Neurotherapeutics , vol. 6, no. 6, pp. 887–895, 2006. [7] N. Bassil, A. Ghandour, and G. T. Grossberg, “How anxiety presents differently in older adults,” Current Psychiatry , vol. 10, no. 3, pp. 65–71, 2011. [8] R. Lavingia, K. Jones, and A. A. Asghar-Ali, “A systematic review of barriers faced by older adults in seeking and accessing mental health care,” Journal of Psychiatric Practice , vol. 26, no. 5, pp. 367–382, 2020. [9] V. Bergua, C. Blanchard, and H. Amieva, “Depression in older adults: Do current DSM diagnostic criteria really fit?” Clinical Gerontologist ,vol. 49, no. 2, pp. 224–261, 2026. [10] C. Bryant, J. Mohlman, A. Gum, M. Stanley, A. T. Beekman, J. L. Wetherell, S. R. Thorp, A. J. Flint, and E. J. Lenze, “Anxiety disorders in older adults: Looking to DSM-5 and beyond,” American Journal of Geriatric Psychiatry , vol. 21, no. 9, pp. 872–876, 2013. [11] OpenAI, “ChatGPT Images 2.0 System Card,” OpenAI Deployment Safety Hub, Apr. 2026, accessed: July 20, 2026. [Online]. Available: https://deploymentsafety.openai.com/chatgpt-images-2-0 [12] M. Alpert, E. R. Pouget, and R. R. Silva, “Reflections of depression in acoustic measures of the patient’s speech,” Journal of Affective Disorders , vol. 66, no. 1, pp. 59–69, 2001. [13] Y. Li, Y. Xu, M. Xia, T. Zhang, J. Wang, X. Liu, Y. He, and J. Wang, “Eye movement indices in the study of depressive disorder,” Shanghai Archives of Psychiatry , vol. 28, no. 6, pp. 326–334, 2016. [14] R. M. Voss and J. M. Das, “Mental status examination,” in StatPearls .Treasure Island, FL, USA: StatPearls Publishing, 2026, last updated April 30, 2024. [Online]. Available: https://www.ncbi.nlm.nih.gov/ books/NBK546682/ IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 11
+
+[15] F. Tr´ emeau, D. Malaspina, F. Duval, H. Corrˆ ea, M. Hager-Budny, L. Coin-Bariou, J.-P. Macher, and J. M. Gorman, “Facial expressiveness in patients with schizophrenia compared to depressed patients and nonpatient comparison subjects,” American Journal of Psychiatry , vol. 162, no. 1, pp. 92–101, 2005. [16] J. A. Harrigan and D. M. O’Connell, “How do you look when feeling anxious? Facial displays of anxiety,” Personality and Individual Differ-ences , vol. 21, no. 2, pp. 205–212, 1996. [17] V. van Wassenhove, K. W. Grant, and D. Poeppel, “Temporal window of integration in auditory-visual speech perception,” Neuropsychologia ,vol. 45, no. 3, pp. 598–607, 2007. [18] N. G. Choi, D. M. DiNitto, C. N. Marti, and B. Y. Choi, “Telehealth use among older adults during COVID-19: Associations with sociode-mographic and health characteristics, technology device ownership, and technology learning,” Journal of Applied Gerontology , vol. 41, no. 3, pp. 600–609, 2022. [19] Health Resources and Services Administration, “Health workforce short-age areas data dashboard,” https://data.hrsa.gov/topics/health-workforce/ shortage-areas/dashboard, n.d., accessed: May 13, 2026. [20] Z. Jiang, S. Seyedi, E. Griner, A. Abbasi, A. B. Rad, H. Kwon, R. O. Cotes, and G. D. Clifford, “Multimodal mental health digital biomarker analysis from remote interviews using facial, vocal, linguistic, and cardiovascular patterns,” IEEE Journal of Biomedical and Health Informatics , vol. 28, no. 3, pp. 1680–1691, 2024. [21] X. Mu, M. Bibars, S. Seyedi, I. Zheng, Z. Jiang, L. Chen, B. Omofojoye, R. Hershenberg, A. I. Levey, G. D. Clifford, H. H. Dodge, and H. Kwon, “Feasibility of detecting cognitive impairment and psychological well-being among older adults using facial, acoustic, linguistic, and cardiovas-cular patterns derived from remote conversations,” Machine Learning: Health , vol. 2, no. 1, p. 015005, 2026. [22] D. M. Low, K. H. Bentley, and S. S. Ghosh, “Automated assessment of psychiatric disorders using speech: A systematic review,” Laryngoscope Investigative Otolaryngology , vol. 5, no. 1, pp. 96–116, 2020. [23] Y. Guo, C. Zhu, S. Hao, and R. Hong, “A topic-attentive transformer-based model for multimodal depression detection,” arXiv preprint arXiv:2206.13256 , 2022. [24] J. Jung, C. Kang, J. Yoon, S. Kim, and J. Han, “HiQuE: Hierarchical question embedding network for multimodal depression detection,” in 
+
+Proc. 33rd ACM Int. Conf. Information and Knowledge Management (CIKM) , Boise, ID, USA, 2024, pp. 1049–1059. [25] E. Zhang and C. Poellabauer, “Mitigating interviewer bias in mul-timodal depression detection: An approach with adversarial learning and contextual positional encoding,” in Findings of the Association for Computational Linguistics: EMNLP 2025 . Suzhou, China: Association for Computational Linguistics, 2025, pp. 12 169–12 188. [26] H. Fan, X. Zhang, Y. Xu, J. Fang, S. Zhang, X. Zhao, and J. Yu, “Transformer-based multimodal feature enhancement networks for mul-timodal depression detection integrating video, audio and remote photo-plethysmograph signals,” Information Fusion , vol. 104, p. 102161, 2024. [27] Y. Tao, M. Yang, H. Li, Y. Wu, and B. Hu, “DepMSTAT: Multimodal spatio-temporal attentional transformer for depression detection,” IEEE Transactions on Knowledge and Data Engineering , vol. 36, no. 7, pp. 2956–2966, 2024. [28] D. Gimeno-G´ omez, A.-M. Bucur, A. Cosma, C.-D. Mart´ ınez-Hinarejos, and P. Rosso, “Reading between the frames: Multi-modal depression detection in videos from non-verbal cues,” in Advances in Informa-tion Retrieval , ser. Lecture Notes in Computer Science, N. Goharian, N. Tonellotto, Y. He, A. Lipani, G. McDonald, C. Macdonald, and I. Ounis, Eds. Cham, Switzerland: Springer Nature, 2024, vol. 14608, pp. 191–209. [29] D. W. Joyce, A. Kormilitzin, K. A. Smith, and A. Cipriani, “Explainable artificial intelligence for mental health through transparency and inter-pretability for understandability,” npj Digital Medicine , vol. 6, no. 1, p. 6, 2023. [30] Y. Cheng, Z. Zhang, H. Li, A. Arapin, Y. Zhang, Q. Zhang, Y. Liu, K. Du, X. Zhang, F. Y. Yan, A. Mazumdar, N. Feamster, and J. Jiang, “GRACE: Loss-resilient real-time video through neural codecs,” in Proc. 21st USENIX Symp. Networked Systems Design and Implementation (NSDI) . Santa Clara, CA, USA: USENIX Association, 2024, pp. 509–531. [Online]. Available: https://www.usenix.org/conference/nsdi24/presentation/cheng [31] P. Kumar, S. Misra, Z. Shao, B. Zhu, B. Raman, and X. Li, “Multimodal interpretable depression analysis using visual, physiological, audio and textual data,” in Proc. IEEE/CVF Winter Conf. Applications of Computer Vision (WACV) , 2025, pp. 5305–5315. [32] Y. Zhou, X. Yao, W. Han, Y. Wang, Z. Li, and Y. Li, “Distinguishing apathy and depression in older adults with mild cognitive impairment us-ing text, audio, and video based on multiclass classification and shapely additive explanations,” International Journal of Geriatric Psychiatry ,vol. 37, no. 11, 2022. [33] Y. Zhou, W. Han, X. Yao, J. Xue, Z. Li, and Y. Li, “Developing a machine learning model for detecting depression, anxiety, and apathy in older adults with mild cognitive impairment using speech and facial expressions: A cross-sectional observational study,” International Journal of Nursing Studies , vol. 146, p. 104562, 2023. [34] M. Niu, K. Chen, Q. Chen, and L. Yang, “HCAG: A hierarchical context-aware graph attention model for depression detection,” in Proc. IEEE Int. Conf. Acoustics, Speech and Signal Processing (ICASSP) , 2021, pp. 4235–4239. [35] J. Gratch, R. Artstein, G. Lucas, G. Stratou, S. Scherer, A. Nazarian, R. Wood, J. Boberg, D. DeVault, S. Marsella, D. Traum, S. Rizzo, and L.-P. Morency, “The distress analysis interview corpus of human and computer interviews,” in Proc. Ninth Int. Conf. Language Resources and Evaluation (LREC) . Reykjavik, Iceland: European Language Resources Association (ELRA), 2014, pp. 3123–3128. [36] D. DeVault, R. Artstein, G. Benn, T. Dey, E. Fast, A. Gainer, K. Georgila, J. Gratch, A. Hartholt, M. Lhommet, G. Lucas, S. Marsella, F. Morbini, A. Nazarian, S. Scherer, G. Stratou, A. Suri, D. Traum, R. Wood, Y. Xu, A. Rizzo, and L.-P. Morency, “SimSensei Kiosk: A virtual human interviewer for healthcare decision support,” in Proc. 13th Int. Conf. Autonomous Agents and Multiagent Systems (AAMAS) . Paris, France: International Foundation for Autonomous Agents and Multiagent Sys-tems, 2014, pp. 1061–1068. [37] F. Ringeval, B. Schuller, M. Valstar, N. Cummins, R. Cowie, L. Tavabi, M. Schmitt, S. Alisamir, S. Amiriparian, E.-M. Messner, S. Song, S. Liu, Z. Zhao, A. Mallol-Ragolta, Z. Ren, M. Soleymani, and M. Pantic, “AVEC 2019 workshop and challenge: State-of-mind, detecting depres-sion with AI, and cross-cultural affect recognition,” in Proc. 9th Int. Audio/Visual Emotion Challenge and Workshop (AVEC) . Nice, France: Association for Computing Machinery, 2019, pp. 3–12. [38] J. Sun, H. H. Dodge, and M. H. Mahoor, “MC-ViViT: Multi-branch classifier-ViViT to detect mild cognitive impairment in older adults using facial videos,” Expert Systems with Applications , vol. 238, p. 121929, 2024. [39] M. Alsuhaibani, H. H. Dodge, and M. H. Mahoor, “Mild cognitive impairment detection from facial video interviews by applying spatial-to-temporal attention module,” Expert Systems with Applications , vol. 252, p. 124185, 2024. [40] Z. Jiang, S. Seyedi, K. L. Vickers, C. M. Manzanares, J. J. Lah, A. I. Levey, and G. D. Clifford, “Disentangling visual exploration differences in cognitive impairment,” IEEE Transactions on Biomedical Engineering , vol. 71, no. 4, pp. 1197–1208, 2024. [41] J. R. Williamson, E. Godoy, M. Cha, A. Schwarzentruber, P. Khorrami, Y. Gwon, H.-T. Kung, C. Dagli, and T. F. Quatieri, “Detecting depression using vocal, facial and semantic communication cues,” in Proc. 6th Int. Workshop Audio/Visual Emotion Challenge (AVEC) , Amsterdam, The Netherlands, 2016, pp. 11–18. [42] G. Drougkas, E. Bakker, and M. Spruit, “Multimodal machine learning for language and speech markers identification in mental health,” BMC Medical Informatics and Decision Making , vol. 24, p. 354, 2024. [43] S. Alghowinem, R. Goecke, M. Wagner, J. Epps, M. Hyett, G. Parker, and M. Breakspear, “Multimodal depression detection: Fusion analysis of paralinguistic, head pose and eye gaze behaviors,” IEEE Transactions on Affective Computing , vol. 9, no. 4, pp. 478–490, 2018. [44] J. Zhou, J. Ge, Z. Chen, J. Tan, and Y. Li, “MDD-MARF: A multimodal depression detection model based on multi-level attention mechanism and residual fusion,” Journal of Biomedical Informatics , vol. 173, p. 104965, 2026. [45] M. Sadeghi, R. Richer, B. Egger, L. Schindler-Gmelch, L. H. Rupp, F. Rahimi, M. Berking, and B. M. Eskofier, “Harnessing multimodal approaches for depression detection using large language models and facial expressions,” npj Mental Health Research , vol. 3, no. 1, p. 66, 2024. [46] J. Chen, M. Tan, H. Lu, Q. Xu, Z. Wang, R. Zeng, and X. Hu, “Towards stable cross-domain depression recognition under missing modalities,” 
+
+Pattern Recognition , vol. 177, p. 113367, 2026. [47] Y. Liu, M. Ott, N. Goyal, J. Du, M. Joshi, D. Chen, O. Levy, M. Lewis, L. Zettlemoyer, and V. Stoyanov, “RoBERTa: A robustly optimized BERT pretraining approach,” arXiv preprint arXiv:1907.11692 , 2019. [48] A. Mandal, D. Atzil-Slonim, T. Solorio, and I. Gurevych, “Enhanc-ing depression detection via question-wise modality fusion,” in Proc. 10th Workshop Computational Linguistics and Clinical Psychology (CLPsych) , Albuquerque, NM, USA, 2025, pp. 44–61. IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 12 
+
+[49] M. Sundararajan, A. Taly, and Q. Yan, “Axiomatic attribution for deep networks,” in Proc. Int. Conf. Machine Learning (ICML) , 2017, pp. 3319–3328. [50] J. H. Cheong, E. Jolly, T. Xie, S. Byrne, M. Kenney, and L. J. Chang, “Py-Feat: Python facial expression analysis toolbox,” Affective Science ,vol. 4, no. 4, pp. 781–796, 2023. [51] A. A. Abdelrahman, T. Hempel, A. Khalifa, A. Al-Hamadi, and L. Dinges, “L2CS-Net: Fine-grained gaze estimation in unconstrained environments,” in Proc. 8th Int. Conf. Frontiers of Signal Processing (ICFSP) , 2023, pp. 98–102. [52] G. Boccignone, D. Conte, V. Cuculo, A. D’Amelio, G. Grossi, R. Lan-zarotti, and E. Mortara, “pyVHR: A Python framework for remote photoplethysmography,” PeerJ Computer Science , vol. 8, p. e929, 2022. [53] F. Eyben, M. W¨ ollmer, and B. Schuller, “openSMILE: The Munich versatile and fast open-source audio feature extractor,” in Proc. ACM Multimedia , Florence, Italy, 2010, pp. 1459–1462. [54] A. Baevski, Y. Zhou, A. Mohamed, and M. Auli, “wav2vec 2.0: A framework for self-supervised learning of speech representations,” in 
+
+Advances in Neural Information Processing Systems , vol. 33, 2020, pp. 12 449–12 460. [55] T. Wolf, L. Debut, V. Sanh, J. Chaumond, C. Delangue, A. Moi, P. Cistac, T. Rault, R. Louf, M. Funtowicz, J. Davison, S. Shleifer, P. von Platen, C. Ma, Y. Jernite, J. Plu, C. Xu, T. L. Scao, S. Gugger, M. Drame, Q. Lhoest, and A. M. Rush, “Hugging Face’s Transformers: State-of-the-art natural language processing,” arXiv preprint arXiv:1910.03771 ,2019. [56] M. Bain, J. Huh, T. Han, and A. Zisserman, “WhisperX: Time-accurate speech transcription of long-form audio,” in Proc. INTERSPEECH ,2023, pp. 4489–4493. [57] N. Reimers and I. Gurevych, “Sentence-BERT: Sentence embeddings using siamese BERT-networks,” in Proc. Conf. Empirical Methods in Natural Language Processing and 9th Int. Joint Conf. Natural Language Processing (EMNLP-IJCNLP) . Hong Kong, China: Association for Computational Linguistics, 2019, pp. 3982–3992. [58] D. Emden, M. Richter, A. Chevance, R. Leenings, J. Herpertz, L. Gut-fleisch, A. Fleuchaus, R. Blitz, V. L. Holstein, J. Goltermann, N. R. Winter, J. Spanagel, S. Meinert, T. Borgers, K. Flinkenfl¨ ugel, F. Stein, N. Alexander, H. Jamalabadi, J. Repple, C. Dobel, E. J. Leehr, R. Redlich, U. W. Ebner-Priemer, I. Nenadi´ c, T. Kircher, U. Dannlowski, T. Hahn, and N. Opel, “Scalable depression monitoring with smartphone speech using a multimodal benchmark and topic analysis,” npj Digital Medicine , vol. 9, no. 1, 2026. [59] F. A. Wagay and Jahiruddin, “Classification of mental illnesses from Reddit posts using Sentence-BERT embeddings and neural networks,” 
+
+Procedia Computer Science , vol. 258, pp. 1669–1676, 2025, Interna-tional Conference on Machine Learning and Data Engineering. [60] B. C. dos Santos Mel´ ıcio, K. Karak¨ ose, ´ A. Fodor, L. Xiang, V. Varga, L. Soorya, E. Dillon, P. Kun, A. S´ ark´ any, M. Chetouani, K. Fenech, and A. L˝ orincz, “Multimodal framework for automatic behavior analysis of children with autism during ADOS-2,” Cognitive Computation , vol. 17, no. 4, 2025. [61] C. Pabba, V. Bhardwaj, and P. Kumar, “A visual intelligent system for students’ behavior classification using body pose and facial features in a smart classroom,” Multimedia Tools and Applications , vol. 83, no. 12, pp. 36 975–37 005, 2024. [62] Z. Che, S. Purushotham, K. Cho, D. Sontag, and Y. Liu, “Recurrent neural networks for multivariate time series with missing values,” 
+
+Scientific Reports , vol. 8, no. 1, p. 6085, 2018. [63] C. D. Morgan and H. A. Murray, “A method for investigating fantasies: The thematic apperception test,” Archives of Neurology & Psychiatry ,vol. 34, no. 2, pp. 289–306, 1935. [64] K. Yu, K. Wild, K. Potempa, B. M. Hampstead, P. A. Lichtenberg, L. M. Struble, P. Pruitt, E. L. Alfaro, J. Lindsley, M. MacDonald, J. A. Kaye, L. C. Silbert, and H. H. Dodge, “The internet-based conversational engagement clinical trial (I-CONECT) in socially isolated adults 75+ years old: Randomized controlled trial protocol and COVID-19 related study modifications,” Frontiers in Digital Health , vol. 3, p. 714813, 2021. [65] J. A. Yesavage and J. I. Sheikh, “Geriatric Depression Scale (GDS): Recent evidence and development of a shorter version,” Clinical Geron-tologist , vol. 5, no. 1–2, pp. 165–173, 1986. [66] R. L. Spitzer, K. Kroenke, J. B. W. Williams, and B. L¨ owe, “A brief measure for assessing generalized anxiety disorder: The GAD-7,” 
+
+Archives of Internal Medicine , vol. 166, no. 10, pp. 1092–1097, 2006. [67] D. Russell, L. A. Peplau, and M. L. Ferguson, “Developing a measure of loneliness,” Journal of Personality Assessment , vol. 42, no. 3, pp. 290–294, 1978. [68] J. E. Lubben, “Assessing social networks among elderly populations,” 
+
+Family & Community Health , vol. 11, no. 3, pp. 42–52, 1988. [69] J. Takahashi, Y. Hirano, K. Miura, K. Morita, M. Fujimoto, H. Ya-mamori, Y. Yasuda, N. Kudo, E. Shishido, K. Okazaki, T. Shiino, T. Nakao, K. Kasai, R. Hashimoto, and T. Onitsuka, “Eye movement abnormalities in major depressive disorder,” Frontiers in Psychiatry ,vol. 12, p. 673443, 2021. [70] N. Cummins, S. Scherer, J. Krajewski, S. Schnieder, J. Epps, and T. F. Quatieri, “A review of depression and suicide risk assessment using speech analysis,” Speech Communication , vol. 71, pp. 10–49, 2015. [71] H. Kim, J. E. Shin, Y.-J. Hong, Y.-B. Shin, Y. S. Shin, K. Han, J.-J. Kim, and S.-H. Choi, “Aversive eye gaze during a speech in virtual environment in patients with social anxiety disorder,” Australian and New Zealand Journal of Psychiatry , vol. 52, no. 3, pp. 279–285, 2018. [72] I. Konovalova, J. V. Antolin, H. Bolderston, and N. J. Gregory, “Adults with higher social anxiety show avoidant gaze behaviour in a real-world social setting: A mobile eye tracking study,” PLOS ONE , vol. 16, no. 10, p. e0259007, 2021. [73] G. Giannakakis, M. Pediaditis, D. Manousos, E. Kazantzaki, F. Chiarugi, P. G. Simos, K. Marias, and M. Tsiknakis, “Stress and anxiety detection using facial cues from videos,” Biomedical Signal Processing and Control , vol. 31, pp. 89–101, 2017. [74] F. Wendel, A. Bauer, I. Blotenberg, C. Brettschneider, M. Buch-holz, D. Czock, J. D¨ ohring, C. Escales, T. Frese, W. Hoffmann, H. Kaduszkiewicz, H.-H. K¨ onig, M. L¨ obner, M. Luppa, R. Schwenker, J. R. Thyrian, M. Weißenborn, B. Wiese, I. Z¨ ollinger, S. G. Riedel-Heller, and J. Gensichen, “Social network and participation in elderly primary care patients in Germany and associations with depressive symptoms: A cross-sectional analysis from the AgeWell.de study,” 
+
+Journal of Clinical Medicine , vol. 11, no. 19, 2022. [75] S. Peleg and G. Nudelman, “Associations between self-rated health and depressive symptoms among older adults: Does age matter?” Social Science & Medicine , vol. 280, p. 114024, 2021. [76] A. Millings, E. G. Hepper, C. M. Hart, L. Swift, and A. C. Rowe, “Holding back the tears: Individual differences in adult crying proneness reflect attachment orientation and attitudes to crying,” Frontiers in Psychology , vol. 7, p. 1003, 2016. [77] W. Maier, R. Buller, M. Philipp, and I. Heuser, “The Hamilton Anxiety Scale: Reliability, validity and sensitivity to change in anxiety and depressive disorders,” Journal of Affective Disorders , vol. 14, no. 1, pp. 61–68, 1988. [78] A. Shafiee, I. Mohammadi, S. Rajai, K. Jafarabady, and A. Abdollahi, “Global prevalence of anxiety symptoms and its associated factors in older adults: A systematic review and meta-analysis,” Journal of General and Family Medicine , vol. 26, no. 2, pp. 116–127, 2025. [79] S. Alghowinem, R. Goecke, M. Wagner, J. Epps, M. Breakspear, and G. Parker, “Detecting depression: A comparison between spontaneous and read speech,” in Proc. IEEE Int. Conf. Acoustics, Speech and Signal Processing (ICASSP) , 2013, pp. 7547–7551. [80] H. J. Richards, V. Benson, N. Donnelly, and J. A. Hadwin, “Exploring the function of selective attention and hypervigilance for threat in anxiety,” Clinical Psychology Review , vol. 34, no. 1, pp. 1–13, 2014. [81] Y. Wu, Q. Mi, and T. Gao, “A comprehensive review of multimodal emotion recognition: Techniques, challenges, and future directions,” 
+
+Biomimetics , vol. 10, no. 7, p. 418, 2025. [82] M. Karim, S. Khalid, S. Lee, S. Almutairi, A. Namoun, and M. Abo-hashrh, “Next generation human action recognition: A comprehensive review of state-of-the-art signal processing techniques,” IEEE Access ,vol. 13, pp. 135 609–135 633, 2025. [83] G. Boccignone, D. Conte, V. Cuculo, A. D’Amelio, G. Grossi, and R. Lanzarotti, “Enhancing rPPG pulse-signal recovery by facial sampling and PSD clustering,” Biomedical Signal Processing and Control , vol. 101, p. 107158, 2025. [84] G. Boccignone, D. Conte, V. Cuculo, A. D’Amelio, G. Grossi, and R. Lanzarotti, “An open framework for Remote-PPG methods and their assessment,” IEEE Access , vol. 8, pp. 216 083–216 103, 2020. [85] A. van den Oord, S. Dieleman, H. Zen, K. Simonyan, O. Vinyals, A. Graves, N. Kalchbrenner, A. Senior, and K. Kavukcuoglu, “WaveNet: A generative model for raw audio,” arXiv preprint arXiv:1609.03499 ,2016. [86] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin, “Attention is all you need,” in Advances in Neural Information Processing Systems , vol. 30, 2017. IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 13 
+
+SUPPLEMENTARY AMETHOD 
+
+A. Feature Extraction 
+
+We extract four modalities from the participant-side video recording: facial, acoustic, language, and physiological modal-ities. The eight modality-feature time series used as model inputs are action units and landmarks, head pose, eyegaze, eGeMAPS, ComParE, Wav2Vec2, rPPG-derived heart rate, and transcript embeddings. Table IV summarizes these inputs. For the extracted features, we define window-level features as features that summarize signal content over an interval (e.g., acoustic or physiological features extracted with sliding win-dows), and frame-level features as features that are measured at individual timestamps (e.g., facial features extracted at 1 frame per second (fps)). 
+
+1) Facial video features: Frame-level features are extracted at 1 frame per second (fps) from recordings originally captured at 25 fps and include facial action units and landmarks ( Da =155 ), head pose ( Dh = 3 ), and eyegaze ( De = 2 ), using the Py-Feat library [50] and L2CS-Net [51]. For frames in which face detection or gaze estimation fails because of camera viewpoint, internet connectivity, or lighting, the corresponding temporal bins (defined in Section III-B2) are marked missing. 
+
+2) Acoustic features: Window-level features are extracted using 2-second windows with 1-second overlap. Features include eGeMAPS ( Dg = 88 ) and ComParE ( Dc = 6 ,373 )extracted using openSMILE [53], and Wav2Vec2 embeddings (Dw = 1 ,024 ) [54] extracted using the Hugging Face Trans-formers library [55] from participant-side audio. 
+
+3) Language features: Participant-side audio is segmented into 30-second windows with 5-second overlap, then tran-scribed using WhisperX [56] to obtain word-level timestamps. Words whose timestamps fall within a temporal bin (de-fined in Section III-B2) are concatenated and encoded with 
+
+roberta-base [24], [47], yielding a Dt = 768 -dimensional feature vector per bin, which we define as a bin-level feature. Interview questions are encoded with a sentence-level en-coder (Sentence Transformer [55], [57]), yielding a dq = 768 -dimensional embedding per question to condition the partici-pant answers [57]. 
+
+4) Physiological features: rPPG-derived heart rate (in beats per minute) is estimated using the pyVHR package [52], [83], [84] with a 6-second window and a 1-second stride, yielding one scalar estimate per window.                            
+
+> TABLE IV MODEL -INPUT FEATURES .
+> Feature Modality Type Dm
+> AUs & landmarks Facial Frame-level 155 Head pose Facial Frame-level 3Eyegaze Facial Frame-level 2eGeMAPS Acoustic Window-level 88 ComParE Acoustic Window-level 6,373 Wav2Vec2 Acoustic Window-level 1,024 RoBERTa transcript Language Bin-level 768 rPPG heart rate Physiological Window-level 1
+
+B. Post-hoc Multi-Level Attribution via Integrated Gradients (IG) 
+
+This section gives full derivations for the attribution aggre-gations summarized in Section III-D. We aggregate feature-level IG [49] scores at four levels of the interview structure to produce interpretable summaries across modalities, questions, and time. The aggregation scheme across these axes is shown in Fig. 7. 
+
+1) Base attribution scores: Let A(m) 
+
+> i,s,c
+
+denote the IG scalar attribution for feature c of modality-feature m at temporal bin s for participant i. IG is computed over the concatenated participant-level feature time series X(m) 
+
+> i
+
+∈ RSi×Dm (de-fined in Section III-B2), so s indexes temporal bins across the full interview. Attributions are averaged across feature vector dimensionality Dm within each modality-feature, so that modality-features of different dimensionalities contribute comparably to downstream aggregations [21]. This averaging produces score ϕ(m) 
+
+> i,s
+
+, the per-temporal-bin attribution for modality-feature m and participant i:
+
+ϕ(m) 
+
+> i,s
+
+= M (m) 
+
+> i,s
+
+· 1
+
+DmDmX
+
+> c=1
+
+A(m) 
+
+> i,s,c
+
+, (2) where M (m) 
+
+> i,s
+
+is the mask that ensures that unobserved temporal bins contribute zero attribution. Plots of ϕ(m) 
+
+> i,s
+
+for representa-tive participants across their complete interviews are shown in Fig. 12. The total attribution at temporal bin s from all modality-features is Φi,s = P 
+
+> m∈M
+
+ϕ(m) 
+
+> i,s
+
+. To enable temporal dataset-level aggregation without bias from variation in interview length or modality availability across participants, attributions are normalized within each participant to sum to one: 
+
+˜Φi,s = Φi,s 
+
+X
+
+> s′
+
+Φi,s ′
+
+, ˜Φ(m) 
+
+> i,s
+
+= ϕ(m)
+
+> i,s
+
+X
+
+> s′
+
+Φi,s ′
+
+, (3) Here ˜Φi,s is the share of participant i’s total attribution that falls at temporal bin s, and ˜Φ(m) 
+
+> i,s
+
+is the share attributable to modality-feature m at that bin. Both are expressed as fractions of the same denominator so that P 
+
+> m
+
+˜Φ(m) 
+
+> i,s
+
+= ˜Φi,s at every temporal bin. 
+
+2) Modality Importance: Let Mi = {m : P 
+
+> s
+
+M (m) 
+
+> i,s
+
+>
+
+0} be the set of modality-features observed at least once for participant i, and let P = {i : P
+
+> m
+
+P 
+
+> s
+
+M (m) 
+
+> i,s
+
+> 0} be the set of all participants with at least one valid modality-feature observation. Dividing the summed attribution for modality-feature m by its number of observed bins, P 
+
+> s
+
+M (m) 
+
+> i,s
+
+, gives the mean attribution per observed bin, so features present in fewer bins are not penalized for contributing fewer terms. This yields the per-modality-feature mean attribution μi,m for each participant: 
+
+μi,m =
+
+X
+
+> s
+
+ϕ(m)
+
+> i,s
+
+X
+
+> s
+
+M (m)
+
+> i,s
+
+. (4) IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 14 (a) Feature-level attribution 
+
+> feature dimensions
+
+Acoustic  ⋯ Dₘ=88 
+
+Facial  ⋯
+
+rPPG  Dₘ=1    
+
+> |raw IG attribution|
+> missing / masked bin (contributes 0)
+> is normalized to unit sum for
+> per-modality temporal importance u
+> average
+> |attribution|
+> Dₘ=155 over Dₘ
+
+R 
+
+> Temporal importance u
+
+(b) Aggregate → multi-level summaries  
+
+> arrows show the direction each level collapses
+> temporal sequence Q4
+> average over participants
+> Q4
+> Modality
+> importance
+> average over
+> time
+> sum over modalities
+> normalize to unit sum
+> per-participant
+> average over participants
+> Relative interview position bucket u
+
+Within-question modality importance    
+
+> group by question
+> average over
+> Q1 Q2 time and participants
+> Q1 Q2
+> Question importance
+
+Fig. 7. (a) After training, IG assigns a scalar attribution A(m) 
+
+> i,s,c
+
+to each feature c of modality-feature m at temporal bin s for participant i. Averaging the absolute attributions over the modality-feature’s Dm dimensions and gating by the availability mask (hatched bins are missing and contribute 0) reduces the attributions of all features c to one score per temporal bin ϕ(m) 
+
+> i,s
+
+. (b) These per-temporal-bin scores are aggregated along the different axes, and arrows indicate the dimensions along which the attributions are aggregated to produce the modality importance Im, question importance Iq , within-question modality importance Hrel 
+
+> q,m
+
+, and temporal importance Ru.
+
+Within each participant, μi,m is normalized over observed modality-features so that contributions are comparable across participants. The per-participant normalization produces ˜Ii,m :
+
+˜Ii,m = μi,m 
+
+X
+
+> m′∈M i
+
+μi,m ′
+
+. (5) We set ˜Ii,m = 0 for participants for whom modality-feature 
+
+m was entirely absent. The dataset-level modality-feature importance (shown in Fig. 6(a)) aggregated over participants is: 
+
+Im = 1
+
+|P| 
+
+X
+
+> i∈P
+
+˜Ii,m . (6) 
+
+3) Question Importance: Let qi,s denote the question iden-tity of temporal bin s for participant i, let Ni,q = P 
+
+> s
+
+1{qi,s =
+
+q} be the number of observed bins for question q, and let 
+
+Pq = {i : Ni,q > 0} be the set of participants who answered question q. We normalize ˜Φi,s by Ni,q to reduce bias toward longer answers. We then average that result over participants, producing the dataset-level question importance (shown in Fig. 10): 
+
+Iq = 1
+
+|P q |
+
+X
+
+> i∈P q
+
+1
+
+Ni,q 
+
+X 
+
+> s:qi,s =q
+
+˜Φi,s . (7) 
+
+4) Within-Question Modality Importance: Let N (m) 
+
+> i,q
+
+=
+
+P 
+
+> s
+
+1{qi,s = q} M (m) 
+
+> i,s
+
+be the number of observed bins for modality-feature m within question q for participant i, and let Mi,q = {m : N (m) 
+
+> i,q
+
+> 0} be the modality-features observed at least once during that question. As described in Section A-B2, the per-bin attribution is normalized by observed bin count to avoid penalizing modality-features with more missing temporal bins: 
+
+μi,q,m =
+
+X 
+
+> s:qi,s =q
+
+ϕ(m)
+
+> i,s
+
+N (m)
+
+> i,q
+
+. (8) Within each participant and question, μi,q,m is normalized over observed modality-features so that contributions are compara-ble across participants: 
+
+ri,q,m = μi,q,m 
+
+X
+
+> m′∈M i,q
+
+μi,q,m ′
+
+. (9) The dataset-level within-question modality-feature importance (shown in Fig. 11) is: 
+
+Hrel  
+
+> q,m
+
+= 1
+
+|P q |
+
+X
+
+> i∈P q
+
+ri,q,m . (10) 
+
+5) Temporal Importance: Bins are within-answer temporal units, so their total count varies with interview length, and a bin does not correspond to a fixed recording position across participants. To place every participant on a common temporal axis for a cohort-level temporal importance summary, we group each participant’s bins into U equal-width buckets by relative position in the interview. Unlike bins, which measure absolute time within a single answer and vary in number per participant, buckets measure normalized position across the whole interview and are fixed at U buckets per participant. Thus, bucket u denotes the same relative point in the interview for all participants. We set U = 20 , so each bucket spans 5% 
+
+of the normalized interview duration. Let Bi,u denote the set of bins for participant i in bucket 
+
+u, and let Pu = {i : |B i,u | > 0} be the set of participants with at least one bin in bucket u. Dividing each participant’s temporal-importance values ˜Φi,s summed over bucket u by 
+
+|B i,u | aggregates them into a single mean importance value. Therefore, a participant with many bins in that bucket does not contribute more than one with fewer bins. Averaging over the 
+
+|P u| participants combines the means across participants with bins in bucket u. Therefore, Ru is the mean per-bin temporal importance at relative position u in the interview: 
+
+Ru = 1
+
+|P u|
+
+X
+
+> i∈P u
+
+1
+
+|B i,u |
+
+X
+
+> s∈B i,u
+
+˜Φi,s . (11) IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 15 0 20 40 60 80 100 120 
+
+> Answer duration (seconds); point = median, bar = IQR
+> Open I-CONECT GDS GAD-7 UCLA Loneliness Lubben Social Engagement
+> 87.5 s 8.0 s 3.0 s 3.0 s 3.0 s 6.0 s
+
+(a) Answer duration (median and IQR) Open I-CONECT GDS GAD-7 UCLA Loneliness Lubben Social Engagement Questionnaire  
+
+> 010 20 30 40 50
+> Bins Without Text Features (%)
+> 16.0% 33.9% 43.1% 46.3% 49.3% 46.4% Overall: 37.0%
+
+(b) Text feature bin missingness 
+
+Fig. 8. Answer duration and text-feature missingness by question group. (a) Median answer duration (point) and interquartile range (IQR) (bar) within each question group. Open-ended questions elicit longer answers than structured questions. (b) Percentage of answer-aligned one-second bins that contain no transcribed word, within each question group, with the overall rate (37.0%) marked by the dashed line. Text missingness rises as answer duration shortens, from 16% for open-ended questions to 49% for the UCLA Loneliness questions. 
+
+Here, ˜Φi,s is the per-bin temporal importance defined in Sec-tion A-B1. Ru across the full interview is shown in Fig. 6(b). The modality-feature-specific temporal importance R(m) 
+
+> u
+
+is obtained by substituting ˜Φ(m) 
+
+> i,s
+
+for ˜Φi,s . R(m) 
+
+> u
+
+across the full interview for eyegaze, head pose, and ComParE is likewise shown in Fig. 6(b). SUPPLEMENTARY BEXPERIMENTS 
+
+A. Dataset 
+
+Each interview followed a fixed-order protocol comprising six consecutive question groups: four open-ended narrative prompts (including autobiographical recall and a picture de-scription task using the Thematic Apperception Test (TAT) [63]), an 18-item social and functional health check derived from the I-CONECT protocol [64], the 30-item GDS [65], the GAD-7 [66], the 20-item UCLA Loneliness Scale [67], and the 12-item Lubben Social Network Scale (Social Engage-ment) [68]. Some questions were not answered by design. The interview used skip logic, so a question could be omitted based on a prior answer. For example, participants who answered “yes” to whether they live alone were not asked the follow-up question of how many people live with them. Other omissions arose from changes to the administered question groups across the study, such as the change from the short to the long version of the UCLA Loneliness Scale. The TAT question was unanswered for several participants due to difficulty showing the picture over Zoom. Because the interviewer annotated answer timestamps by hand, some questions with a spoken answer were occasionally marked as unanswered. Missingness varies across input modality-features. The acoustic features (eGeMAPS, ComParE, and Wav2Vec2) have less than 0.1% of bins missing across all participants. Visual and physiological features have low missingness rates (ac-tion units and landmarks: 3.0%; eyegaze: 2.6%; head pose: 2.5%; rPPG: 1.4%). One participant had no valid rPPG signal across the full interview. Language has the highest per-bin missingness (37.0%), because answer duration varies by ques-tion type. Open-ended narrative questions elicited the longest answers (median 87.5s) and had the lowest text missingness (16%), whereas Likert-scale and yes/no questions elicited short responses (median 3–8s) and had higher missingness, including 43.1% for the GDS, 46.3% for the GAD-7, 49.3% for the UCLA Loneliness scale, and 46.4% for the Lubben Social Engagement scale (Fig. 8). Furthermore, transcription errors are an additional source of missingness. For example, WhisperX sometimes leaves short fillers such as “Oh” or “Um” untranscribed even when spoken within an answer. In all cases, missing bins are assigned zero feature vectors and flagged by the modality-feature-timestep mask rather than excluded, as described in Section III-B3. The ComParE feature set is standardized and projected to 512 dimensions via Principal Component Analysis fitted on training-fold data, as the raw dimensionality of the feature is 
+
+6,373 .Participant feature time series are formed by concatenating bins across all answers, and the resulting number of bins ranged from 597 to 2260 across participants (median 935). 
+
+B. Training and Evaluation Protocol 
+
+To mitigate class imbalance, training batches are constructed using a class-balanced sampler that oversamples participants from the minority class. Within each fold, all models are trained for ≈ 10 epochs. After training, each model is evalu-ated once on that fold’s unseen, held-out test set. We report the AUROC score as the primary metric following previous work for mental health analysis on older adults with MCI [21]. We also report AUPRC, macro-F1, positive class precision, and recall scores in Table V. For significance testing, we also report pairwise statistical comparisons with one-sided Student’s paired t-tests over fold-level AUROC scores; Table VI reports whether the first model in each con-trast outperformed the second. For each task, interpretability analysis is performed on the unseen test participants for the fold corresponding to the best-performing temporally aligned (+T) model across all repetition-fold pairs. 
+
+C. Ablations 1) Sequence-Index-Paired Baseline: To evaluate the im-pact of temporal alignment in the ablation experiments, we IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 16 (a) Pooled additive conditioning                              
+
+> qi2
+> qi1
+> ⋮Mean qiProj. Wqqi
+> ⋯
+> Enc.
+> ⋯zi,1 zi,t zi,T
+> qiJ zi,1 ⋯zi,t ⋯zi,T
+> (b) Cross-attention conditioning
+> qij Question embedding
+> Proj. Linear projection
+> LN Layer normalization
+> Enc. Transformer encoder
+> Cross-attn Multi-head cross-attention
+> qi2
+> qiJ
+> qi1
+> ⋮Proj. Wqqij
+> Enc.
+> ⋯⋯
+> LN LN LN
+> K, V
+> H=4
+> Cross-attn Cross-attn Cross-attn
+> Q
+> ⋯⋯
+> zi,1
+> zi,1
+> zi,t
+> zi,t
+> ci,t
+> zi,T
+> zi,T
+> Fig. 9. Question-conditioning models for the sequence-index-paired baseline. (a) Pooled additive conditioning. (b) Cross-attention conditioning. The stacked blocks denote the H= 4 heads, and the faded blocks denote additional timesteps processed by the same attention module with the same question keys and values.
+
+create a temporally unaligned version of the dataset. Each modality-feature is processed as an independent time series 
+
+X(m) ∈ RTm×Dm , where Tm varies across modality-features according to their native sampling rates. Language features are represented as a single transcript-level embedding for the full interview rather than as a sequence of bin-level embeddings. At training time, we apply uniform downsampling to the shortest sequence length T within the batch, with t indexing timesteps within a single sequence. This follows strategies similar to those used to normalize feature time series to a global common temporal length by pooling [26] or cropping and interpolation [27]. Instead, we set the target length per batch rather than globally because interview durations range from 600 to 3,600 s, so a single fixed length would either discard most of the longer interviews or heavily upsample the shorter ones. This sequence-index-paired baseline follows prior approaches that pair features by their index position in the sequence rather than by timestamps during training [26], [27]. 
+
+2) Question-Conditioning Models: a) Pooled Additive Conditioning (Linear/Non-linear + Q, sum): For the sequence-index-paired baseline, the mul-timodal feature time series are not segmented by answer timestamps or temporally aligned. We therefore adapt the additive conditioning that Zhang et al. [25] apply to each question and its associated response to operate at the interview level. Their approach is discussed further in the Related Work section of the main text (Section II-D). In our adaptation, all question embeddings are averaged into a single interview-level summary ¯qi, and projected to d (defined in Section III-C1) by Wq . This projected vector is then added uniformly across timesteps to the fused multimodal sequence, similar to additive global conditioning in WaveNet [85]: 
+
+¯qi = 1
+
+JiJiX
+
+> j=1
+
+qij , ˜zi,t = zi,t + Wq ¯qi, (12) where Wq ∈ Rd×dq , qij is the embedding of the j-th question answered by participant i, zi,t is the fused multimodal token at timestep t, and ˜zi,t is the question-conditioned multi-modal token. The conditioned sequence ˜Zi formed by stacking the conditioned tokens is then passed to the Transformer encoder as described in Section III-C2. 
+
+b) Cross-Attention Conditioning (Linear/Non-linear + Q, cross-attn.): We generalize the question-conditioned attention used in HCAG [34] to the sequence-index-paired baseline by replacing additive attention with cross-attention. Further discussion of the HCAG approach is provided in the Related Work section of the main text (Section II-D). In our adaptation, each fused multimodal token zi,t attends to the participant’s set of Ji answered question embeddings through a multi-head cross-attention block [86]. We use H = 4 heads, model dimension d = 128 , per-head dimension dh = d/H = 32 ,and dropout = 0 .3. The question embeddings {qij }Ji 
+
+> j=1
+
+are projected to d by Wq . For head h, the fused multimodal token 
+
+zi,t at timestep t forms the query, and each projected question embedding Wq qij forms the keys and values: 
+
+Qhi,t = W hQzi,t , Khij = W hK (Wq qij ), (13) 
+
+Vhij = W hV (Wq qij ), (14) where W hQ, W hK , W hV ∈ Rdh×d, and Wq ∈ Rd×dq . The attention weight from timestep t to question j, normalized across the participant’s answered questions, is αhi,t,j :
+
+αhi,t,j = softmax j
+
+(Qhi,t )⊤Khij 
+
+√dh
+
+!
+
+. (15) The resulting question context chi,t ∈ Rdh is the attention-weighted combination of the projected question embeddings: 
+
+chi,t =
+
+> Ji
+
+X
+
+> j=1
+
+αhi,t,j Vhij . (16) The head question contexts are concatenated, projected by 
+
+WO ∈ Rd×d to form ci,t , which is added back to the fused multimodal token zi,t through a residual connection with dropout and layer normalization, giving ˜zi,t , the question-conditioned multimodal token: 
+
+ci,t = WO
+
+c1
+
+> i,t
+
+; . . . ; cHi,t 
+
+, (17) 
+
+˜zi,t = LayerNorm  zi,t + Dropout( ci,t ), (18) where ci,t , zi,t , and ˜zi,t ∈ Rd. Each fused multimodal token therefore receives a learned mixture of all of the participant’s question embeddings. The conditioned sequence is then passed to the Transformer encoder as described in Section III-C2. IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 17 
+
+TABLE V CLASSIFICATION RESULTS (MEAN ± 95% CI S). P RECISION AND RECALL ARE REPORTED FOR THE POSITIVE CLASS (POSITIVE DEPRESSION - OR ANXIETY -RISK CLASS ) AT A CLASSIFICATION THRESHOLD OF 0.5. BOLD , UNDERLINE , AND italics DENOTE THE HIGHEST , SECOND -HIGHEST , AND THIRD -HIGHEST RESULTS WITHIN EACH TASK AND METRIC , RESPECTIVELY . T IED RESULTS RECEIVE THE SAME RANK . T DENOTES TEMPORALLY ALIGNED FEATURES , AND Q DENOTES QUESTION CONDITIONING . L INEAR AND NON -LINEAR DENOTE THE DIFFERENT PROJECTION BACKBONES . T HE NO -MASK VARIANT REPLACES THE MASK WITH AN ALL -ONES MASK , EFFECTIVELY DISABLING MASKING , WHEREAS THE OPEN -ONLY VARIANT USES ONLY MULTIMODAL FEATURES EXTRACTED FROM PARTICIPANTS ’ RESPONSES TO THE FOUR OPEN -ENDED QUESTIONS .
+
+Depression Anxiety Variant AUPRC ↑ Macro-F1 ↑ Precision + ↑ Recall + ↑ AUPRC ↑ Macro-F1 ↑ Precision + ↑ Recall + ↑
+
+Sequence-index-paired baseline [26], [27] Linear 0.56 ± 0.004 0.45 ± 0.08 0.34 ± 0.12 0.31 ± 0.16 0.57 ± 0.02 0.55 ± 0.07 0.49 ± 0.15 0 .38 ± 0 .15 
+
+Non-linear 0.60 ± 0.09 0.52 ± 0.08 0.50 ± 0.18 0.43 ± 0.14 0 .58 ± 0 .05 0.50 ± 0.07 0.40 ± 0.14 0.27 ± 0.09 
+
+Question-conditioned 
+
+Linear + Q, sum [25] 0.56 ± 0.01 0.48 ± 0.04 0.42 ± 0.06 0.43 ± 0.13 0.54 ± 0.06 0.48 ± 0.03 0.30 ± 0.11 0.26 ± 0.07 
+
+Linear + Q, cross-attn. [34] 0.50 ± 0.06 0.47 ± 0.07 0.43 ± 0.11 0.39 ± 0.10 0.54 ± 0.03 0.53 ± 0.07 0 .43 ± 0 .19 0 .38 ± 0 .13 
+
+Non-linear + Q, sum [25] 0.61 ± 0.03 0.51 ± 0.08 0.50 ± 0.07 0.39 ± 0.12 0.51 ± 0.08 0.50 ± 0.07 0.34 ± 0.08 0 .38 ± 0 .07 
+
+Non-linear + Q, cross-attn. [34] 0.61 ± 0.13 0.52 ± 0.07 0.46 ± 0.12 0.41 ± 0.06 0.55 ± 0.08 0.49 ± 0.11 0.33 ± 0.22 0 .38 ± 0 .26 
+
+Temporally aligned 
+
+Linear + T (no mask) 0.68 ± 0.09 0.57 ± 0.03 0.59 ± 0.07 0.54 ± 0.16 0.55 ± 0.05 0.49 ± 0.07 0.31 ± 0.08 0.34 ± 0.10 
+
+Linear + T 0 .67 ± 0 .08 0.54 ± 0.07 0.58 ± 0.19 0 .53 ± 0 .12 0.63 ± 0.12 0.51 ± 0.09 0.48 ± 0.29 0.34 ± 0.18 
+
+Non-linear + T (no mask) 0.66 ± 0.04 0.53 ± 0.05 0.50 ± 0.13 0.36 ± 0.10 0.54 ± 0.09 0.48 ± 0.02 0.30 ± 0.03 0 .38 ± 0 .05 
+
+Non-linear + T 0.68 ± 0.04 0 .56 ± 0 .02 0.54 ± 0.03 0 .53 ± 0 .05 0.57 ± 0.08 0.47 ± 0.05 0.40 ± 0.02 0.37 ± 0.05 
+
+Aligned + question 
+
+Linear + Q + T 0.69 ± 0.11 0.52 ± 0.07 0 .55 ± 0 .17 0.48 ± 0.13 0.60 ± 0.06 0 .52 ± 0 .02 0.39 ± 0.19 0.40 ± 0.04 
+
+Non-linear + Q + T 0.68 ± 0.06 0.58 ± 0.08 0.52 ± 0.13 0.51 ± 0.16 0 .58 ± 0 .01 0.48 ± 0.05 0.34 ± 0.14 0.41 ± 0.27 
+
+Open-ended only 
+
+Linear + T (open only) – 0.52 ± 0.07 0.49 ± 0.12 0.30 ± 0.21 0.37 ± 0.19 
+
+Non-linear + T (open only) 0.69 ± 0.08 0.57 ± 0.06 0.50 ± 0.05 0.55 ± 0.08 –
+
+TABLE VI PAIRWISE STATISTICAL COMPARISONS FOR DEPRESSION AND ANXIETY CLASSIFICATION . ∆ DENOTES THE MEAN AUROC DIFFERENCE BETWEEN THE FIRST AND SECOND MODEL . C OMPARISONS USE ONE -SIDED PAIRED 
+
+t-TESTS WITH THE ALTERNATIVE ∆ > 0. B OLD p VALUES INDICATE 
+
+p < 0.05 .
+
+Depression Anxiety Contrast ∆ ↑ p ∆ ↑ p
+
+Linear 
+
+Q (sum) > Baseline 0.01 0.31 −0.03 0.80 
+
+Q (cross-attn.) > Baseline −0.06 0.96 −0.02 0.77 
+
+T > Baseline 0.13 0.05 0.11 0.05 
+
+T (mask) > T (no mask) −0.009 0.56 0.04 0.12 
+
+T (all questions) > T (open only) – 0.09 0.02 
+
+Q+T > Baseline 0.16 0.009 0.09 0.09 
+
+Q+T > Q (sum) 0.15 0.009 0.12 0.04 
+
+Q+T > Q (cross-attn.) 0.22 0.001 0.12 0.06 
+
+Q+T > T 0.03 0.28 −0.02 0.64 
+
+Non-linear 
+
+Q (sum) > Baseline −0.03 0.73 −0.02 0.66 
+
+Q (cross-attn.) > Baseline −0.02 0.62 0.000 0.50 
+
+T > Baseline 0.10 0.06 0.02 0.39 
+
+T (mask) > T (no mask) 0.02 0.34 0.02 0.32 
+
+T (all questions) > T (open only) 0.01 0.43 –Q+T > Baseline 0.09 0.08 0.05 0.21 
+
+Q+T > Q (sum) 0.13 0.02 0.07 0.10 
+
+Q+T > Q (cross-attn.) 0.11 0.001 0.05 0.18 
+
+Q+T > T −0.009 0.60 0.03 0.20 
+
+T = temporally aligned features; Q = question conditioning; Q+T = question conditioning with temporal alignment; Baseline = sequence-index-paired model. Mask contrasts compare the real temporal mask against an all-ones mask. Open-only models use only multimodal features from responses to the four open-ended questions. Each comparison uses 15 paired observations ( df = 14 ). 
+
+SUPPLEMENTARY CRESULTS 
+
+A. Overall Performance B. Question Importance 
+
+Fig. 10 decomposes the attribution rankings by question groups for both tasks. For depression (Fig. 10(a)), the highest-attribution questions center on social contact and support, self-rated health, and open-ended self-description. The top five questions are Q10 (I-CONECT: overnight visitors), Q89 (Social Engagement: availability of a relative for decision support), Q5 (I-CONECT: self-rated health), Q1 (open-ended: “Tell me about yourself”), and Q90 (Social Engagement: providing decision support to a friend), with attributions of 
+
+(2 .151 , 1.702 , 1.681 , 1.648 , and 1.509) × 10 −3, respectively. For anxiety (Fig. 10(b)), the top questions span a narrower range of 0.24 × 10 −3 and center on crying and social con-tact with friends. Q47 (GDS: crying frequency) leads at 
+
+1.759 × 10 −3, followed by Q91 (Social Engagement: avail-ability of a friend for decision support, 1.636 × 10 −3), Q90 (Social Engagement: providing decision support to a friend, 
+
+1.578 × 10 −3), Q20 (I-CONECT: written communication with friends or family, 1.578 ×10 −3), and Q17 (I-CONECT: contact with friends, 1.522 × 10 −3). 
+
+a) Within-question modality-feature importance: Fig. 11 shows the within-question modality-feature share ( Hrel 
+
+q,m ) for the top-ranked questions in each task. The modality-feature rankings from Fig. 6(a) are preserved at the question level. For depression, eyegaze remains the top contributor across every shown question, followed by ComParE. For anxiety, eyegaze and head pose retain their order of importance regardless of question group. 
+
+C. Single Participant Temporal Importance 
+
+Fig. 12 shows IG attribution over interview time for one representative participant per task, for the three highest-contributing modality-features from Fig. 6(a). Each participant comes from the test fold of the best-performing model for IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 18 
+
+the corresponding task (Non-linear+T for depression and Lin-ear+T for anxiety). For each task, we selected a repetition–fold combination with a test AUROC > 0.8 and chose the most confidently classified positive case from that fold (confidence 
+
+> 0.9). The attribution scores were smoothed using a 15-s window for plotting. For the depression participant (Fig. 12(a)), eyegaze has the highest attribution across all questions. Total attribution peaks during the open-ended block, driven by a sharp increase in eyegaze. ComParE contributes mainly at the beginning of the interview. Attribution decreases through the middle of the interview. This pattern matches the temporal importance findings (Fig. 6(b)), where eyegaze drives the early-interview concentration for depression. For the anxiety participant (Fig. 12(b)), eyegaze and head pose remain the main contributors across all questions with comparable attribution. rPPG contributes mainly during the open-ended block and decreases afterward. This pattern matches the population-level finding that anxiety attribution is distributed more uniformly across question groups, with comparable contributions from eyegaze and head pose and without the early attribution concentration observed for de-pression (Fig. 6(b)). IEEE TRANSACTIONS ON AFFECTIVE COMPUTING 19 Q1 Q4 Q2 Q3 
+
+1.65 1.36 1.15 1.09 
+
+Open 
+
+Q10 Q5 Q6 Q13 Q9 
+
+2.15 1.68 1.18 1.18 1.15 
+
+I-CONECT 
+
+Q47 Q46 Q49 Q36 Q24 
+
+1.03 1.00 0.90 0.88 0.82 
+
+GDS 
+
+Q56 Q59 Q58 Q57 Q55 
+
+1.07 1.00 1.00 0.88 0.84 
+
+GAD-7 
+
+Q74 Q65 Q67 Q73 Q76 
+
+1.35 1.26 1.03 0.98 0.97 
+
+UCLA Loneliness 
+
+0.0 0.5 1.0 1.5 2.0 
+
+Mean per-temporal bin question importance (x10 −3 )
+
+Q89 Q90 Q88 Q91 Q86 
+
+1.70 1.51 1.41 1.23 1.23 
+
+Lubben Social Engagement 
+
+(a) Depression Q3 Q2 Q1 Q4 
+
+1.39 1.14 1.09 1.04 
+
+Open 
+
+Q20 Q17 Q21 Q19 Q5 
+
+1.58 1.52 1.38 1.33 1.33 
+
+I-CONECT 
+
+Q47 Q31 Q39 Q26 Q29 
+
+1.76 1.51 1.44 1.41 1.34 
+
+GDS 
+
+Q58 Q57 Q56 Q59 Q53 
+
+1.17 1.14 1.10 1.10 1.04 
+
+GAD-7 
+
+Q60 Q65 Q67 Q69 Q61 
+
+1.14 1.09 1.07 1.04 1.01 
+
+UCLA Loneliness 
+
+0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 
+
+Mean per-temporal bin question importance (x10 −3 )
+
+Q91 Q90 Q85 Q87 Q88 
+
+1.64 1.58 1.21 1.18 1.10 
+
+Lubben Social Engagement (b) Anxiety 
+
+Fig. 10. IG question-level importance grouped by question group for depression and anxiety prediction. Bars show normalized question-attribution scores for each question group. Eye gaze ComParE rPPG Head pose text_roberta eGEMAPS Wav2Vec2 AUs & LMs 
+
+Modality-Feature 
+
+Q1 Q10 Q5 Q89 Q90 Q88 Open I-CONECT Social Engagement 
+
+0.62 0.13 0.09 0.09 0.03 0.03 0.01 0.00 0.68 0.10 0.08 0.09 0.02 0.02 0.01 0.00 0.58 0.15 0.10 0.10 0.02 0.03 0.01 0.00 0.70 0.09 0.03 0.13 0.02 0.01 0.01 0.01 0.70 0.08 0.07 0.11 0.02 0.01 0.01 0.00 0.77 0.08 0.04 0.09 0.02 0.01 0.01 0.00 
+
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Share
+
+(a) Depression Eye gaze Head pose rPPG ComParE text_roberta eGEMAPS Wav2Vec2 AUs & LMs 
+
+Modality-Feature 
+
+Q20 Q17 Q47 Q31 Q91 Q90 I-CONECT GDS Social Engagement 
+
+0.43 0.41 0.08 0.05 0.01 0.01 0.01 0.00 0.43 0.36 0.11 0.07 0.01 0.01 0.01 0.01 0.47 0.34 0.10 0.06 0.01 0.01 0.01 0.01 0.43 0.41 0.06 0.06 0.01 0.01 0.01 0.01 0.48 0.30 0.13 0.06 0.01 0.01 0.01 0.01 0.39 0.38 0.12 0.07 0.01 0.01 0.01 0.01  
+
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Share
+
+(b) Anxiety 
+
+Fig. 11. IG within-question modality-feature importance for depression and anxiety prediction. Each row shows the normalized modality-feature-attribution share for a high-ranking interview question. Across question groups, eyegaze remains dominant for depression, whereas anxiety shows a more balanced attribution between eyegaze and head pose. 200 400 600 800 1000 1200 1400 
+
+Time (seconds) 
+
+> 0.000 0.005 0.010 0.015 0.020 0.025 0.030 0.035
+> Attribution score
+
+M0330 temporal profile - top 3 modalities      
+
+> Question group Open I-CONECT GDS GAD-7 UCLA Loneliness Social Engagement
+> Total attribution Eye gaze ComParE Head pose
+
+(a) Depressed participant 500 1000 1500 2000 
+
+Time (seconds) 
+
+> 0.00 0.01 0.02 0.03 0.04 0.05 0.06
+> Attribution score
+
+M0273 temporal profile - top 3 modalities       
+
+> Question group Open I-CONECT GDS GAD-7 UCLA Loneliness Social Engagement
+> Total attribution Eye gaze Head pose rPPG
+
+(b) Anxious participant 
+
+Fig. 12. Single-participant IG temporal importance for the three highest-attribution modality-features. For depression, these features are eyegaze, ComParE, and head pose. Eyegaze dominates throughout the interview, with peaks during the open-ended question block. For anxiety, the top features are eyegaze, head pose, and rPPG. Eyegaze and head pose contribute comparably across all questions, while rPPG shows a peak in the open-ended question block. The colored strip below each panel marks question-group boundaries.

@@ -1,0 +1,73 @@
+{
+  "date": "20260901",
+  "date_label": "",
+  "generated_at": "2026-09-01 18:49:51 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2608.30857v1",
+      "route": "202609/01/2608.30857v1-tami-temporally-aligned-missingness-aware-and-interpretable-multimodal-fusion-for-mental-health-assessment-in-older-adults-with-mild-cognitive-impairment",
+      "title": "TAMI: Temporally Aligned, Missingness-Aware, and Interpretable Multimodal Fusion for Mental Health Assessment in Older Adults with Mild Cognitive Impairment",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向MCI老年人的抑郁焦虑心理健康评估",
+      "first_seen_at": "2026-09-01 18:49:51 UTC",
+      "updated_at": "2026-09-01 18:49:51 UTC"
+    },
+    {
+      "paper_id": "2608.28152v1",
+      "route": "202609/01/2608.28152v1-under-mattress-temporal-sensing-for-next-day-agitation-risk-scoring-in-dementia-wards",
+      "title": "Under-Mattress Temporal Sensing for Next-Day Agitation Risk Scoring in Dementia Wards",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "针对老年痴呆激越的非接触式睡眠/运动感知方法，可迁移至老年抑郁睡眠与精神运动症状的动态评估。",
+      "first_seen_at": "2026-09-01 18:49:51 UTC",
+      "updated_at": "2026-09-01 18:49:51 UTC"
+    },
+    {
+      "paper_id": "2608.29494v1",
+      "route": "202609/01/2608.29494v1-learning-human-health-and-diseases-from-24-hour-wrist-movement",
+      "title": "Learning Human Health and Diseases from 24-hour Wrist Movement",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "24小时手腕运动模型，可表型睡眠与运动行为",
+      "first_seen_at": "2026-09-01 18:49:51 UTC",
+      "updated_at": "2026-09-01 18:49:51 UTC"
+    },
+    {
+      "paper_id": "2608.29714v1",
+      "route": "202609/01/2608.29714v1-neural-ode-enhanced-linear-mixed-effect-models-for-estimating-complex-association-patterns-of-time-varying-covariates-with-the-marker-trajectory",
+      "title": "Neural ODE enhanced linear mixed effect models for estimating complex association patterns of time-varying covariates with the marker trajectory",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "时变协变量纵向关联建模方法，可迁移至社会支持与抑郁症状关联研究",
+      "first_seen_at": "2026-09-01 18:49:51 UTC",
+      "updated_at": "2026-09-01 18:49:51 UTC"
+    }
+  ]
+}

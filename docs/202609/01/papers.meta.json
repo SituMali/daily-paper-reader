@@ -1,0 +1,69 @@
+{
+  "label": "2026-09-01",
+  "date": "2026-09-01",
+  "generated_at": "2026-09-01T18:49:55",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202609/01/2608.30857v1-tami-temporally-aligned-missingness-aware-and-interpretable-multimodal-fusion-for-mental-health-assessment-in-older-adults-with-mild-cognitive-impairment",
+      "section": "deep",
+      "title_en": "TAMI: Temporally Aligned, Missingness-Aware, and Interpretable Multimodal Fusion for Mental Health Assessment in Older Adults with Mild Cognitive Impairment",
+      "authors": "Merna Bibars, Bolaji Omofojoye, Allan I. Levey, Rachel Hershenberg, Gari D. Clifford, Hyeokhyen Kwon",
+      "date": "2026-08-31",
+      "pdf": "https://arxiv.org/pdf/2608.30857v1",
+      "score": "9.0",
+      "evidence": "面向MCI老年人的抑郁焦虑心理健康评估",
+      "tldr": "针对老年MCI患者抑郁焦虑易漏诊问题，现有远程访谈多模态分析存在时间错位、缺失值填充和解释性不足。提出TAMI框架，统一时间线对齐特征，编码模态缺失并融合问题上下文。在49名MCI老年人中，抑郁AUROC 0.68，焦虑0.69，时间对齐带来最大提升；仅用开放问题5.1分钟与全程19分钟效果相当。支持以开放问题为中心的筛查方案。",
+      "tags": "query:dep-support",
+      "abstract_en": "Depression and anxiety in older adults with Mild Cognitive Impairment (MCI) are frequently underdiagnosed due to limited access to care. Multimodal analysis of remote clinical interviews is a scalable screening approach, but existing methods have three limitations. First, they do not correct temporal misalignment across multimodal features extracted at different resolutions, inducing spurious cross-modal associations. Second, remote recordings exhibit uneven modality dropout, but missing values are often zero-filled, making them indistinguishable from valid near-zero measurements. Finally, they do not jointly attribute predictions to modalities, questions, and interview moments, limiting fine-grained clinical interpretation. We propose a Temporally-Aligned, Missingness-Aware, Interpretable (TAMI) multimodal fusion framework. TAMI aligns speech, language, facial, and physiological features within question-answer segments on a shared timeline, encodes modality-level missingness over time, and conditions fusion on question context. In interviews with 49 older adults with MCI, TAMI achieved area under the receiver operating characteristic curve (AUROC) scores of 0.68 (depression) and 0.69 (anxiety). Fine-grained temporal alignment of multimodal features produced the largest performance gain ($Δ{\\geq}0.1$). Multi-level interpretability analysis revealed that depression classification relied on eyegaze and open-ended questions, while anxiety classification depended on eyegaze and head pose, with attribution uniformly distributed across questions. Using only responses to the open-ended questions (5.1min), the depression model achieved an AUROC score of 0.67, which was not significantly different from using the full interview (19min) ($p>0.05$). Our findings support designing interview protocols centered on open-ended questions for depression screening in older adults with MCI.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/01/2608.28152v1-under-mattress-temporal-sensing-for-next-day-agitation-risk-scoring-in-dementia-wards",
+      "section": "quick",
+      "title_en": "Under-Mattress Temporal Sensing for Next-Day Agitation Risk Scoring in Dementia Wards",
+      "authors": "Zhen Liu, Marta Bono, Robbe Decloedt, Ajda Flisar, Maarten Van Den Bossche, Maarten De Vos",
+      "date": "2026-08-28",
+      "pdf": "https://arxiv.org/pdf/2608.28152v1",
+      "score": "6.0",
+      "evidence": "针对老年痴呆激越的非接触式睡眠/运动感知方法，可迁移至老年抑郁睡眠与精神运动症状的动态评估。",
+      "tldr": "针对痴呆患者激越风险短期波动大、连续生理信息缺乏的问题，本研究利用床垫下无接触传感信号，比较了夜间汇总与分钟级时间建模（全夜序列建模、滑动窗口多实例学习）对次日激越风险的预测性能。在65名患者423个夜晚的数据上，全夜序列建模获得最高AUROC（0.692）和AUPRC（0.849），优于夜间汇总，并发现核心夜间时段的活动、心率和呼吸频率是关键信号。研究为医院痴呆病房的激越风险无接触监测提供了系统性基准和新方向。",
+      "tags": "query:dep-support",
+      "abstract_en": "Agitation fluctuates over short time horizons in people living with dementia, yet continuous physiological information for anticipating next-day risk is limited. We assessed whether contactless under-mattress signals from the preceding night inform next-day agitation risk and whether preserving minute-level temporal structure improves performance over conventional nightly summaries. We analyzed 423 patient-nights from 65 subjects in a specialized hospital dementia unit using two under-mattress sensing systems. A unified four-paradigm benchmark compared nightly handcrafted summaries, three-period handcrafted features, full-night sequence modeling, and sliding-window multiple-instance learning. Source-specific preprocessing and five-fold patient-grouped cross-validation were used, with performance estimated from pooled out-of-fold predictions. Evaluation included discrimination, calibration, fixed-threshold metrics, and a comparison of period-signal attribution patterns across two temporal models. Full-night sequence modeling achieved the highest discrimination (AUROC, 0.692; AUPRC, 0.849) and balanced accuracy (0.658). Both minute-level pipelines had higher AUROC than nightly summaries, but differences from three-period handcrafted features were uncertain. Cross-model attribution prioritized activity, heart rate, and respiratory rate during the core overnight period. Calibration remained limited. The preceding night's signals supported modest next-day risk discrimination, with minute-level temporal modeling outperforming nightly summaries. Prospective calibration and external validation are needed before use in individual care decisions. This patient-grouped benchmark identifies contactless overnight sensing as a promising biomedical engineering direction for agitation-risk research in hospitalized dementia cohorts.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/01/2608.29494v1-learning-human-health-and-diseases-from-24-hour-wrist-movement",
+      "section": "quick",
+      "title_en": "Learning Human Health and Diseases from 24-hour Wrist Movement",
+      "authors": "Yong Wang, Dylan McGagh, Katya Broomberg, Zizheng Zhang, Jonathan Carter, Junayed Naushad, Laura Brocklebank, Yang Sun, George Nicholson, Dianjianyi Sun, Canqing Yu, Jun Lv, Maxim Barnard, Hubert Lam, Andrew Steptoe, David W. Eyre, Liming Li, Zhengming Chen, Naomi Wray, Spiros Denaxas, Gary S. Collins, Huaidong Du, Aiden Doherty, Hang Yuan",
+      "date": "2026-08-30",
+      "pdf": "https://arxiv.org/pdf/2608.29494v1",
+      "score": "6.0",
+      "evidence": "24小时手腕运动模型，可表型睡眠与运动行为",
+      "tldr": "腕戴式加速度计可连续记录日常运动，但传统分析仅提取少量预设指标。本文提出自监督基础模型Sensori，直接从24小时原始三轴腕部运动学习通用健康表征。在覆盖12万余人、68万余人日的四队列验证中，表征跨人群泛化，并在加入临床协变量后显著改善52种患病分类和26种发病风险预测，神经精神疾病增益最大，证明可扩展的被动健康监测潜力。",
+      "tags": "query:dep-support",
+      "abstract_en": "Much of human health and function unfolds beyond the clinic, through the movements of everyday life. Wrist-worn accelerometers capture these movements continuously, yet their rich signals are often reduced to a small set of predefined behavioural summary measures. Here, we present Sensori, a self-supervised foundation model that learns general-purpose health representations directly from 24 hours of raw tri-axial wrist movement. We developed and evaluated the model across four population-based cohorts from the United Kingdom, China and the United States, comprising 122,640 participants contributing 683,617 person-days of free-living recordings. Sensori condensed each day of movement into a representation that captured diverse movement behaviours, demographic characteristics, health axes and physical function. Evaluation in independent cohorts showed that these representations generalised across populations and measurement settings without retraining. When added to common clinical covariates, Sensori significantly improved prevalent disease classification for 52 of 102 eligible conditions (median delta AUROC, 0.060; range, 0.012-0.242) and incident disease risk prediction for 26 of 87 eligible conditions (median delta Uno's C-index, 0.064; range, 0.025-0.172), with the largest gains for neurological and psychiatric disorders. These findings establish 24-hour wrist movement as a rich and scalable source of health information, with the potential to support passive health monitoring and disease prediction at population scale.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/01/2608.29714v1-neural-ode-enhanced-linear-mixed-effect-models-for-estimating-complex-association-patterns-of-time-varying-covariates-with-the-marker-trajectory",
+      "section": "quick",
+      "title_en": "Neural ODE enhanced linear mixed effect models for estimating complex association patterns of time-varying covariates with the marker trajectory",
+      "authors": "Zhe Aurore Li, Quentin Clairon, Cécilia Samieri, Rodolphe Thiébaut, Mélanie Prague, Cécile Proust-Lima",
+      "date": "2026-08-30",
+      "pdf": "https://arxiv.org/pdf/2608.29714v1",
+      "score": "6.0",
+      "evidence": "时变协变量纵向关联建模方法，可迁移至社会支持与抑郁症状关联研究",
+      "tldr": "纵向队列研究需评估时变协变量与健康结局的复杂关联，但经典线性混合效应模型需预先指定暴露-结局函数形式。本文提出Neural ODE-LMM，将神经ODE编码的协变量轨迹连续潜在状态嵌入混合效应框架，同时保持似然推断，并通过惩罚边际似然估计参数。模拟显示无需指定函数形式即可恢复即时和累积效应，应用于3C队列揭示BMI、空腹血糖与认知衰退的轨迹依赖关联。这一方法为复杂时变关联建模提供了灵活且可解释的工具。",
+      "tags": "query:dep-support",
+      "abstract_en": "Longitudinal cohort studies produce repeated data that enable the assessment of time-varying association patterns between exposures and health outcomes. Classical linear mixed-effects models (LMMs) can accommodate a large variety of association patterns while accounting for the irregularly spaced, partially observed measurement. But they require the analyst to pre-specify the functional form linking the exposure history to the outcome. We propose the Neural ODE-LMM, which embeds a Neural Ordinary Differential Equation (Neural ODE) within the linear mixed-effects framework: a learned vector field encodes covariate trajectories into a continuous-time latent state that drives both the fixed- and random-effect design, while preserving the standard LMM observation model. This retains classical likelihood-based inference while learning complex, potentially cumulative, covariate effects flexibly. All parameters are estimated by maximising a penalised marginal likelihood. To quantify covariate effects, we introduce contrasts of counterfactual predictions that compare the expected outcome under alternative covariate trajectories with variance estimated via the delta method. In simulations, the model recovers both instantaneous and cumulative-burden effects without prior specification of the functional form. Applied to the Trois-Cités (3C) cohort, a population-based study of 7{,}324 participants, the method reveals trajectory-dependent associations of BMI and fasting glucose with cognitive decline.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
