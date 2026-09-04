@@ -1,0 +1,98 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-04T19:40:45.729755+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2609.01833v1",
+      "source": "arxiv",
+      "title": "Candidate Generation and Definition-Guided Verification for Sentence-Level Depression Symptom Recognition",
+      "abstract": "Sentence-level recognition of depression symptoms is challenging because similar expressions can differ in symptom relevance, and language-model inference is insufficiently grounded in diagnostic definitions. This study proposes a two-stage framework separating symptom-candidate generation from definition-grounded verification. A contrastively fine-tuned sentence encoder generates a symptom candidate per sentence, and a fine-tuned language model verifies whether the candidate is present or absent using the sentence, its context, and a candidate-specific diagnostic definition, checking its judgment against that definition before answering. Evaluated against encoder, inference-based, medical, and general LLM baselines and a matched single-stage supervised classifier, the proposed pipeline attains the best accuracy and F1 scores of all methods, with rationales matching expert-authored annotations. A preliminary clinical audit indicates moderate alignment with diagnostic definitions, with explanation quality strongly dependent on prediction correctness. The results support decomposing symptom recognition into candidate generation and definition-grounded verification, though performance remains limited for rare categories.",
+      "authors": [
+        "Weiming Li",
+        "Catarina Barata",
+        "Miguel Constante",
+        "Joao Sanches"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-01T20:08:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.01833v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Definition-grounded sentence-level depression symptom recognition; enables reliable identification of depressive manifestations from clinical or textual data, supporting atypical symptom studies.",
+      "llm_evidence_cn": "直接面向句级抑郁症状识别并加入诊断定义引导验证，可为老年抑郁非典型症状的文本挖掘提供方法支撑。",
+      "llm_evidence": "直接面向句级抑郁症状识别并加入诊断定义引导验证，可为老年抑郁非典型症状的文本挖掘提供方法支撑。",
+      "canonical_evidence": "直接面向句级抑郁症状识别并加入诊断定义引导验证，可为老年抑郁非典型症状的文本挖掘提供方法支撑。",
+      "llm_tldr_en": "Proposes a two-stage framework for sentence-level depression symptom recognition that generates symptom candidates then verifies them using sentence context and diagnostic definitions; evaluated against multiple strong baselines.",
+      "llm_tldr_cn": "句级抑郁症状识别常因相似表达在症状相关性上存在差异，而语言模型推断又缺乏诊断定义约束，导致识别不稳。该文提出候选生成与定义引导核验两阶段框架：先用对比精调的句子编码器生成候选症状，再由精调语言模型结合上下文与该症状对应的诊断定义进行判定并自我检查。与多种编码器、推理式、医学及通用大模型基线比较，该方法显著提升症状识别表现。其分离候选生成与定义核验的思路可为抑郁症状自动标注以及非典型老年抑郁症状研究提供可靠工具。",
+      "llm_tldr": "句级抑郁症状识别常因相似表达在症状相关性上存在差异，而语言模型推断又缺乏诊断定义约束，导致识别不稳。该文提出候选生成与定义引导核验两阶段框架：先用对比精调的句子编码器生成候选症状，再由精调语言模型结合上下文与该症状对应的诊断定义进行判定并自我检查。与多种编码器、推理式、医学及通用大模型基线比较，该方法显著提升症状识别表现。其分离候选生成与定义核验的思路可为抑郁症状自动标注以及非典型老年抑郁症状研究提供可靠工具。",
+      "llm_tags": [
+        "query:dep-support"
+      ],
+      "matched_query_tag": "query:dep-support",
+      "matched_query_text": "non-typical depressive manifestations including cognitive, sleep, motor, somatic, and frailty signs",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.01832v1",
+      "source": "arxiv",
+      "title": "Interpretable Symptom Vectors for Depression in a Large Language Model",
+      "abstract": "Patients with depression present with diverse symptom profiles, yet clinical practice routinely reduces this variation to a single severity score. Large language models (LLMs) can potentially capture various symptoms and their severity from patient speech. However, how depressive symptoms are represented inside LLMs remains poorly understood, limiting clinical trust. To examine whether internal model activations match clinician judgment, we analyzed the residual stream of Gemma-3-27B-PT using mechanistic interpretability techniques. Recording activations across symptom descriptions drawn from validated clinical instruments, we found that symptom groups geometrically separated the most at layer 21 across multiple distance metrics. Using Semantic Projection, we then projected held-out naturalistic text onto Symptom Vectors constructed from these instruments. The resulting per-symptom coefficients preserved clinician-annotated rank ordering across mood, somatic, and suicidality axes. Furthermore, a single depression vector in Layer 21 separates held-out depressive from non-depressive text (AUC = 0.789), which can be used as an emotional valence gate that restricts symptom projection to depressive speech. These results reveal a decorrelated, clinician-aligned symptom signal readable directly from internal activations, offering a mechanistic foundation for interpretable depression-assessment tools.",
+      "authors": [
+        "Fangyi Zhu",
+        "Ajay Subramanian",
+        "Allison Constant",
+        "Camille Wang",
+        "Ravish Gupta",
+        "Corey J. Keller"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.LG",
+        "q-bio.NC"
+      ],
+      "published": "2026-09-01T20:07:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.01832v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Studies inter-individual heterogeneity of depressive symptoms via interpretable symptom vectors in LLM activations, matching validated symptom categories; relevant to atypical symptom profiling.",
+      "llm_evidence_cn": "聚焦抑郁症患者症状的异质性，利用大模型内部激活表征不同症状组并与临床验证工具对比，对非典型症状分型具有借鉴价值。",
+      "llm_evidence": "聚焦抑郁症患者症状的异质性，利用大模型内部激活表征不同症状组并与临床验证工具对比，对非典型症状分型具有借鉴价值。",
+      "canonical_evidence": "聚焦抑郁症患者症状的异质性，利用大模型内部激活表征不同症状组并与临床验证工具对比，对非典型症状分型具有借鉴价值。",
+      "llm_tldr_en": "This paper reveals that Gemma-3-27B-PT internally encodes separable depression symptom groups at layer 21, aligned with clinician-judged symptom descriptions. Interpretable symptom vectors could support data-driven depression subtyping and may transfer to late-life atypical symptom detection.",
+      "llm_tldr_cn": "针对抑郁症患者症状多样但临床常简化为单一严重度评分的问题，本文采用机械可解释性技术分析Gemma-3-27B-PT在多种临床问卷症状描述刺激下的残差流激活。结果显示不同类型的抑郁症状在第21层几何分离最明显，且与临床判断一致。借助语义投影等手段，可以形成能够表达多重症状负荷的可解释症状向量。这项工作为大模型理解抑郁症状异质性提供了证据，也为老年抑郁非典型症状识别与分型研究奠定了基础。",
+      "llm_tldr": "针对抑郁症患者症状多样但临床常简化为单一严重度评分的问题，本文采用机械可解释性技术分析Gemma-3-27B-PT在多种临床问卷症状描述刺激下的残差流激活。结果显示不同类型的抑郁症状在第21层几何分离最明显，且与临床判断一致。借助语义投影等手段，可以形成能够表达多重症状负荷的可解释症状向量。这项工作为大模型理解抑郁症状异质性提供了证据，也为老年抑郁非典型症状识别与分型研究奠定了基础。",
+      "llm_tags": [
+        "query:dep-support"
+      ],
+      "matched_query_tag": "query:dep-support",
+      "matched_query_text": "investigate atypical symptoms of late life depression including cognitive decline, sleep disturbance, psychomotor retardation, somatic symptoms, and physical frailty",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

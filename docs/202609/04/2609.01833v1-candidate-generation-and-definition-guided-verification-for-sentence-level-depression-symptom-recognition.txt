@@ -1,0 +1,533 @@
+Title: Candidate Generation and Definition-Guided Verification for Sentence-Level Depression Symptom Recognition
+
+URL Source: https://arxiv.org/pdf/2609.01833v1
+
+Published Time: Thu, 03 Sep 2026 00:13:03 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+> Digital Object Identifier
+
+# Candidate Generation and Definition-Guided Verification for Sentence-Level Depression Symptom Recognition 
+
+WEIMING LI 1, CATARINA BARATA 2, MIGUEL CONSTANTE 3, and JOÃO SANCHES 1   
+
+> 1Institute for Systems and Robotics (ISR), LARSyS, Departamento de Bioengenharia, Instituto Superior Técnico (IST), 1049-001 Lisboa. Portugal
+> 2Institute for Systems and Robotics (ISR), LARSyS, Instituto Superior Técnico, University of Lisbon, 1049-001 Lisbon, Portugal
+> 3Department of Psychiatry, Hospital Beatriz Ângelo, 2674-514 Loures, Portugal
+
+Corresponding author: Weiming Li (E-mail: weimingli9999@gmail.com). This work was supported by LARSyS funding DOI:10.54499/LA/P/0083/2020 and 10.54499/UID/50009/2025. This work has been submitted to the IEEE for possible publication. Copyright may be transferred without notice, after which this version may no longer be accessible. 
+
+ABSTRACT Sentence-level recognition of depression symptoms is challenging because similar expres-sions can differ in symptom relevance, and language-model inference is insufficiently grounded in diag-nostic definitions. This study proposes a two-stage framework separating symptom-candidate generation from definition-grounded verification. A contrastively fine-tuned sentence encoder generates a symptom candidate per sentence, and a fine-tuned language model verifies whether the candidate is present or absent using the sentence, its context, and a candidate-specific diagnostic definition, checking its judgment against that definition before answering. Evaluated against encoder, inference-based, medical, and general LLM baselines and a matched single-stage supervised classifier, the proposed pipeline attains the best accuracy and F1 scores of all methods, with rationales matching expert-authored annotations. A preliminary clinical audit indicates moderate alignment with diagnostic definitions, with explanation quality strongly dependent on prediction correctness. The results support decomposing symptom recognition into candidate generation and definition-grounded verification, though performance remains limited for rare categories. 
+
+INDEX TERMS Artificial intelligence, Classification algorithms, Data mining, Decision support systems, Deep learning, Machine learning, Mental health, Natural language processing, Psychiatry, Text mining. 
+
+I. INTRODUCTION 
+
+The rapid growth of social media and online mental-health communities has produced large volumes of unstructured text describing users’ emotions, behaviours, and psychological experiences [1]. Accordingly, text-based depression analy-sis has progressed from lexicon-based sentiment analysis and conventional machine-learning classifiers to transformer-based semantic models [2], [3]. Most existing studies, how-ever, operate at the post or user level and produce aggregate outcomes such as depression status or severity. Although useful for large-scale screening, these formulations do not necessarily identify which sentence expresses a particular depressive symptom or how that expression corresponds to a symptom category defined by the Diagnostic and Statistical Manual of Mental Disorders, Fifth Edition (DSM-5) [4], [5]. Recent work has begun to align deep-learning depres-sion detectors more directly with DSM-5 criteria, but such systems still classify at the document or post level rather than attributing individual sentences to specific symptom categories [6]. Sentence-level symptom recognition provides a more fine-grained and traceable analytical target. ReDSM-5 supports this task by linking sentences from social-media posts to DSM-5-aligned depressive symptom annotations while re-taining access to their source-post context [7]. Neverthe-less, symptom expressions may be implicit, semantically overlapping, negated, temporally qualified, or dependent on surrounding text. The long-tailed distribution of symptom categories further complicates the recognition of less fre-quent expressions. Contextual encoders such as Sentence-BERT and Men-talBERT provide effective representations for sentence clas-  
+
+> VOLUME 4, 2016 1arXiv:2609.01833v1 [cs.CL] 1 Sep 2026 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+sification [8], [9], while contrastive learning can organ-ise the representation space using symptom-level supervi-sion [10]. However, even strong encoders may produce ambiguous decisions near boundaries between overlapping symptom categories. Autoregressive large language models (LLMs) provide additional contextual modelling capacity but are substantially more expensive when applied to every sentence. Moreover, despite their instruction-following and structured-generation capabilities, LLMs remain subject to factual inconsistency, bias, prompt sensitivity, and imperfect agreement with clinicians [11]–[15]. Sentence-level DSM-5 recognition therefore requires both selective use of LLM reasoning and an explicit reference for determining whether a predicted symptom is supported by the textual evidence. Prior sentence-level approaches, however, either rely on a single encoder-only classifier without a definitional con-sistency check, apply generic zero-shot entailment that is not conditioned on DSM-5 criteria, or invoke LLM reason-ing on every sentence without separating candidate gener-ation from verification [7], [16]–[18]. To our knowledge, prior work has not examined this specific combination of encoder-based candidate generation and candidate-specific, definition-grounded verification, in which LLM verification is restricted to the selected symptom candidate. To address these challenges, we propose a two-stage sentence-level DSM-5 symptom recognition framework that separates symptom-candidate generation from candidate-specific presence verification. In Stage 1, MentalSBERT-S, a sentence encoder contrastively fine-tuned with symptom-level supervision, produces a nine-class symptom-matching score for each sentence and selects the highest-scoring cat-egory as the Stage-1 candidate. This encoder-only design avoids autoregressive generation for every sentence while matching the accuracy of the directly fine-tuned generative alternative, as shown in Section IV. In Stage 2, a separately fine-tuned DeepSeek model deter-mines whether the Stage-1 candidate is Present or Absent. It receives the target sentence, source-post context, candidate symptom, and a concise candidate-specific DSM-5-informed definition. Within one structured inference call, the model forms a binary judgment and checks its consistency with the supplied definition before answering. The framework consequently produces a sentence-level symptom hypothesis, a consistency-checked binary status, and a model-generated explanation grounded in the target sentence and its sup-porting context. This verification operates at the annotation level and is not intended as a complete clinical diagnostic assessment. The main contributions of this work are as follows: 1) We formulate sentence-level DSM-5 symptom recog-nition as a two-stage task that separates nine-class symptom-candidate generation from definition-grounded binary verification of the selected candidate. 2) We develop MentalSBERT-S, a contrastively fine-tuned sentence encoder that generates the Stage-1 symptom candidate directly from a single forward pass, matching the accuracy of the directly fine-tuned generative alternative without autoregressive inference. 3) We introduce a fine-tuned definition-grounded verifica-tion procedure that combines an initial Present/Absent judgment with candidate-specific, DSM-5-informed consistency checking within one structured inference call. 4) We evaluate the framework against supervised en-coders, NLI-style zero-shot models, direct LLM base-lines including MedGemma-4B-IT, and a matched single-stage supervised classifier trained on the identi-cal data and backbone. The evaluation includes three training seeds, hierarchical bootstrap confidence in-tervals, per-symptom analysis, component ablations, error analysis, inference-efficiency measurements, and a preliminary clinical rationale audit. The remainder of this paper is organised as follows. Sec-tion II reviews related work. Section III presents the proposed framework. Section IV describes the experimental setup and results. Section V discusses the findings, clinical implica-tions, and limitations. Section VI concludes the paper and outlines future research directions. 
+
+> II. RELATED WORK
+
+Early text-based depression detection primarily addressed user-level or post-level screening through binary classifica-tion or severity estimation [4], [5], [19]. Resources such as SMHD, expert-annotated suicide-risk posts, interview cor-pora, and contextual depression challenges have broadened the empirical foundations of mental-health NLP [20]–[23]. However, predictions aggregated across a document or user history do not necessarily localise the sentence expressing a clinically relevant symptom [24]. ReDSM-5 advances a more fine-grained formulation by associating individual sentences with DSM-5-aligned depressive symptom categories [7]. In this setting, the linked post remains useful for resolving negation, temporal qualification, and unclear references, but the prediction target is the symptom evidence expressed by an individual sentence. Pretrained contextual encoders remain strong founda-tions for mental-health text analysis. Domain adaptation to mental-health corpora can improve representations of lan-guage associated with mental-health conditions [25], [26]. MentalBERT and MentalRoBERTa, for example, were pre-trained on mental-health-related social-media text and eval-uated across multiple mental-health detection benchmarks [8]. MentalBERT representations have also been combined with downstream neural classifiers for depression and major-depressive-disorder detection [27]. Transfer learning from general-purpose encoders to subreddit-specific mental-illness classification has likewise been shown to improve label dis-crimination over generic pretraining [28]. Although these models can learn symptom-discriminative contextual repre-sentations, fixed-label decisions remain difficult when symp-tom categories share linguistic cues, evidence depends on surrounding context, or rare categories provide limited su-  
+
+> 2VOLUME 4, 2016 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+pervision. Sentence-pair and contrastive objectives can fur-ther shape the representation space by drawing same-label sentences together and separating cross-category sentences [9], [10]; nevertheless, their contribution must be established empirically through controlled ablation. Natural-language inference (NLI) offers a complementary formulation in which label descriptions are expressed as hypotheses and evaluated for entailment. Yin et al. [16] estab-lished entailment as a general approach to zero-shot text clas-sification, while BART provides a widely used sequence-to-sequence foundation for NLI-style transfer [29]. This formu-lation is relevant to symptom recognition because symptom definitions can be converted into hypotheses without task-specific fine-tuning. However, generic entailment training does not necessarily capture the annotation boundaries of a specialised mental-health dataset. We therefore treat NLI-style zero-shot classification as an external baseline rather than a replacement for supervised symptom modelling. LLMs have expanded the range of clinical and mental-health NLP tasks that can be addressed through instruction following, contextual reasoning, and structured generation [17], [18]. A recent systematic review of LLM use in men-tal health similarly reports that most deployments remain confined to screening-level classification and stresses the need for interpretable, clinically verifiable outputs rather than opaque predictions [30]. Medical instruction tuning and domain alignment can improve performance on med-ical tasks, but strong benchmark results do not eliminate concerns regarding possible harm, bias, prompt sensitivity, or disagreement with clinicians [15], [31]. These concerns are especially relevant when heterogeneous expressions of symptoms such as anhedonia must be mapped to narrowly defined clinical categories [32]. Direct zero-shot and few-shot LLM methods are therefore important baselines, while constrained outputs and explicit separation between model-generated explanations and clinically reviewed interpreta-tions remain necessary. Medically tuned foundation models provide a stronger comparison than general-purpose LLM prompting alone. MedGemma is a family of medical text and vision-language models derived from Gemma 3 and evaluated across medical reasoning, information-retrieval, and image-understanding tasks [33]. MedGemma-4B-IT is an instruction-tuned model of practical size that can be applied to textual medical tasks without dataset-specific training. Its inclusion as a zero-shot baseline tests whether general medical instruction tuning is sufficient to capture the sentence-level DSM-5 annotation boundaries considered in this study. Clinical knowledge can be incorporated into LLM infer-ence through diagnostic definitions, structured instructions, external documents, or retrieval-augmented generation [15], [34], [35]. Retrieval-oriented systems introduce external ev-idence, whereas definition-conditioned inference supplies a fixed criterion directly in the model input. For sentence-level DSM-5 recognition, concise candidate-specific defini-tions provide a transparent reference for assessing whether the target sentence and its local context support a proposed symptom. Such definition-grounded, self-checking verifica-tion remains an annotation-level consistency check rather than a complete diagnostic assessment. Collectively, prior work provides effective components for contextual encoding, contrastive representation learn-ing, zero-shot entailment, medical instruction following, and definition-conditioned reasoning. However, these compo-nents address different parts of the sentence-level recog-nition problem. The present study integrates them into a two-stage pipeline with separately evaluated responsibilities: encoder-based symptom-candidate generation and definition-grounded binary verification of the resulting candidate. 
+
+> III. METHOD
+
+We propose a two-stage sentence-level DSM-5 symptom recognition framework that separates symptom-category lo-calisation from symptom-presence verification. The design follows a “semantic filtering first, structured verification second” principle. Stage 1 answers which symptom cate-gory best describes the target sentence; Stage 2 answers whether that candidate symptom is actually supported. These responsibilities are separated because category confusion and symptom validity are different error sources. A sentence can be semantically close to a symptom category with-out providing sufficient evidence that the symptom is actu-ally present, particularly when the expression is negated or context-dependent. The framework therefore keeps candidate selection and evidence verification as distinct decisions. It remains sentence-level: the target sentence is the unit being labelled, while its linked post is used only as supporting context when needed. This study uses the ReDSM-5 dataset [7], which links each target sentence to its source post and provides a primary symptom category. The sentence is the minimal analytical unit, while the linked post provides supporting context for LLM-based verification when sentence meaning depends on surrounding text. Table 1 illustrates this organisation. Model-parameter training and training-pair construction use only the training partition. As illustrated in Fig. 1, the framework separates symptom-candidate generation from presence verification. Given a tar-get sentence x and source post d, Stage 1 uses MentalSBERT-S to produce independent symptom scores P (x) and selects the highest-scoring category as the candidate s(x) = ˆ y(x).Stage 2 provides x, d, s(x), and the corresponding candidate-specific DSM-5-informed definition gs(x) to a separately fine-tuned DeepSeek verifier, which determines whether the candidate is Present or Absent and checks consistency with the definition in a single structured inference call. The tar-get sentence remains the primary evidence, while the post supplies supporting context for ambiguity, negation, tempo-ral information, or context-dependent expressions. The final output is the verified status together with a model-generated explanation.   
+
+> VOLUME 4, 2016 3Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+TABLE 1: Example post from the ReDSM-5 dataset [7] illustrating the sentence-level annotation format used throughout this study. The full source post (left) provides context; three of its sentences (second column) are each independently labelled with a DSM-5 symptom category and a P RESENT /A BSENT status (third column), together with a human-written rationale explaining the label (right column). This structure motivates the sentence-level, definition-grounded formulation adopted in Section III.      
+
+> Post text Sentence text DSM-5 symptom Annotation explanation
+> I felt really good when I first started it. (I was filled with energy). I got so much done for 2–3 months. It all went downhill after that (I can’t concentrate at all now). (I have more sleep troubles and now rely on sleeping pills. Also in constant low moods) Also in constant low moods DEPRESSED_MOOD PRESENT
+> The sentence directly expresses a continuing low mood, which is consistent with depressed-mood symptom evidence at the sentence level. I can’t concentrate at all now COGNITIVE_ISSUES PRESENT
+> Difficulty concentrating or thinking clearly is a hallmark of depression, aligning with criterion eight of the DSM-5 major depressive disorder symptoms. I have more sleep troubles and now rely on sleeping pills SLEEP_ISSUES PRESENT
+> Persistent sleep difficulty and reliance on medication may indicate sleep disturbance, corresponding to insomnia or hypersomnia within the DSM-5 symptom set.
+
+FIGURE 1: Two-stage sentence-level symptom recognition framework. Stage 1 generates a symptom candidate using a contrastively fine-tuned sentence encoder, and Stage 2 per-forms binary symptom-presence judgment with definition-grounded, internal self-checking against the candidate-specific DSM-5-informed definition, all within a single model call. 
+
+A. SYMPTOM-AWARE SENTENCE REPRESENTATION AND INITIAL CLASSIFICATION 
+
+Let x denote a target sentence and d its source post. Stage 1 formulates symptom-candidate generation as a single-label classification problem over 
+
+Y = {1, 2, . . . , K }, K = 9 , (1) where each label corresponds to one of the nine core depres-sive symptom categories represented in ReDSM-5. MentalSBERT-S is initialised from a SentenceTransformer encoder [9] and fine-tuned on the ReDSM-5 training split. Given contextual token representations zi ∈ Rm for a sen-tence containing n subword tokens, mean pooling produces 
+
+h(x) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+zi, (2) where h(x) ∈ Rm is the sentence embedding. The encoder is trained using symptom supervision together with label-derived contrastive relations. Positive relations are formed only between training sentences sharing the same symptom label, whereas sentences with different labels provide cross-category negative relations. No held-out sentence is used to construct these relations. On the shared representation h(x), the model uses K
+
+one-vs-rest classification heads. For label k, the independent sigmoid score is 
+
+pk(x) = σ w⊤ 
+
+> k
+
+h(x) + bk
+
+ , k ∈ Y . (3) The vector 
+
+P (x) = [ p1(x), p 2(x), . . . , p K (x)] (4) contains independently estimated class-matching scores rather than a jointly normalised categorical posterior. The initial symptom prediction is 
+
+ˆy(x) = arg max  
+
+> k∈Y
+
+pk(x). (5) Independent heads allow overlapping symptoms to receive non-negligible scores without forcing probability mass to sum to one. The Stage-1 symptom candidate is s(x) = ˆ y(x),which is passed directly to Stage 2 for verification.   
+
+> 4VOLUME 4, 2016 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+> B. DEFINITION-GROUNDED BINARY SYMPTOM VERIFICATION
+
+Stage 2 verifies the candidate symptom s(x) produced by Stage 1. It is formulated as binary classification rather than another nine-class prediction: 
+
+v(x, s (x)) ∈ { 0, 1}, (6) where 1 denotes Present and 0 denotes Absent. The target remains the sentence x; its source post d is included only to resolve contextual phenomena such as negation, referent ambiguity, or statements whose interpretation depends on surrounding text. The verifier is a DeepSeek decoder separately adapted by low-rank fine-tuning (LoRA) [36] for this present/absent task. Its training objective is 
+
+LB = −
+
+> TB
+
+X
+
+> t=1
+
+log pθB (ut | u<t , d, x, s (x)) , (7) where ut is a target output token, TB is the length of the target output sequence, and θB denotes the verifier’s LoRA-adapted parameters. Given the target sentence, post context, and Stage-1 candi-date, the verifier records an initial binary judgment 
+
+˜v(x, d, s (x)) = fB (d, x, s (x)) . (8) The inference prompt instructs the model to prioritise explicit evidence in x, use d only as supporting context, distinguish current symptom evidence from negated or historical-only statements, and return a structured JSON object. The model is not asked to diagnose major depressive disorder, and the binary label does not require evidence for all diagnostic criteria, duration, severity, or functional impairment. 
+
+> C. DEFINITION-GROUNDED SELF-CHECKING AND EXPLANATION GENERATION
+
+For each candidate symptom s(x), a concise DSM-5-informed symptom definition gs(x) is supplied as a sentence-level consistency reference. This definition guides verifica-tion of the candidate symptom but does not constitute a com-plete diagnostic assessment of duration, severity, functional impairment, or the full DSM-5 criteria for major depressive disorder. The model checks whether its preliminary binary decision is semantically consistent with the target sentence, supporting context, and candidate-specific definition, produc-ing 
+
+v∗(x, d, s (x)) = VDSM5 
+
+ d, x, s (x), ˜v(x, d, s (x)) , g s(x)
+
+ .
+
+(9) The initial judgment and consistency check are elicited as two structured fields within one verifier model call. Equa-tion (9) describes the internal decision logic and does not denote a separate model or a second inference call. A second call is made only if syntactically invalid JSON requires repair. 
+
+> IV. EXPERIMENTAL RESULTS
+
+This section describes the dataset and experimental protocol and then evaluates Stage-1 symptom localisation, Stage-2 binary verification, and the complete two-stage framework. The analysis covers comparisons with supervised encoder, NLI-style, medical-LLM, and direct LLM baselines, together with statistical robustness, computational efficiency, error patterns, and automatic and psychiatrist-based assessment of model-generated explanations. 
+
+> A. DATASET
+
+This study uses ReDSM-5, a sentence-level dataset derived from DepreSym [37] by linking annotated sentences to their original Reddit posts and assigning DSM-5-informed symptom labels [7]. Each record contains a target sentence, source-post context, one symptom label, a candidate-specific Present/Absent status, and an annotation rationale. The la-bel space covers nine core depressive symptom categories, supporting multiclass symptom localisation in Stage 1 and candidate-specific binary verification in Stage 2; Table 2 summarises these categories and definitions [7], [38]. The raw corpus contains 1,896 uniquely annotated sentences. Before partitioning, we apply two cleaning steps. First, we remove 82 sentences labelled only as SPECIAL_CASE , an operational residual category for psychologically relevant content outside the nine core DSM-5 symptoms. Second, we remove 47 genuinely multi-label sentences annotated as simultaneously Present for two or more categories, since assigning a single primary label would impose an arbitrary priority rather than reflect the annotation. The resulting dataset contains 1,767 single-label sentences across the nine core categories. Because a Reddit post may contribute multiple annotated sentences, sentence-level splitting can leak the same post across partitions. We therefore use CP-SAT [39] to assign whole posts to train, development, and test sets while min-imizing deviations from a 65/16/19% per-class target. This yields 1,163/280/324 instances with zero post-level overlap. The prediction unit is the annotated target sentence, with its source post providing context for negation, temporal qual-ification, unclear referents, or information distributed across nearby sentences. Labels represent sentence–symptom corre-spondence rather than patient-level diagnosis, so diagnostic duration, frequency, severity, impairment, and differential-diagnosis criteria are not required. Table 2 is therefore used as a semantic reference for symptom-related evidence, not as a complete diagnostic rule set. All parameter training, contrastive-pair construction, fine-tuning, and checkpoint op-timisation use only the training partition; the development partition is used for model selection and early stopping. The test partition is touched only once, for final evaluation. Evaluation labels and annotation rationales are not supplied to any model during inference.   
+
+> VOLUME 4, 2016 5Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+TABLE 2: DSM-5-Informed Symptom Categories and Definitions [7], [38]      
+
+> Symptom Category Definition Depressed Mood Depressed mood most of the day, nearly every day, as indicated by either subjective report (e.g., feels sad, empty, or hopeless) or observation made by others (e.g., appears tearful).
+> Anhedonia Markedly diminished interest or pleasure in all, or almost all, activities most of the day, nearly every day (as indicated by either subjective account or observation).
+> Appetite or Weight Change
+> Significant weight loss when not dieting or weight gain (e.g., a change of more than 5% of body weight in a month), or decrease or increase in appetite nearly every day.
+> Sleep Issues Insomnia or hypersomnia nearly every day.
+> Psychomotor Alteration
+> Psychomotor agitation or retardation nearly every day (observable by others, not merely subjective feelings of restlessness or being slowed down).
+> Fatigue / Loss of Energy
+> Fatigue or loss of energy nearly every day.
+> Worthlessness or Excessive Guilt
+> Feelings of worthlessness or excessive or inappropriate guilt (which may be delusional) nearly every day (not merely self-reproach or guilt about being sick).
+> Cognitive Issues Diminished ability to think or concentrate, or indecisiveness, nearly every day (either by subjective account or as observed by others).
+> Suicidal Thoughts / Death Ideation
+> Recurrent thoughts of death (not just fear of dying), recurrent suicidal ideation without a specific plan, or a suicide attempt or a specific plan for committing suicide.
+
+B. STAGE-1 RESULTS ANALYSIS 
+
+Stage-1 assigns one of nine DSM-5 symptom categories to each target sentence. MentalSBERT-S is a SentenceTrans-former encoder fine-tuned with a joint multi-head binary classification and triplet-contrastive objective. Methods with trainable multi-seed configurations were evaluated with ran-dom seeds 42, 52, and 62 on the fixed 324-sentence test partition, with results reported as the seed mean and sample standard deviation. Fixed single-run zero-shot, few-shot, and retrieval-augmented baseline configurations were evaluated once. BART-MNLI uses independent entailment scoring with a fixed hypothesis template, while generative LLM baselines use greedy decoding. MedGemma-4B-IT provides a recent medical-domain LLM baseline, evaluated under zero-shot prompting with the same task instruction and label set as the other generative baselines. MentalBERT zero-shot is a de-terministic cosine-similarity classifier that embeds the target sentence and each symptom’s textual definition with the same SentenceTransformer backbone used by MentalSBERT-S, without any task-specific training. Tables 3 and 4 summarize class-specific performance, whereas Table 5 reports aggregate performance. Per-symptom cells report one-versus-rest precision, recall, and F1, whereas Macro F1 is the unweighted average over the nine-class label set and Weighted F1 weights each class by its evaluation support. The baseline comparison exhibits a clear progression from generic inference to domain adaptation and task-specific training. Among the deterministic zero-shot base-lines, BART-MNLI obtains an accuracy of 0.404, a Macro F1 of 0.353, and a Weighted F1 of 0.368. Its strong SUICIDAL_THOUGHTS F1 (0.871) indicates that explicit high-risk language is readily captured, whereas its near-zero recall on WORTHLESSNESS (F1=0.029) reveals the limitations of independent generic entailment scores for a mutually exclusive, dataset-specific label space. The re-cent medical-domain MedGemma-4B-IT zero-shot base-line substantially improves over BART-MNLI, reaching 0.716 accuracy, 0.684 Macro F1, and 0.726 Weighted F1. The zero-shot MentalBERT cosine-similarity classifier, despite using no task-specific training, is a competitive reference point (0.704 accuracy, 0.731 Macro F1, 0.689 Weighted F1), performing particularly well on FATIGUE (F1=0.895) and SLEEP_ISSUES (F1=0.921) but poorly on DEPRESSED_MOOD (F1=0.504), where its definition-similarity signal is diluted by the category’s broad and het-erogeneous surface forms. The trained encoder baselines demonstrate the impor-tance of task-specific representation learning. DeBERTa reaches 0.760 ± 0.035 accuracy but a much lower Macro F1 of 0.547 ± 0.025 , reflecting collapsed performance on the low-support APPETITE_CHANGE and PSYCHOMO-TOR categories (F1=0.000 in the representative seed). Men-talRoBERTa is the strongest conventional encoder base-line, reaching 0.919 ± 0.011 accuracy, 0.878 ± 0.010 
+
+Macro F1, and 0.916 ± 0.011 Weighted F1. The proposed MentalSBERT-S reaches 0.934 ± 0.002 accuracy, 0.898 ±
+
+0.002 Macro F1, and 0.932 ± 0.002 Weighted F1, exceeding MentalRoBERTa by 0.015, 0.020, and 0.016, respectively, with a visibly tighter seed-to-seed spread. To assess whether this gap reflects a stable effect rather than sampling varia-tion, we ran a hierarchical bootstrap that jointly resamples the three training seeds and the test instances (10,000 re-samples). The 95% confidence interval for the Macro-F1 difference between MentalSBERT-S and MentalRoBERTa is 
+
+[−0.019 , 0.065] (p = 0 .334 ), so the numerical advantage of MentalSBERT-S over the strongest conventional encoder baseline is not statistically conclusive at this test-set scale. The specific contribution of the contrastive objective is ex-amined separately below. The generative baselines show that prompting alone remains behind supervised adaptation on this closed-set sentence-level task. DeepSeek zero-shot obtains 0.809 ac-curacy, 0.762 Macro F1, and 0.807 Weighted F1; few-shot prompting reaches 0.781, 0.758, and 0.793; and retrieval-augmented prompting reaches 0.762, 0.763, and 0.774. Di-rectly fine-tuning DeepSeek-R1-Distill-Qwen-14B on the Stage-1 task improves on all three prompting variants, reach-ing 0.918 ± 0.010 accuracy, 0.891 ± 0.020 Macro F1, and   
+
+> 6VOLUME 4, 2016 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+TABLE 3: Stage-1 per-symptom precision, recall, and F1-score comparison for ANH=ANHEDONIA; APP=APPETITE_CHANGE; COG=COGNITIVE_ISSUES; DEP=DEPRESSED_MOOD; FAT=FATIGUE. Note: For methods evaluated over three seeds, each entry reports the seed-averaged precision/recall/F1; deterministic zero-shot, few-shot, and retrieval-augmented methods are evaluated once. 
+
+Model ANH APP COG DEP FAT 
+
+BART-MNLI zero-shot 0.266/0.943/0.415 1.000/0.083/0.154 0.400/0.095/0.154 0.675/0.333/0.446 0.450/0.818/0.581 MedGemma-4B-IT zero-shot 0.595/0.714/0.649 0.889/0.667/0.762 0.812/0.619/0.703 0.577/0.741/0.649 0.718/0.848/0.778 MentalBERT zero-shot 0.771/0.771/0.771 1.000/1.000/1.000 0.643/0.857/0.735 0.853/0.358/0.504 0.882/0.909/0.895 DeBERTa 0.678/0.886/0.758 0.000/0.000/0.000 0.286/0.095/0.143 0.887/0.831/0.857 0.465/0.707/0.557 MentalRoBERTa 0.893/0.924/0.907 1.000/0.944/0.971 0.920/0.905/0.912 0.931/0.938/0.935 0.806/1.000/0.892 DeepSeek 0-shot 0.698/0.857/0.769 1.000/0.833/0.909 0.615/0.762/0.681 0.768/0.778/0.773 0.912/0.939/0.925 DeepSeek few-shot 0.566/0.857/0.682 1.000/0.917/0.957 0.652/0.714/0.682 0.879/0.630/0.734 0.879/0.879/0.879 DeepSeek RAG 0.630/0.829/0.716 1.000/0.667/0.800 0.889/0.762/0.821 0.757/0.691/0.723 0.882/0.909/0.895 DeepSeek (fine-tuned) 0.923/0.905/0.914 1.000/0.889/0.938 0.903/0.873/0.887 0.895/0.942/0.918 0.838/0.990/0.908 MentalSBERT-S (BCE only) 0.930/0.886/0.907 1.000/0.972/0.986 0.944/0.810/0.870 0.903/0.951/0.926 0.860/0.990/0.920 
+
+MentalSBERT-S 0.969/0.895/0.930 1.000/0.917/0.957 0.945/0.825/0.881 0.912/0.975/0.942 0.831/0.990/0.903 
+
+TABLE 4: Stage-1 per-symptom precision, recall, and F1-score comparison for PSY=PSYCHOMOTOR; SLE=SLEEP_ISSUES; SUI=SUICIDAL_THOUGHTS; WOR=WORTHLESSNESS. Note: For methods evaluated over three seeds, each entry reports the seed-averaged precision/recall/F1; deterministic zero-shot, few-shot, and retrieval-augmented methods are evaluated once. 
+
+Model PSY SLE SUI WOR 
+
+BART-MNLI zero-shot 0.117/0.778/0.203 1.000/0.194/0.324 1.000/0.771/0.871 1.000/0.015/0.029 MedGemma-4B-IT zero-shot 0.125/0.111/0.118 0.889/0.774/0.828 1.000/0.800/0.889 0.938/0.672/0.783 MentalBERT zero-shot 0.600/0.333/0.429 0.906/0.935/0.921 0.557/0.971/0.708 0.554/0.687/0.613 DeBERTa 0.000/0.000/0.000 0.733/0.925/0.802 0.927/0.952/0.939 0.839/0.905/0.870 MentalRoBERTa 0.833/0.333/0.474 0.966/0.925/0.945 0.941/0.914/0.928 0.950/0.930/0.940 DeepSeek 0-shot 0.167/0.111/0.133 0.935/0.935/0.935 0.941/0.914/0.927 0.862/0.746/0.800 DeepSeek few-shot 0.176/0.333/0.231 0.903/0.903/0.903 0.968/0.857/0.909 0.862/0.836/0.849 DeepSeek RAG 0.400/0.444/0.421 1.000/0.935/0.967 0.689/0.886/0.775 0.863/0.657/0.746 DeepSeek (fine-tuned) 0.838/0.519/0.637 0.935/0.925/0.930 0.980/0.933/0.956 0.954/0.920/0.937 MentalSBERT-S (BCE only) 1.000/0.333/0.477 0.957/0.957/0.957 0.961/0.924/0.942 0.924/0.965/0.944 
+
+MentalSBERT-S 0.867/0.444/0.586 0.957/0.946/0.951 1.000/0.943/0.971 0.956/0.970/0.963 
+
+TABLE 5: Overall Stage-1 performance on the 324-instance test partition. 
+
+Note: For methods evaluated over three seeds, each entry reports the seed mean ±sample SD. Methods evaluated once (deterministic zero-shot, few-shot, and retrieval-augmented prompting) omit SD.                                     
+
+> Model Accuracy Macro F1 Weighted F1
+> BART-MNLI zero-shot 0.404 0.353 0.368 MedGemma-4B-IT zero-shot 0.716 0.684 0.726 MentalBERT zero-shot 0.704 0.731 0.689 DeBERTa 0.760 ±0.035 0.547 ±0.025 0.720 ±0.032 MentalRoBERTa 0.919 ±0.011 0.878 ±0.010 0.916 ±0.011 DeepSeek 0-shot 0.809 0.762 0.807 DeepSeek few-shot 0.781 0.758 0.793 DeepSeek RAG 0.762 0.763 0.774 DeepSeek (fine-tuned) 0.918 ±0.010 0.891 ±0.020 0.916 ±0.010 MentalSBERT-S (BCE only) 0.923 ±0.003 0.881 ±0.024 0.918 ±0.005
+> MentalSBERT-S 0.934 ±0.002 0.898 ±0.002 0.932 ±0.002
+
+0.916 ± 0.010 Weighted F1, slightly below MentalSBERT-S on all three metrics. The fine-tuned generative model re-quires autoregressive generation for every sentence, whereas MentalSBERT-S requires none; given its comparable or bet-ter accuracy, this makes the lighter contrastively fine-tuned sentence encoder the more practical choice for the Stage-1 component, and it is used as such throughout the remainder of the paper. MentalSBERT-S benefits from the joint classification and contrastive objective, though the gap is modest at this data scale. The BCE-only variant obtains an accuracy of 
+
+0.923 ± 0.003 and a Macro F1 of 0.881 ± 0.024 , whereas   
+
+> VOLUME 4, 2016 7Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+TABLE 6: Efficiency comparison across the retained Stage-1 baselines and ablations on the 324-instance test partition.                                                                               
+
+> Note: LLM Gen is the number of autoregressive generations. Multi-seed configurations report mean ±SD across seeds.
+> Model LLM Gen Total Time (s) Avg Latency (s) Throughput Avg Input Tok. Avg Output Tok. Total Tokens
+> BART-MNLI zero-shot 03.35 0.010 96.65 311.1 0.0 100791 MedGemma-4B-IT zero-shot 324 156.4 0.483 2.07 426.7 13.7 142683 MentalBERT zero-shot 00.20 0.001 1639.26 18.3 0.0 5923 DeBERTa 0±01.11 ±0.02 0.004 ±0.000 251.92 ±3.38 316.8 ±0.0 0.0 ±0.0 88697 ±0MentalRoBERTa 0±00.41 ±0.00 0.001 ±0.000 796.54 ±7.53 284.6 ±0.0 0.0 ±0.0 92195 ±0DeepSeek 0-shot 324 3240.4 10.001 0.10 400.8 295.3 225527 DeepSeek few-shot 324 3965.6 12.240 0.08 973.1 342.0 426094 DeepSeek RAG 324 1823.5 5.628 0.18 599.4 145.4 241332 DeepSeek (fine-tuned) 324 ±0292.4 ±2.0 0.902 ±0.006 1.11 ±0.01 242.9 ±3.5 11.9 ±0.2 82531 ±1100
+> MentalSBERT-S 0±00.39 ±0.10 0.001 ±0.000 869.75 ±208.77 18.3 ±0.0 0.0 ±0.0 5923 ±0
+
+the full BCE+triplet objective reaches 0.934 ± 0.002 and 
+
+0.898 ± 0.002 , respectively – a gain of 0.011 accuracy and 0.017 Macro F1, with a visibly tighter seed-to-seed spread on Macro F1. The largest per-class gain from adding the con-trastive term is on PSYCHOMOTOR (F1 0.477 to 0.586), the lowest-support category, consistent with contrastive training providing the most benefit where classification supervision alone has the fewest positive examples to learn from. The training pairs use same-symptom anchor–positive pairs and random cross-symptom negatives. Within-category negatives are not used because the corpus does not identify semanti-cally incompatible sentence pairs within a symptom label; treating unannotated same-label examples as negatives would oppose the BCE class supervision. 
+
+FIGURE 2: Confusion matrix for MentalSBERT-S on the nine-class Stage-1 symptom-candidate task, representative seed 42. Rows denote the ground-truth DSM-5 symptom category and columns denote the category predicted by MentalSBERT-S on the 324-instance test partition; cell val-ues are instance counts, with darker shading indicating a higher count. A perfectly accurate classifier would place all mass on the diagonal. The confusion matrix in Fig. 2 presents the represen-tative seed-42 result. Predictions are strongly concentrated along the diagonal, especially for DEPRESSED_MOOD, FATIGUE, SUICIDAL_THOUGHTS, and WORTHLESS-NESS, indicating reliable recognition of several well-represented or semantically distinctive symptom categories. The remaining errors are concentrated in the lower-support PSYCHOMOTOR category, which is most often con-fused with the semantically related FATIGUE and DE-PRESSED_MOOD categories. This pattern is consistent with the per-class results in Tables 3 and 4 and indicates that the principal remaining difficulty lies in fine-grained boundary discrimination for rare categories rather than recognition of the major symptom classes. The efficiency results in Table 6 highlight the practical cost of generative inference relative to the encoder approach. MentalSBERT-S classifies all 324 test sentences in under half a second of total inference time, several orders of magni-tude faster than any generative baseline, while requiring no autoregressive generation. The DeepSeek and MedGemma-4B-IT prompting baselines and the fine-tuned DeepSeek model each require one generation per sentence and con-sume between 8.3 × 10 4 and 4.3 × 10 5 tokens in total, whereas MentalSBERT-S consumes under 6,000 tokens for the entire test partition. Combined with its comparable or better accuracy relative to the fine-tuned generative model, this efficiency advantage motivates using MentalSBERT-S as the Stage-1 component of the complete pipeline. 
+
+C. STAGE-2 RESULTS ANALYSIS 
+
+Stage 2 evaluates whether a candidate symptom is Present or Absent in the target sentence. The proposed configuration fine-tunes DeepSeek-R1-Distill-Qwen-14B together with a concise candidate-specific, DSM-5-informed symptom def-inition. Within one structured inference call, the model first forms a binary judgment and then checks that judgment for consistency with the supplied definition. This procedure is evaluated as sentence-level annotation verification rather than as a complete clinical diagnostic assessment. Tables 7 and 8 break down the proposed verifier’s Present-class precision, recall, and F1 by candidate symptom cate-gory, complementing the aggregate results in Table 9.   
+
+> 8VOLUME 4, 2016 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+TABLE 7: P RESENT -class precision, recall, and F1-score by candidate symptom category on the Stage-2 verification task (multi-method comparison; cross-encoder and fine-tuned rows shown for representative seed 42) for ANH=ANHEDONIA; APP=APPETITE_CHANGE; COG=COGNITIVE_ISSUES; DEP=DEPRESSED_MOOD; FAT=FATIGUE. 
+
+Method ANH APP COG DEP FAT 
+
+BART-MNLI zero-shot 0.765/1.000/0.867 0.667/1.000/0.800 0.550/1.000/0.710 0.786/0.917/0.846 0.906/0.967/0.935 MedGemma-4B-IT zero-shot 0.743/1.000/0.852 0.667/1.000/0.800 0.550/1.000/0.710 0.794/0.900/0.844 0.909/1.000/0.952 DeepSeek zero-shot 0.870/0.769/0.816 0.700/0.875/0.778 0.526/0.909/0.667 0.872/0.683/0.766 0.906/0.967/0.935 DeepSeek few-shot 0.815/0.846/0.830 0.875/0.875/0.875 0.600/0.818/0.692 0.778/0.817/0.797 0.935/0.967/0.951 DeepSeek RAG 0.833/0.769/0.800 0.700/0.875/0.778 0.588/0.909/0.714 0.875/0.817/0.845 0.935/0.967/0.951 DeBERTa-v3 cross-encoder 0.743/1.000/0.852 0.667/1.000/0.800 0.524/1.000/0.688 0.741/1.000/0.851 0.909/1.000/0.952 MentalSBERT cross-encoder 0.769/0.769/0.769 0.667/1.000/0.800 0.556/0.909/0.690 0.738/0.983/0.843 0.909/1.000/0.952 DeepSeek (fine-tuned, direct) 0.833/0.769/0.800 0.700/0.875/0.778 0.588/0.909/0.714 0.824/0.933/0.875 0.906/0.967/0.935 DeepSeek (fine-tuned, definition-only) 0.852/0.885/0.868 0.700/0.875/0.778 0.526/0.909/0.667 0.818/0.900/0.857 0.909/1.000/0.952 
+
+DeepSeek (fine-tuned, proposed) 0.808/0.808/0.808 0.667/0.750/0.706 0.556/0.909/0.690 0.831/0.900/0.864 0.909/1.000/0.952 
+
+TABLE 8: P RESENT -class precision, recall, and F1-score by candidate symptom category on the Stage-2 verification task (multi-method comparison; cross-encoder and fine-tuned rows shown for representative seed 42) for PSY=PSYCHOMOTOR; SLE=SLEEP_ISSUES; SUI=SUICIDAL_THOUGHTS; WOR=WORTHLESSNESS.                                             
+
+> Method PSY SLE SUI WOR
+> BART-MNLI zero-shot 0.667/1.000/0.800 0.581/1.000/0.735 0.970/0.941/0.955 0.815/0.863/0.838 MedGemma-4B-IT zero-shot 0.625/0.833/0.714 0.581/1.000/0.735 0.968/0.882/0.923 0.790/0.961/0.867 DeepSeek zero-shot 0.750/0.500/0.600 0.607/0.944/0.739 0.964/0.794/0.871 0.971/0.667/0.791 DeepSeek few-shot 1.000/0.333/0.500 0.542/0.722/0.619 1.000/0.853/0.921 0.875/0.824/0.848 DeepSeek RAG 0.667/0.333/0.444 0.552/0.889/0.681 0.968/0.882/0.923 0.857/0.824/0.840 DeBERTa-v3 cross-encoder 0.667/1.000/0.800 0.581/1.000/0.735 0.971/1.000/0.986 0.761/1.000/0.864 MentalSBERT cross-encoder 0.625/0.833/0.714 0.586/0.944/0.723 0.971/1.000/0.986 0.769/0.980/0.862 DeepSeek (fine-tuned, direct) 0.667/0.667/0.667 0.615/0.889/0.727 0.967/0.853/0.906 0.820/0.980/0.893 DeepSeek (fine-tuned, definition-only) 0.667/1.000/0.800 0.593/0.889/0.711 0.969/0.912/0.939 0.814/0.941/0.873
+> DeepSeek (fine-tuned, proposed) 0.571/0.667/0.615 0.654/0.944/0.773 0.971/0.971/0.971 0.860/0.961/0.907
+
+TABLE 9: Overall Stage-2 performance on the 324-instance test partition. Values for trained methods report mean ± sample SD over seeds 42, 52, and 62. Note: Macro F1 is the unweighted mean over the P RESENT and A BSENT classes; Weighted F1 is support-weighted. Deterministic zero-shot, few-shot, and retrieval-augmented baselines are reported once. 
+
+Method Accuracy Macro F1 Weighted F1 Absent F1 Present F1 
+
+BART-MNLI zero-shot 0.750 0.553 0.703 0.257 0.850 MedGemma-4B-IT zero-shot 0.747 0.530 0.692 0.212 0.849 DeepSeek zero-shot 0.710 0.636 0.719 0.472 0.800 DeepSeek few-shot 0.731 0.634 0.730 0.446 0.823 DeepSeek RAG 0.741 0.642 0.737 0.455 0.830 DeBERTa-v3 cross-encoder 0.755 ± 0.004 0.488 ± 0.102 0.675 ± 0.048 0.120 ± 0.208 0.857 ± 0.004 
+
+MentalSBERT cross-encoder 0.750 ± 0.011 0.524 ± 0.040 0.690 ± 0.018 0.197 ± 0.084 0.852 ± 0.009 
+
+DeepSeek (fine-tuned, direct) 0.766 ± 0.011 0.656 ± 0.019 0.754 ± 0.010 0.461 ± 0.040 0.851 ± 0.010 
+
+DeepSeek (fine-tuned, definition-only) 0.770 ± 0.010 0.630 ± 0.052 0.745 ± 0.026 0.404 ± 0.102 0.857 ± 0.001 
+
+DeepSeek (fine-tuned, proposed) 0.780 ± 0.005 0.658 ± 0.021 0.761 ± 0.007 0.453 ± 0.048 0.862 ± 0.007 
+
+Table 9 compares the proposed verifier with prompting-based LLMs, zero-shot NLI and medical-LLM baselines, and supervised discriminative cross-encoders. Among the deterministic and prompted baselines, the DeepSeek zero-shot, few-shot, and RAG configurations reach the highest Macro F1 (0.636, 0.634, and 0.642, respectively) but the lowest accuracy (0.710–0.741) of any baseline family, since their higher Absent F1 (0.446–0.472) comes at the cost of frequently rejecting genuinely Present candidates. BART-MNLI and MedGemma-4B-IT zero-shot achieve higher ac-curacy (0.750 and 0.747) but substantially lower Absent F1 (0.257 and 0.212), revealing a strong tendency to accept the supplied candidate. The trained cross-encoders show a sim-ilar imbalance: both DeBERTa-v3 and MentalSBERT cross-encoders reach approximately 0.75 accuracy and Present F1 above 0.85, but DeBERTa-v3 is markedly unstable across seeds (Macro F1 0.488 ± 0.102 , with two of three seeds collapsing to predicting Present for nearly every instance), while the MentalSBERT cross-encoder is more consistent but still weak on the minority Absent class ( 0.197 ± 0.084 ).   
+
+> VOLUME 4, 2016 9Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+TABLE 10: Efficiency comparison across the retained Stage-2 baselines and ablations. Values report mean ±sample SD where seed-specific measurements are available.                                                                       
+
+> Method Input tokens/sample Output tokens/sample Latency/sample (s) Throughput (samples/s)
+> BART-MNLI zero-shot 225.3 –0.010 101.71 MedGemma-4B-IT zero-shot 466.5 8.1 0.288 3.48 DeepSeek zero-shot 440.6 345.0 12.059 0.08 DeepSeek few-shot 1382.1 207.0 7.320 0.14 DeepSeek RAG 686.7 316.7 11.056 0.09 DeBERTa-v3 cross-encoder 232 .3±0.0–0.0054 ±0.0000 184.43 MentalSBERT cross-encoder 235 .4±0.0–0.0039 ±0.0000 252.45 DeepSeek (fine-tuned, direct) 194 .8±0.06.1±0.20.491 ±0.016 2.04 DeepSeek (fine-tuned, definition-only) 234 .5±0.035 .7±0.82.641 ±0.033 0.38
+> DeepSeek (fine-tuned, proposed) 253 .5±0.043 .5±1.03.066 ±0.015 0.33
+
+FIGURE 3: Confusion matrix for the proposed Stage-2 ver-ifier on the binary P RESENT /A BSENT candidate-verification task, representative seed 42. Rows denote the ground-truth status of the Stage-1 candidate and columns denote the status predicted by the verifier on the 324-instance test partition (244 P RESENT , 80 A BSENT ); cell values are instance counts. Fine-tuning DeepSeek directly on the verification task without definitions or self-checking ( direct ) already outper-forms all zero-shot and cross-encoder baselines, reaching 
+
+0.766 ± 0.011 accuracy and 0.656 ± 0.019 Macro F1. Adding only the DSM-5 definition ( definition-only ) lowers Macro F1 to 0.630 ± 0.052 , mainly because Absent F1 drops from 0.461 ± 0.040 to 0.404 ± 0.102 , suggesting that the definition alone may bias the model toward accepting candidates rather than rejecting unsupported ones. Adding the self-check step on top of the definition restores Macro F1 to 0.658 ± 0.021 and yields the best accuracy, 0.780 ±
+
+0.005 . A hierarchical bootstrap jointly resampling the three training seeds and test instances (10,000 resamples) found no significant pairwise differences: direct vs. definition-only, 95% CI [−0.073 , 0.118] (p = 0 .687 ); definition-only vs. the proposed self-check configuration, [−0.122 , 0.072] 
+
+(p = 0 .627 ); and direct vs. proposed, [−0.071 , 0.064] (p =0.970 ). Thus, the observed pattern—definition-only reducing Macro F1 and self-checking recovering and slightly exceed-ing the direct setting—should be interpreted as a suggestive trend rather than a statistically established effect. To compare the proposed verifier with the strongest ex-ternal baseline, we evaluated it against DeepSeek RAG, the best-performing prompting configuration. The bootstrap 95% CI for the Macro-F1 difference is [−0.055 , 0.082] (p =0.665 ), indicating that the fine-tuned verifier’s numerical advantage is not statistically conclusive at the current test-set scale, despite higher accuracy (0.780 vs. 0.741) and Present F1 (0.862 vs. 0.830). Figure 3 shows that the verifier correctly identifies 224 of 244 Present and 29 of 80 Absent instances. The 51 false accepts versus 20 false rejects is consistent with the lower Absent F1 in Table 9 and the class imbalance. Ta-bles 7 and 8 show further category-level variation: F1 is highest for FATIGUE and SUICIDAL_THOUGHTS (0.952 and 0.971) and lowest for PSYCHOMOTOR and COGNI-TIVE_ISSUES (0.615 and 0.690), indicating greater relia-bility for well-supported, semantically clearer categories and similar rare-category difficulty to Stage 1. Table 10 shows that cross-encoders remain three to four orders of magnitude faster than generative verifiers. Among fine-tuned DeepSeek variants, the direct model is fastest ( 0.491 ± 0.016 s/sample) because it outputs only a binary decision, while definition-only and self-check generate short rationales ( 35 .7 ± 0.8 and 
+
+43 .5 ± 1.0 tokens), increasing latency to 2.641 ± 0.033 s and 
+
+3.066 ± 0.015 s per sample. Overall, the Stage-2 results support the definition-plus-self-check design: it achieves the highest accuracy and Present F1, while all fine-tuned models—direct, definition-only, and self-check—outperform all zero-shot, few-shot, and cross-encoder baselines on accuracy. Differences among the fine-tuned variants, however, are not statistically conclu-sive at the current test-set scale and should be interpreted as trends rather than settled conclusions. As in Stage 1, the remaining errors, especially for the sparse Absent class, indi-cate that the verifier is a sentence-level annotation component rather than a substitute for clinical diagnosis.   
+
+> 10 VOLUME 4, 2016 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+> D. TWO-STAGE INFERENCE RESULT ANALYSIS
+
+The final experiment evaluates the complete framework with-out access to gold symptom labels. For each target sentence, Stage 1 (MentalSBERT-S) proposes a symptom candidate, and Stage 2 (the fine-tuned DeepSeek verifier) then de-termines whether that candidate is Present or Absent. A Present decision preserves the Stage-1 symptom, whereas an Absent decision produces NO_SYMPTOM . The resulting label space contains the nine core symptom categories plus 
+
+NO_SYMPTOM . This genuinely end-to-end evaluation differs from the isolated Stage-1 and Stage-2 results reported above in that Stage-2 verifies whatever category Stage-1 actually predicted, including its errors, rather than the gold category. Table 13 reports aggregate performance, comparing the proposed pipeline against encoder, NLI-style, medical-LLM, and direct-prompting baselines, together with a di-rectly supervised single-stage DeepSeek-R1-Distill-Qwen-14B QLoRA baseline trained end-to-end on the same ten-class task and training partition. All trained methods are reported as mean ±sample SD over seeds 42, 52, and 62; deterministic single-run baselines are reported once. Table 14 shows that the proposed pipeline’s inference cost is dominated by the Stage-2 generation call: the Stage-1 MentalSBERT-S pass adds under half a second in total across all 324 test sentences, so the pipeline’s average latency (3.020 ± 0.093 s/sample) closely tracks the isolated Stage-2 verifier cost reported in Table 10. The proposed pipeline is markedly cheaper than every DeepSeek prompting baseline (zero-shot, few-shot, and RAG all exceed 3.6s/sample and consume 2–5× more total tokens). It is slower per sample than the single-stage supervised DeepSeek QLoRA baseline (1.417 ± 0.001 s), since the single-stage classifier emits only a short class label in a single call whereas the proposed pipeline performs two model calls per sentence and generates a supporting rationale as part of the Stage-2 verification; de-spite this, the proposed pipeline consumes fewer total tokens overall ( 102041 ±294 versus 166674 ±40 ) because its Stage-1 pass requires no generation at all. This latency-versus-accuracy trade-off is consistent with the accuracy advantage of the two-stage decomposition reported in Table 13. Among the baselines, accuracy and Macro F1 im-prove steadily from generic zero-shot inference (BART-MNLI: 0.444/0.387) through domain zero-shot and encoder methods (MentalBERT: 0.549/0.556; MedGemma zero-shot: 0.565/0.568; DeBERTa: 0.484 ± 0.093 /0.258 ± 0.081 , un-stable across seeds) to task-adapted encoders and prompted generation (MentalRoBERTa: 0.691 ± 0.016 /0.633 ±
+
+0.026 ; DeepSeek few-shot: 0.682/0.685; DeepSeek RAG: 0.685/0.684). Directly fine-tuning DeepSeek-R1-Distill-Qwen-14B as a single-stage ten-class classifier improves further, reaching 0.698 ± 0.003 accuracy and 0.661 ± 0.015 
+
+Macro F1, and outperforms every zero-shot, few-shot, RAG, and encoder baseline. The proposed two-stage pipeline – MentalSBERT-S for candidate generation followed by the fine-tuned DeepSeek verifier – reaches 0.731 ± 0.005 accuracy, 0.690 ± 0.011 
+
+Macro F1, and 0.715 ± 0.010 Weighted F1, the best result of any evaluated method. Because the single-stage super-vised baseline uses the identical backbone, training partition, and comparable QLoRA optimisation settings, the compar-ison against it isolates the benefit of decomposing the task into candidate generation and candidate-specific verification rather than any difference in model capacity or training data. A hierarchical bootstrap that jointly resamples the three training seeds and the test instances (10,000 resamples) gives a 95% CI of [−0.053 , 0.105] for the Macro-F1 difference between the two-stage pipeline and the single-stage baseline (p = 0 .498 ), so the numerical advantage of the two-stage decomposition, while consistent in direction across all three seeds, is not statistically conclusive at this test-set scale. 
+
+FIGURE 4: Confusion matrix for the complete two-stage pipeline on the final ten-class end-to-end task (nine DSM-5 symptom categories plus NO_SYMPTOM ), representative seed 42 (accuracy 0.738, Macro F1 0.697). Rows denote the ground-truth ten-class label and columns denote the label produced by the full pipeline (Stage-1 candidate generation followed by Stage-2 verification) on the 324-instance test partition; cell values are instance counts. Tables 11 and 12, together with Fig. 4, show the representative seed-42 run (accuracy 0.738, Macro F1 0.697, Weighted F1 0.721) in per-class detail. Predic-tions are strongly concentrated along the diagonal for SUICIDAL_THOUGHTS (F1 0.939), WORTHLESSNESS (0.889), FATIGUE (0.870), and DEPRESSED_MOOD (0.800). The weakest categories are the low-support PSY-CHOMOTOR (F1 0.364, 6 test instances) and NO_SYMPTOM 
+
+(F1 0.453), the latter reflecting the accumulation of both Stage-1 candidate errors and Stage-2 verification errors: a sentence is only correctly mapped to NO_SYMPTOM when Stage-2 correctly rejects whatever candidate Stage-1 pro-posed, so NO_SYMPTOM recall is bounded by Stage-2’s Absent-class sensitivity reported in Table 9. This end-to-  
+
+> VOLUME 4, 2016 11 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+TABLE 11: Per-class precision, recall, and F1-score on the final ten-class end-to-end evaluation (multi-seed methods and the proposed pipeline shown for representative seed 42) for ANH=ANHEDONIA; APP=APPETITE_CHANGE; COG=COGNITIVE_ISSUES; DEP=DEPRESSED_MOOD; FAT=FATIGUE. 
+
+Method ANH APP COG DEP FAT 
+
+BART-MNLI zero-shot 0.361/0.846/0.506 0.500/0.375/0.429 0.242/0.727/0.364 0.471/0.667/0.552 0.366/0.867/0.515 MentalBERT zero-shot 0.543/0.731/0.623 0.667/1.000/0.800 0.333/0.818/0.474 0.724/0.350/0.472 0.824/0.933/0.875 MedGemma-4B-IT zero-shot 0.679/0.731/0.704 0.636/0.875/0.737 0.333/0.636/0.438 0.444/0.733/0.553 0.750/0.500/0.600 DeBERTa 0.000/0.000/0.000 0.000/0.000/0.000 0.000/0.000/0.000 0.649/0.800/0.716 0.789/0.500/0.612 DeepSeek zero-shot 0.500/0.538/0.519 0.778/0.875/0.824 0.412/0.636/0.500 0.528/0.633/0.576 0.774/0.800/0.787 MentalRoBERTa 0.643/0.692/0.667 0.727/1.000/0.842 0.833/0.455/0.588 0.708/0.850/0.773 0.789/1.000/0.882 DeepSeek few-shot 0.606/0.769/0.678 0.750/0.750/0.750 0.471/0.727/0.571 0.724/0.700/0.712 0.744/0.967/0.841 DeepSeek RAG 0.600/0.808/0.689 0.714/0.625/0.667 0.500/0.909/0.645 0.623/0.717/0.667 0.871/0.900/0.885 Single-stage supervised DeepSeek QLoRA 0.720/0.692/0.706 0.778/0.875/0.824 0.400/0.545/0.462 0.718/0.850/0.779 0.789/1.000/0.882 
+
+Proposed two-stage pipeline 0.750/0.692/0.720 0.625/0.625/0.625 0.438/0.636/0.519 0.743/0.867/0.800 0.769/1.000/0.870 
+
+TABLE 12: Per-class precision, recall, and F1-score on the final ten-class end-to-end evaluation (multi-seed methods and the proposed pipeline shown for representative seed 42) for PSY=PSYCHOMOTOR; SLE=SLEEP_ISSUES; SUI=SUICIDAL_THOUGHTS; WOR=WORTHLESSNESS; NO= NO_SYMPTOM .
+
+Method PSY SLE SUI WOR NO 
+
+BART-MNLI zero-shot 0.067/0.167/0.095 0.333/0.056/0.095 0.935/0.853/0.892 0.917/0.216/0.349 0.429/0.037/0.069 MentalBERT zero-shot 0.250/0.167/0.200 0.531/0.944/0.680 0.589/0.971/0.733 0.434/0.647/0.520 0.474/0.113/0.182 MedGemma-4B-IT zero-shot 0.100/0.333/0.154 0.556/0.833/0.667 0.897/0.765/0.825 0.816/0.608/0.697 0.548/0.212/0.306 DeBERTa 0.000/0.000/0.000 0.000/0.000/0.000 0.681/0.941/0.790 0.750/0.882/0.811 0.387/0.600/0.471 DeepSeek zero-shot 0.143/0.167/0.154 0.548/0.944/0.694 0.912/0.912/0.912 0.754/0.843/0.796 0.526/0.250/0.339 MentalRoBERTa 0.000/0.000/0.000 0.593/0.889/0.711 0.941/0.941/0.941 0.793/0.902/0.844 0.480/0.300/0.369 DeepSeek few-shot 0.600/0.500/0.545 0.552/0.889/0.681 0.967/0.853/0.906 0.677/0.824/0.743 0.605/0.325/0.423 DeepSeek RAG 0.375/0.500/0.429 0.567/0.944/0.708 0.968/0.882/0.923 0.854/0.804/0.828 0.556/0.312/0.400 Single-stage supervised DeepSeek QLoRA 0.200/0.167/0.182 0.667/0.667/0.667 0.935/0.853/0.892 0.815/0.863/0.838 0.500/0.362/0.420 
+
+Proposed two-stage pipeline 0.400/0.333/0.364 0.680/0.944/0.791 0.969/0.912/0.939 0.842/0.941/0.889 0.604/0.362/0.453 
+
+TABLE 13: Overall performance in the final ten-class end-to-end evaluation on the 324-instance test partition. Trained methods report mean ± sample SD over seeds 42, 52, and 62; deterministic single-run baselines are reported once. 
+
+Method Accuracy Macro F1 Weighted F1 
+
+BART-MNLI zero-shot 0.444 0.387 0.386 MentalBERT zero-shot 0.549 0.556 0.499 MedGemma-4B-IT zero-shot 0.565 0.568 0.559 DeBERTa 0.484 ± 0.093 0.258 ± 0.081 0.412 ± 0.102 
+
+DeepSeek zero-shot 0.623 0.610 0.605 MentalRoBERTa 0.691 ± 0.016 0.633 ± 0.026 0.663 ± 0.016 
+
+DeepSeek few-shot 0.682 0.685 0.666 DeepSeek RAG 0.685 0.684 0.672 Single-stage supervised DeepSeek QLoRA 0.698 ± 0.003 0.661 ± 0.015 0.684 ± 0.004 
+
+Proposed two-stage pipeline 0.731 ± 0.005 0.690 ± 0.011 0.715 ± 0.010 
+
+end error compounding – an incorrect Stage-1 candidate that Stage-2 accepts becomes an unrecoverable error, since Stage-2 can only accept or reject the proposed candidate rather than substitute a different one – is an inherent limitation of the candidate-generation-then-verification decomposition. We additionally assessed semantic agreement between generated Stage-2 rationales and the expert-authored an-notation rationales provided by ReDSM-5 using Sentence-BERT embeddings [9], restricted to the subset of test in-stances where both the Stage-1 candidate and the Stage-2 decision were jointly correct. Across seeds 42, 52, and 62, mean cosine similarity was 0.597 ± 0.003 , with 3.5% ±  
+
+> 12 VOLUME 4, 2016 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+TABLE 14: Efficiency comparison for the final ten-class end-to-end evaluation on the 324-instance test partition.                                                                                                                               
+
+> Note: LLM Gen is the number of autoregressive generations. The proposed pipeline’s cost is the sum of the Stage-1 encoder pass and the Stage-2 verifier call for every test sentence. Multi-seed configurations report mean ±SD across seeds.
+> Method LLM Gen Total Time (s) Avg Latency (s) Throughput Avg Input Tok. Avg Output Tok. Total Tokens
+> BART-MNLI zero-shot 05.76 0.018 56.25 286.6 0.0 92874 MentalBERT zero-shot 00.20 0.001 1651.61 18.3 0.0 5923 DeBERTa 01.05 ±0.00 0.003 ±0.000 308 .69 ±1.32 276 .1±0.00.0±0.089463 ±0
+> MentalRoBERTa 00.41 ±0.01 0.001 ±0.000 790 .29 ±25 .93 290 .3±0.00.0±0.094067 ±0
+> MedGemma-4B-IT zero-shot 324 155.60 0.480 2.08 407.7 14.6 136824 DeepSeek zero-shot 324 1184.28 3.655 0.27 544.7 93.1 206652 DeepSeek few-shot 324 1417.77 4.376 0.23 1517.9 109.7 527348 DeepSeek RAG 324 1286.30 3.970 0.25 830.9 100.1 301671 Single-stage supervised DeepSeek QLoRA 324 459 .03 ±0.22 1.417 ±0.001 0.71 ±0.00 495 .7±0.018 .7±0.1166674 ±40
+> Proposed two-stage pipeline 324 978 .32 ±30 .25 3.020 ±0.093 0.33 ±0.01 271 .5±0.043 .4±0.9102041 ±294
+
+0.3% of rationales exceeding the prespecified high-similarity threshold of 0.75. This embedding-based measure quan-tifies lexical-semantic agreement with the expert-authored rationales and should not be interpreted as an independent clinical-correctness score. A consultant psychiatrist additionally conducted a single-rater blinded audit of 32 model-generated explanations pro-duced by the final sanitized Stage-2 verifier (Table 15). The audit packet was resampled to address a limitation of an earlier pilot round: rather than conditioning on correctly classified outputs only, the 32 audited cases are stratified into four equal-sized subsets crossing the verifier’s predicted status (Present/Absent) with whether that prediction was correct, so that rationale quality could be assessed separately for correct and incorrect verifier decisions rather than only for cases the system already got right. As in the pilot round, the rater was blinded to the gold label and to correctness, and the results are reported here as a preliminary, single-rater assessment by a coauthor rather than an independent external clinical evaluation. Because the four subsets were sampled in equal number (eight each) rather than in proportion to their true frequency in the test partition (64.8%/20.4%/9.6%/5.2% for Present-correct/Present-incorrect/Absent-correct/Absent-incorrect, respectively), the overall score reported in Table 15 is computed as a population-weighted average of the four subset means using these true proportions as weights, rather than an unweighted average over the 32 rated cases; an unweighted average would overrepresent the rare Absent subsets and underrepresent the dominant Present-correct sub-set relative to the system’s actual output distribution. The population-weighted overall scores are 3.15 for DSM-5 alignment and 2.52 for clinical usefulness. The dom-inant factor is whether the verifier’s decision was cor-rect, not whether it was Present or Absent: correct deci-sions (74.4% population weight) score 3.52 /2.73 on aver-age, whereas incorrect decisions (25.6% population weight) drop to 2.11 /1.90 . This confirms the concern that moti-vated resampling the audit – rationale quality for incor-rect verifier decisions is substantially lower than for cor-rect ones, so an audit restricted to correct cases alone overestimates practical explanation quality. In contrast, the gap between Present and Absent rationales is much TABLE 15: Single-rater blinded psychiatrist audit of 32 model-generated explanations, stratified by predicted status and correctness. Both DSM-5 alignment and clinical use-fulness are rated on a five-point Likert scale (1=lowest; 5=highest). Subset rows report the sample mean ±SD over the eight equally-sampled cases in that subset. The Overall row is a population-weighted average of the four subset means, weighted by each subset’s true frequency in the 324-instance test partition (64.8%/20.4%/9.6%/5.2%) rather than by the equal 25% sampling weight used to construct the audit.                                   
+
+> Subset DSM-5 alignment Clinical usefulness
+> PRESENT , correct ( n= 8 , weight 64.8%) 3.50 ±1.20 2.75 ±0.89
+> PRESENT , incorrect ( n= 8 , weight 20.4%) 1.88 ±0.99 1.88 ±0.83
+> ABSENT , correct ( n= 8 , weight 9.6%) 3.62 ±1.30 2.62 ±0.92
+> ABSENT , incorrect ( n= 8 , weight 5.2%) 3.00 ±1.69 2.00 ±0.93
+> Overall (population-weighted, n= 32 )3.15 2.52
+
+smaller once both correct and incorrect decisions are in-cluded (3.11 /2.54 for Present versus 3.40 /2.40 for Ab-sent, population-weighted), unlike the larger Present-versus-Absent gap observed in the smaller, correctness-conditioned pilot round. The rater’s written comments further indicate that some Present-incorrect cases reflect an upstream Stage-1 candidate error (e.g., a sentence describing a suicide attempt routed to Stage-2 under an unrelated candidate symptom rather than SUICIDAL_THOUGHTS ) rather than a Stage-2 rationale failure per se, and that in at least one case the rater’s clinical judgment diverged from the underlying ReDSM-5 gold annotation itself, which we note as a limitation of the source annotations rather than of the model. Overall, the end-to-end results support the two-stage de-composition: the proposed pipeline reaches the best accuracy, Macro F1, and Weighted F1 of any evaluated method, includ-ing a matched single-stage supervised baseline, though the margin over that baseline is not yet statistically conclusive at the current test-set scale. 
+
+V. DISCUSSION 
+
+This study develops a two-stage framework for sentence-level DSM-5 symptom recognition that separates symptom candidate generation from candidate-specific verification.   
+
+> VOLUME 4, 2016 13 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+Stage 1 uses a contrastively fine-tuned sentence encoder, MentalSBERT-S, to generate an initial symptom candidate for every sentence. Stage 2 then evaluates whether that candidate is Present or Absent using the target sentence, its post context, and a candidate-specific DSM-5-informed definition, combined with a self-check step that verifies the preliminary judgment against the supplied definition before answering. This decomposition differs from direct end-to-end prediction because the two stages address distinct ques-tions: which symptom is the most plausible candidate, and whether the available evidence is sufficient to retain that candidate. The resulting outputs should be interpreted as sentence-level research annotations rather than psychiatric diagnoses. Two design choices account for most of the improvement observed in this study. First, task-specific fine-tuning pro-vides a decisive and consistent gain over prompting-based inference at both stages: the fine-tuned Stage-1 encoder and Stage-2 verifier outperform every zero-shot, few-shot, and retrieval-augmented baseline by a wide margin, confirming that adapting model parameters to this annotation scheme, rather than relying on prompting alone, is central to the framework’s accuracy. Second, decomposing the task into candidate generation and definition-grounded verification is architecturally well motivated and is the best-performing configuration among all evaluated methods, including every single-stage alternative, even though its numerical margin over a matched single-stage supervised baseline does not reach statistical significance at the current test-set scale (dis-cussed below). The Stage-1 results reported above show that MentalSBERT-S matches the accuracy of the directly fine-tuned generative alternative (DeepSeek) while requiring no autoregressive generation, making it a substantially cheaper choice for the candidate-generation role without a measurable accuracy cost. The Stage-2 ablation isolates the contribution of the two design choices layered onto direct verification: adding the DSM-5 definition alone numerically reduces Macro F1 relative to the direct baseline, while adding the self-check step on top of the definition recovers and slightly exceeds the direct-only level; none of the pairwise differences reaches significance at the current test-set scale, so this is reported as a trend rather than a settled effect. The end-to-end comparison against a matched single-stage supervised DeepSeek QLoRA baseline is the most direct test of whether the two-stage decomposition itself is beneficial, since both methods share the same backbone, training par-tition, and comparable optimisation settings. The two-stage pipeline outperforms the single-stage baseline on accuracy, Macro F1, and Weighted F1, consistently across all three seeds, though the hierarchical bootstrap comparison does not reach significance at p < 0.05 . We report this honestly as a consistent numerical trend rather than a proven effect, and note that a larger evaluation partition would be needed to determine whether the gap is a genuine, stable property of the decomposition. This accuracy advantage comes at a latency cost: the two-stage pipeline is slower per sample than the single-stage baseline (Table 14), since it performs two model calls and generates a supporting rationale rather than a single short class label, though it remains markedly cheaper than any prompting-based baseline and consumes fewer total tokens overall. The error analysis reveals an architectural limitation shared by both single-stage and two-stage designs at the current data scale: rare categories such as PSYCHOMOTOR remain difficult across every evaluated method (Tables 7–8 and 11–12), and the two-stage pipeline’s NO_SYMPTOM per-formance is bounded by Stage-2’s sensitivity to the Absent class. Because Stage-2 can only accept or reject the single candidate Stage-1 proposes, an incorrect Stage-1 candidate that Stage-2 accepts becomes an unrecoverable end-to-end error; Stage-2 has no mechanism to substitute a different symptom category. A possible extension would allow Stage-2 to compare a small set of Stage-1 candidates or request a revision, but such a mechanism constitutes a distinct archi-tecture and would require separate validation. The explanation-quality evidence should be read with its limitations in mind. The Sentence-BERT similarity mea-sure quantifies lexical-semantic overlap with expert-authored rationales, not clinical correctness. The psychiatrist audit, while a useful preliminary signal, is rated by a single clinician who is also a coauthor, and is therefore better described as a preliminary single-rater audit than an independent external clinical evaluation. Its stratified, population-weighted design shows that rationale quality is governed primarily by whether the verifier’s decision is correct (population-weighted DSM-5 alignment/clinical usefulness of 3.52 /2.73 for correct de-cisions versus 2.11 /1.90 for incorrect ones) rather than by whether the candidate is Present or Absent ( 3.11 /2.54 versus 
+
+3.40 /2.40 ), which both confirms the concern that motivated resampling the audit and revises the earlier, correctness-conditioned finding that Present rationales were the primary weakness. Several additional limitations apply to the study as a whole. The dataset is small and long-tailed, and several rare categories have wide seed-to-seed variation despite multi-seed evaluation; the observed class distribution reflects the sampled social-media corpus and should not be interpreted as clinically representative prevalence. The source annotations encode sentence-level symptom relevance and do not provide sufficient information to establish DSM-5 duration, func-tional impairment, or full episode-level diagnostic criteria, so the system’s outputs are sentence-level evidence markers rather than diagnostic judgments. Finally, the framework does not reconcile multiple sentence-level decisions into a post-level diagnosis; cross-sentence consistency, temporal evidence, symptom co-occurrence, and post-level aggrega-tion remain outside its validated scope. A related limitation concerns statistical power. None of the pairwise comparisons reported in this study – the Stage-2 ablation among direct, definition-only, and self-check vari-ants, the proposed verifier against the strongest prompting   
+
+> 14 VOLUME 4, 2016 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+baseline, and the end-to-end two-stage pipeline against the matched single-stage baseline – reached significance at the conventional p < 0.05 threshold under the hierarchical bootstrap. This reflects the joint resampling of both training seeds and the 324-instance test partition (and, for several per-symptom breakdowns, even smaller category-level subsets), a considerably stricter standard than a seed-only compar-ison that ignores instance-level sampling uncertainty. The observed effect sizes are consistently small (one to three percentage points in Macro F1) relative to the sampling noise inherent to a few-hundred-instance test set, so a substantially larger evaluation partition would be needed to establish or rule out these effects with confidence. We regard the con-tribution of this work as resting on convergent, non-p-value evidence rather than any single significance test: the pro-posed configuration achieves the best point estimate on every aggregate metric among all evaluated methods, consistently across all three seeds and in the direction predicted by its architectural motivation – definition-grounded self-checking reduces spurious symptom acceptance, and decomposing candidate generation from verification separates two distinct error sources – while requiring substantially less inference cost than every prompting-based alternative. Overall, the results support decomposing sentence-level symptom recognition into candidate generation and definition-grounded candidate verification. The two-stage pipeline improves over strong encoder, NLI-style, medical-LLM, direct-prompting, and matched single-stage supervised alternatives under a shared evaluation protocol, while the seed-level and error analyses make its remaining limitations explicit. The evidence supports the framework as a research method for producing sentence-anchored symptom hypothe-ses and rationales; it does not establish a diagnostic system or a substitute for professional clinical assessment. 
+
+> VI. CONCLUSION
+
+This study proposes a two-stage framework for sentence-level DSM-5 depression symptom recognition, combining a contrastively fine-tuned encoder for symptom-candidate gen-eration with a definition-grounded, self-checking verifier for candidate-specific Present/Absent judgment. The framework separates two tasks: identifying the most plausible symptom candidate and determining whether the available evidence is sufficient to retain it. Stage 1 uses MentalSBERT-S to generate symptom-aware representations and select an initial candidate with-out autoregressive generation. Stage 2 uses a fine-tuned DeepSeek verifier with the target sentence, post context, and a candidate-specific DSM-5-informed definition, checking its preliminary decision against that definition. Present retains the Stage-1 candidate, while Absent maps the sentence to 
+
+NO_SYMPTOM .End-to-end, the framework achieved 0.731 ± 0.005 accu-racy, 0.690 ± 0.011 Macro F1, and 0.715 ± 0.010 Weighted F1 across three seeds, outperforming all evaluated base-lines, including a matched single-stage supervised DeepSeek QLoRA model, although this margin was not statistically sig-nificant. The two-stage design incurs additional latency but remains substantially cheaper than prompting-based base-lines. Generated rationales reached 0.597 ± 0.003 Sentence-BERT similarity with expert rationales on jointly correct pre-dictions. A preliminary psychiatrist audit gave population-weighted DSM-5 alignment and clinical usefulness scores of 
+
+3.15 and 2.52 , with rationale quality strongly dependent on decision correctness. Limitations include the small, long-tailed dataset, ambigu-ous symptom expressions, dependence on Stage 1 candidates, limited statistical power, and the preliminary clinical audit. The system is intended for sentence-level research annotation and explanation, not diagnosis or replacement of professional clinical assessment. 
+
+> CONFLICTING INTERESTS
+
+The authors declare that there is no conflict of interest. 
+
+> FUNDING
+
+This work was supported by LARSyS funding DOI: 10.54499/LA/P/0083/2020 and DOI: 10.54499/UID/50009/ 2025. 
+
+> ETHICAL APPROVAL
+
+This research follows ethical principles and guidelines ap-plicable to IEEE Access publications. The study performs secondary analysis of ReDSM-5, a publicly released, de-identified dataset of Reddit posts and sentence-level anno-tations [7]. Although the underlying text originates from human authors, this work involves no direct interaction with human participants, no collection of new personal data, and no identifiable information: all posts and annotations were obtained from ReDSM-5 in its already-anonymized, publicly distributed form and used strictly under its stated licence and usage terms. Under the Ethics Committee Regulation of Instituto Superior Técnico, University of Lisbon, ethics-committee review applies to research involving human be-ings directly as research subjects or indirectly susceptible to being affected by it, informed consent, or the protection of privacy and personal data; this study falls outside that scope, as it neither collects new data nor involves any direct or indirect interaction with participants. On this basis, and consistent with Committee on Publication Ethics (COPE) guidance on secondary analysis of pre-existing anonymized public datasets, the authors determined that a new ethics committee review at Instituto Superior Técnico, University of Lisbon, was not required for this study. The study adheres to publication ethics guidelines based on principles upheld by the Committee on COPE. 
+
+> GUARANTOR
+
+Weiming Li.   
+
+> VOLUME 4, 2016 15 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+CONTRIBUTORSHIP 
+
+Weiming Li conducted the literature review, conceptualized the study, performed data collection and analysis, and wrote the manuscript. Catarina Barata and João Sanches reviewed the manuscript and provided valuable revision suggestions. Miguel Constante contributed psychiatric expertise and re viewed the DSM-5-related clinical consistency of the pro posed framework. All authors reviewed and approved the final version of the manuscript. 
+
+ACKNOWLEDGMENT 
+
+The authors would like to acknowledge Instituto Superior Técnico, University of Lisbon, the Institute for Systems and Robotics (ISR), and LARSyS for providing the research environment and infrastructure supporting this work. .
+
+APPENDIX A TRAINING CONFIGURATIONS AND PROMPT TEMPLATES 
+
+This appendix reports the principal training settings, task def-initions, prompt templates, and decoding constraints used in the final experiments. All reported evaluation results were ob-tained on the fixed evaluation partition. The evaluation labels and reference explanations were used only for performance and explanation-quality assessment and were not included in model prompts or used for checkpoint optimisation. 
+
+A. SOFTWARE ENVIRONMENT 
+
+TABLE 16: Principal software environment used for model training and evaluation, listing the exact package versions of the retained fine_tuning_deepseek environment, identical across all three random-seed runs, to support exact reproduction of the reported results.         
+
+> Package Version
+> Python 3.10.18 PyTorch 2.10.0.dev20250922+cu128 Transformers 4.56.2 PEFT 0.17.1 bitsandbytes 0.48.1 NumPy 1.26.4 scikit-learn 1.7.2
+
+The package versions were read from the retained 
+
+fine_tuning_deepseek environment used for the final experiments. All three random-seed runs used the same soft-ware environment and model identifiers. 
+
+B. MENTALSBERT-S TRAINING CONFIGURATION 
+
+MentalSBERT-S serves as the Stage-1 sentence en-coder and symptom-candidate classifier. It is based on 
+
+sentence-transformers/all-mpnet-base-v2 
+
+and contains nine independent one-vs-rest sigmoid heads, one per depressive symptom category. Table 17 reports its principal training settings. TABLE 17: Training configuration of MentalSBERT-S, the Stage-1 nine-head sentence encoder used for symptom-candidate generation, including the base encoder, joint BCE-plus-triplet training objective, and optimisation hyperparam-eters shared across the three random-seed runs.                   
+
+> Component Configuration
+> Base encoder all-mpnet-base-v2
+> Architecture Nine-head one-vs-rest classifier Output activation Independent sigmoid heads Training objective BCE + triplet metric-learning loss Optimizer AdamW Learning rate 2×10 −5
+> Batch size 16 Epochs 5Warmup ratio 0.10 Weight decay 0.01 Triplet margin 0.30 Triplet-loss weight 0.50 Gradient clipping 1.0 Scheduler Linear warmup and linear decay Training seeds 42, 52, and 62
+
+C. DEEPSEEK VERIFIER FINE-TUNING 
+
+The Stage-2 verifier is initialised from DeepSeek-R1-Distill-Qwen-14B and adapted using 4-bit QLoRA for candidate-specific Present/Absent verification. Table 18 reports the fine-tuning configuration, and Table 19 summarises the task-specific input/output specification. TABLE 18: Fine-tuning configuration of the Stage-2 DeepSeek verifier, including the 4-bit QLoRA setup, tar-get modules, and optimisation hyperparameters applied to 
+
+DeepSeek-R1-Distill-Qwen-14B across the three random-seed runs.                                
+
+> Item Configuration
+> Base model DeepSeek-R1-Distill-Qwen-14B
+> Model scale 14B parameters Maximum training length 2048 tokens Fine-tuning method 4-bit QLoRA Quantisation NF4 with double quantisation Compute precision bfloat16 LoRA rank r16 LoRA scaling α32 LoRA dropout 0.05 Target modules q_proj ,k_proj ,v_proj ,o_proj ,
+> gate_proj ,up_proj ,down_proj
+> Epochs 3Per-device batch size 1Gradient accumulation 8Effective batch size 8Optimizer AdamW Learning rate 2×10 −4
+> Warmup ratio 0.03 Weight decay 0.01 Training seeds 42, 52, and 62
+> 16 VOLUME 4, 2016 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+TABLE 19: Task-specific input/output specification of the Stage-2 verifier, describing the information supplied to the model at inference time and the structured fields it must produce, including the model-generated rationale used in the explanation-quality audit of Section V. 
+
+Component Configuration 
+
+Task Candidate-specific P RESENT /A BSENT 
+
+verification Primary input Stage-1 candidate symptom, target sentence, post context, and candidate-specific DSM-5-informed definition Training objective Causal-LM supervised fine-tuning Prediction output self_label , final_label , and 
+
+verify_action 
+
+Additional output Model-generated rationale Inference calls One main call per sample; repair only after invalid JSON 
+
+Each training instance pairs one target sentence with one candidate symptom and its Present/Absent status, follow-ing the candidate-specific annotation structure of ReDSM-5 (Section IV-A); no additional negative candidates are synthesised. The 1,163-instance training partition and 280-instance development partition are used directly, without oversampling or class reweighting. The resulting label dis-tribution is imbalanced toward Present: 904 Present versus 259 Absent instances in training (77.7%/22.3%) and 212 versus 68 in development (75.7%/24.3%), closely matching the 244/80 (75.3%/24.7%) split observed in the test partition. This imbalance motivates reporting Absent F1 and Present F1 separately throughout Section IV-C rather than accuracy alone. 
+
+D. CANDIDATE-SPECIFIC DSM-5-INFORMED DEFINITIONS 
+
+The following task-specific, DSM-5-informed definitions are supplied to the verifier according to the Stage-1 candidate:  
+
+> •
+
+ANHEDONIA: reduced interest or inability to experi-ence pleasure in normally enjoyable activities.  
+
+> •
+
+APPETITE_CHANGE: a noticeable increase or de-crease in appetite or weight not explained by dieting or medical conditions.  
+
+> •
+
+COGNITIVE_ISSUES: difficulty thinking, concen-trating, or making decisions, including mental fog or slowed thinking.  
+
+> •
+
+DEPRESSED_MOOD: feelings of sadness, empti-ness, hopelessness, or emotional heaviness.  
+
+> •
+
+FATIGUE: reduced energy, tiredness, or physical or mental exhaustion affecting functioning.  
+
+> •
+
+PSYCHOMOTOR: observable slowing or agitation in movement, restlessness, or difficulty initiating physical actions.  
+
+> •
+
+SLEEP_ISSUES: difficulty falling asleep, remaining asleep, or excessive sleep, including disrupted or unre-freshing sleep.  
+
+> •
+
+SUICIDAL_THOUGHTS: thoughts of death, suicidal ideas, wishing to be dead, or considering self-harm.  
+
+> •
+
+WORTHLESSNESS: strong negative self-evaluation, worthlessness, guilt, or harsh self-blame. No deterministic keyword override, symptom-specific fall-back, or gold-label fallback is applied at inference time. 
+
+E. STAGE-2 VERIFIER PROMPT TEMPLATE 
+
+For each Stage-1 candidate, the verifier receives the target sentence, post context, and corresponding DSM-5-informed definition, then forms a binary judgment and checks it against the definition within the same generation call.                                                                                                                                                                        
+
+> You are aDSM-5 depression sentence annotation assistant. Decide whether TARGET_SENTENCE expresses the requested label Sas PRESENT (1) or ABSENT (0). Use TARGET_SENTENCE as the primary evidence, CONTEXT_POST as supporting local context, and DSM5_GUIDELINE as the definition of label S. Important: -This is sentence-level annotation, not aformal diagnosis. -Do not require duration, severity, recurrence, functional impairment, or acomplete diagnostic history. -Brief, mild, implicit, or short expressions can be PRESENT when the target sentence or local context meaningfully expresses S. -Do not use dataset-specific rules or superficial keyword matching. -Do not mention annotations, gold labels, training data, or the technical decision process in the explanation. [SYMPTOM] {stage1_candidate} [DSM5_GUIDELINE] {candidate_specific_definition} [TARGET_SENTENCE] {sentence_text} [CONTEXT_POST] {context_post} Step 1: INITIAL SENTENCE-LEVEL JUDGMENT Set self_label=1 if the target sentence or local context meaningfully expresses S; otherwise set self_label=0. Step 2: DSM-5 CONSISTENCY CHECK Conservatively verify self_label against DSM5_GUIDELINE. Use KEEP_1 or KEEP_0 when the initial judgment is retained, and CORRECT_TO_0 or CORRECT_TO_1 when it is corrected. Step 3: EXPLANATION Write aDSM-5-style explanation supporting final_label without referring to an original annotation, gold label, training data, or technical processing. Output one JSON object and nothing else: {"self_label": 0or 1, "final_label": 0or 1, "verify_action": "KEEP_0" or "CORRECT_TO_1" or "KEEP_1" or "CORRECT_TO_0", "reason": "3--6 sentences supporting final_label" }
+> VOLUME 4, 2016 17 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+F. INFERENCE SUMMARY 
+
+TABLE 20: Decoding and generation settings used for the final Stage-2 verifier at inference time, applied identically across all reported test-partition evaluations and the clinician explanation audit. 
+
+Setting Configuration 
+
+Invocation Every Stage-1 candidate Temperature Not applicable Sampling Disabled Top-p 1.0 Maximum new tokens 192 Primary prediction Binary final_label 
+
+Context use Supporting local evidence Additional generation JSON repair only if required Gold-label fallback Disabled 
+
+G. PIPELINE OUTPUT EXAMPLE 
+
+An example output generated by the proposed two-stage framework is shown below. 
+
+Candidate symptom: 
+
+WORTHLESSNESS 
+
+System status: 
+
+ABSENT 
+
+Target sentence: 
+
+I’m already happy with who I am and what I do. 
+
+Supporting post context: 
+
+What do you mean by upgrading myself? I’m al-ready happy with who I am and what I do. 
+
+Model-generated explanation: 
+
+The sentence expresses a positive self-perception and satisfaction with life, which is not indicative of worthlessness. 
+
+REFERENCES 
+
+[1] S. Narayan, S. Chaurasia, S. Waize, V. R. Singh, and A. Bhatnagar, “Ma-chine learning application in detecting mental health issues using social media,” SSRN Electronic Journal, 2025, available at SSRN 5192456. [2] B. Bharadwaj, S. Nayak, and P. K. Panigrahi, “Sentiment analysis for identifying depression through social media texts using machine learning technique,” Big Data and Computing Visions, vol. 5, no. 2, pp. 102–118, 2025. [3] A. Qasim, G. Mehak, N. Hussain, A. Gelbukh, and G. Sidorov, “Detec-tion of depression severity in social media text using transformer-based models,” Information, vol. 16, no. 2, p. 114, 2025. [4] T. Zhang, A. M. Schoene, S. Ji, and S. Ananiadou, “Natural language processing applied to mental illness detection: a narrative review,” NPJ Digital Medicine, vol. 5, no. 1, p. 46, 2022. [5] M. Abdullah and N. Negied, “Detection and prediction of future men-tal disorder from social media data using machine learning, ensemble learning, and large language models,” IEEE Access, vol. 12, pp. 120 553– 120 569, 2024. [6] T. T. Prama, M. S. Islam, M. M. Anwar, and I. Jahan, “AI-enabled deep depression detection and evaluation informed by DSM-5-TR,” IEEE Transactions on Computational Social Systems, vol. 11, no. 5, pp. 6453– 6465, 2024. [7] E. Bao, A. Pérez, and J. Parapar, “Redsm5: A reddit dataset for dsm-5 depression detection,” in Proceedings of the 34th ACM International Conference on Information and Knowledge Management, 2025, pp. 6323– 6327. [8] S. Ji et al., “Mentalbert: Publicly available pretrained language models for mental healthcare,” in Proceedings of the Thirteenth Language Resources and Evaluation Conference, 2022, pp. 7184–7190. [9] N. Reimers and I. Gurevych, “Sentence-BERT: Sentence embeddings using Siamese BERT-networks,” in Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th In-ternational Joint Conference on Natural Language Processing (EMNLP-IJCNLP), 2019, pp. 3982–3992. [10] T. Gao, X. Yao, and D. Chen, “SimCSE: Simple contrastive learning of sentence embeddings,” in Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing (EMNLP), 2021, pp. 6894–6910. [11] F. Liu et al., “Application of large language models in medicine,” Nature Reviews Bioengineering, pp. 1–20, 2025. [12] Y. Hua et al., “Large language models in mental health care: a scoping review,” Current Treatment Options in Psychiatry, vol. 12, no. 1, p. 27, 2025. [13] W. Zhai et al., “Mentalglm series: Explainable large language models for mental health analysis on chinese social media,” in Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing, 2025, pp. 13 599–13 614. [14] E. Asgari et al., “A framework to assess clinical safety and hallucination rates of llms for medical text summarisation,” npj Digital Medicine, vol. 8, no. 1, p. 274, 2025. [15] K. Singhal et al., “Large language models encode clinical knowledge,” Nature, vol. 620, no. 7972, pp. 172–180, 2023. [16] W. Yin, J. Hay, and D. Roth, “Benchmarking zero-shot text classification: Datasets, evaluation and entailment approach,” in Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing. Association for Computational Linguistics, 2019, pp. 3914–3923. [17] X. Lan et al., “Depression detection on social media with large language models,” in Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing: Industry Track, 2025, pp. 2155–2171. [18] D. E. Merzougui, G. Dias, J. Pantin, and F. Maurel, “Evaluating large language models for depression symptom estimation,” in International Conference on Artificial Intelligence in Medicine. Springer, 2025, pp. 272–276. [19] S. Zhou and M. Mohd, “Mental health safety and depression detection in social media text data: A classification approach based on a deep learning model,” IEEE Access, 2025. [20] A. Cohan, B. Desmet, A. Yates, L. Soldaini, S. MacAvaney, and N. Go-harian, “SMHD: A large-scale resource for exploring online language usage for multiple mental health conditions,” in Proceedings of the 27th International Conference on Computational Linguistics (COLING), 2018, pp. 1485–1497. [21] H.-C. Shing et al., “Expert, crowdsourced, and machine assessment of suicide risk via online postings,” in Proceedings of the Fifth Workshop on Computational Linguistics and Clinical Psychology, 2018, pp. 25–36. [22] J. Gratch et al., “The distress analysis interview corpus of human and computer interviews,” in LREC, Reykjavik, 2014, pp. 3123–3128. [23] J. Parapar, A. Perez, X. Wang, and F. Crestani, “erisk 2025: contextual and conversational approaches for depression challenges,” in European Conference on Information Retrieval. Springer, 2025, pp. 416–424. [24] H. Fisher et al., “Language-based detection of depression with machine learning: Systematic review and meta-analysis,” Research Square, 2025, preprint, ver. 1. doi: 10.21203/rs.3.rs-8067325/v1. [25] M. Malgaroli, T. D. Hull, J. M. Zech, and T. Althoff, “Natural language processing for mental health interventions: a systematic review and re-search framework,” Translational Psychiatry, vol. 13, no. 1, p. 309, 2023. [26] V. Vajre, M. Naylor, U. Kamath, and A. Shehu, “Psychbert: a mental health language model for social media mental health behavioral analysis,” in 2021 IEEE International Conference on Bioinformatics and Biomedicine (BIBM), 2021, pp. 1077–1082. [27] C. Shwetha and K. Pushpalatha, “A deep learning framework for depres-sion and major depressive disorder detection from social media text using mentalbert and multilayer perceptron,” International Journal of Intelligent Engineering & Systems, vol. 18, no. 8, 2025. [28] M. Sao and H.-J. Lim, “MIRoBERTa: Mental illness text classification with transfer learning on subreddits,” IEEE Access, vol. 12, pp. 197 454– 197 466, 2024. [29] M. Lewis, Y. Liu, N. Goyal, M. Ghazvininejad, A. Mohamed, O. Levy, V. Stoyanov, and L. Zettlemoyer, “BART: Denoising sequence-to-sequence pre-training for natural language generation, translation, and   
+
+> 18 VOLUME 4, 2016 Li et al. : Two-Stage Sentence-Level Depression Symptom Recognition
+
+comprehension,” in Proceedings of the 58th Annual Meeting of the As-sociation for Computational Linguistics. Association for Computational Linguistics, 2020, pp. 7871–7880. [30] I. Amine, I. Lmati, H. Anoun, and F. Ammor, “Use, performance, and limitations of large language models in mental health: A systematic review,” in 2025 International Conference on Intelligent Systems: Theories and Applications (SITA), 2025. [31] N. C. Chung, G. Dyer, and L. Brocki, “Challenges of large language models for mental health counseling,” arXiv preprint arXiv:2311.13857, 2023. [32] C. Wu, Q. Mu, W. Gao, and S. Lu, “The characteristics of anhedonia in depression: a review from a clinically oriented perspective,” Translational Psychiatry, vol. 15, no. 1, p. 90, 2025. [33] A. Sellergren et al., “Medgemma technical report,” arXiv preprint arXiv:2507.05201, 2025. [34] J. Vladika, P. Schneider, and F. Matthes, “Medreqal: Examining medical knowledge recall of large language models via question answering,” arXiv preprint arXiv:2406.05845, 2024. [35] M. A. El-Enen, S. Saad, and T. Nazmy, “A survey on retrieval-augmentation generation (rag) models for healthcare applications,” Neural Computing and Applications, vol. 37, no. 33, pp. 28 191–28 267, 2025. [36] E. J. Hu, Y. Shen, P. Wallis, Z. Allen-Zhu, Y. Li, S. Wang, L. Wang, and W. Chen, “LoRA: Low-rank adaptation of large language models,” in International Conference on Learning Representations (ICLR), 2022. [37] A. Pérez, M. Fernández-Pichel, J. Parapar, and D. E. Losada, “Depresym: A depression symptom annotated corpus and the role of large language models as assessors of psychological markers,” Language Resources and Evaluation, vol. 59, no. 3, pp. 2737–2762, 2025. [38] American Psychiatric Association, Diagnostic and Statistical Manual of Mental Disorders, 5th ed. Arlington, VA: American Psychiatric Publish-ing, 2013. [39] L. Perron and V. Furnon, “OR-Tools,” Google, 2023, https://developers.google.com/optimization/. 
+
+WEIMING LI received the bachelor’s degree from Tiangong University, China, and the master’s degree from the University of Leeds, U.K. He is currently pursuing the Ph.D. degree with the In-stitute for Systems and Robotics (ISR), LARSyS, Instituto Superior Técnico, University of Lisbon. His research interests include natural language processing and artificial intelligence. 
+
+CATARINA BARATA is an Assistant Professor in the Department of Electrical Engineering at Instituto Superior Técnico (IST) and Researcher at the Institute of Systems and Robotics of Lisbon (ISR-Lisbon). She is a member of the European Laboratory for Learning and Intelligent Systems (ELLIS) and its Lisbon Unit (Lisbon). Her main line of research focuses on the application of ma-chine learning models to image analysis problems, with a focus on the development of explainable artificial intelligence models. In 2021 she received a Google Research Award for her work in personalizing treatment for cancer patients. She participated in several national and European research projects. She has published over 20 articles in scientific journals and presented more than 40 papers at international conferences. 
+
+MIGUEL CONSTANTE is a Consultant Gen-eral Adult Psychiatrist, he completed his specialist training in the U.K, at the Maudsley Hospital, ac-quiring membership of the Royal College of Psy-chiatrists and his Ph.D. degree in neurophysiology of psychosis from the Institute of Psychiatry, KCL. He is currently based in Lisbon, providing clinical care and managing a broad range of psychiatric disorders in varied clinical settings at ULSLOD (public) and Luz Saúde (private). Simultaneously, he is an invited Professor at Catolica Medical School. He is actively involved in medical teaching, psychiatry training, and service development. His research interests include exploring, alongside biomedical engineers, digital psychiatry interventions. 
+
+JOÃO SANCHES is Full Professor at the Depart-ment of Bioengineering, Instituto Superior Téc-nico (IST), Universidade de Lisboa (UL) where he coordinates the Master and Doctoral programs in Biomedical Engineering. He’s senior research at Institute for Systems and Robotics / LARSyS where he conducts research in medical and bio-logical image analysis and statistical signal pro-cessing of biomedical data, mainly, physiological and behavioral data. He is Senior Member of the IEEE Engineering in Medicine and Biology Society (EMBS). As a group leader, he has fostered a multidisciplinary environment that brings together experts from biology, medicine, engineering, and computer science. This collaboration has resulted in approximately 200 international publications.

@@ -1,0 +1,39 @@
+{
+  "label": "2026-09-04",
+  "date": "2026-09-04",
+  "generated_at": "2026-09-04T19:44:25",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202609/04/2609.01833v1-candidate-generation-and-definition-guided-verification-for-sentence-level-depression-symptom-recognition",
+      "section": "deep",
+      "title_en": "Candidate Generation and Definition-Guided Verification for Sentence-Level Depression Symptom Recognition",
+      "authors": "Weiming Li, Catarina Barata, Miguel Constante, Joao Sanches",
+      "date": "2026-09-01",
+      "pdf": "https://arxiv.org/pdf/2609.01833v1",
+      "score": "8.0",
+      "evidence": "直接面向句级抑郁症状识别并加入诊断定义引导验证，可为老年抑郁非典型症状的文本挖掘提供方法支撑。",
+      "tldr": "句子级抑郁症状识别中，相似表达的症状相关性可能不同，且语言模型推理缺乏诊断定义支撑。为此提出两阶段框架，先由对比微调编码器生成症状候选，再由微调语言模型结合上下文和候选专属诊断定义进行验证，并在回答前检查判断。在多个基线上取得最佳准确率和F1，解释与专家标注匹配，但稀有类别性能仍有限。",
+      "tags": "query:dep-support",
+      "abstract_en": "Sentence-level recognition of depression symptoms is challenging because similar expressions can differ in symptom relevance, and language-model inference is insufficiently grounded in diagnostic definitions. This study proposes a two-stage framework separating symptom-candidate generation from definition-grounded verification. A contrastively fine-tuned sentence encoder generates a symptom candidate per sentence, and a fine-tuned language model verifies whether the candidate is present or absent using the sentence, its context, and a candidate-specific diagnostic definition, checking its judgment against that definition before answering. Evaluated against encoder, inference-based, medical, and general LLM baselines and a matched single-stage supervised classifier, the proposed pipeline attains the best accuracy and F1 scores of all methods, with rationales matching expert-authored annotations. A preliminary clinical audit indicates moderate alignment with diagnostic definitions, with explanation quality strongly dependent on prediction correctness. The results support decomposing symptom recognition into candidate generation and definition-grounded verification, though performance remains limited for rare categories.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/04/2609.01832v1-interpretable-symptom-vectors-for-depression-in-a-large-language-model",
+      "section": "quick",
+      "title_en": "Interpretable Symptom Vectors for Depression in a Large Language Model",
+      "authors": "Fangyi Zhu, Ajay Subramanian, Allison Constant, Camille Wang, Ravish Gupta, Corey J. Keller",
+      "date": "2026-09-01",
+      "pdf": "https://arxiv.org/pdf/2609.01832v1",
+      "score": "7.0",
+      "evidence": "聚焦抑郁症患者症状的异质性，利用大模型内部激活表征不同症状组并与临床验证工具对比，对非典型症状分型具有借鉴价值。",
+      "tldr": "抑郁症症状多样但临床常简化为单一严重度评分，大语言模型内部对症状表征不明确，限制临床可信度。本研究用机械可解释性分析Gemma-3-27B-PT残差流，发现症状组在第21层几何分离最清晰，并基于验证工具构建症状向量投影自然语言文本，每症状系数与临床医生排序一致。单个抑郁向量可区分抑郁与非抑郁文本（AUC=0.789），并作为效价门控症状投影。这揭示可直接读取的、与临床对齐的去相关症状信号，为可解释抑郁评估提供机制基础。",
+      "tags": "query:dep-support",
+      "abstract_en": "Patients with depression present with diverse symptom profiles, yet clinical practice routinely reduces this variation to a single severity score. Large language models (LLMs) can potentially capture various symptoms and their severity from patient speech. However, how depressive symptoms are represented inside LLMs remains poorly understood, limiting clinical trust. To examine whether internal model activations match clinician judgment, we analyzed the residual stream of Gemma-3-27B-PT using mechanistic interpretability techniques. Recording activations across symptom descriptions drawn from validated clinical instruments, we found that symptom groups geometrically separated the most at layer 21 across multiple distance metrics. Using Semantic Projection, we then projected held-out naturalistic text onto Symptom Vectors constructed from these instruments. The resulting per-symptom coefficients preserved clinician-annotated rank ordering across mood, somatic, and suicidality axes. Furthermore, a single depression vector in Layer 21 separates held-out depressive from non-depressive text (AUC = 0.789), which can be used as an emotional valence gate that restricts symptom projection to depressive speech. These results reveal a decorrelated, clinician-aligned symptom signal readable directly from internal activations, offering a mechanistic foundation for interpretable depression-assessment tools.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

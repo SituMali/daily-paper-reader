@@ -1,0 +1,509 @@
+Title: Interpretable Symptom Vectors for Depression in a Large Language Model
+
+URL Source: https://arxiv.org/pdf/2609.01832v1
+
+Published Time: Thu, 03 Sep 2026 00:12:53 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+# Interpretable Symptom Vectors for Depression in a Large Language Model 
+
+Fangyi Zhu ∗1,2 , Ajay Subramanian ∗1,2 , Allison Constant 4, Camille Wang 1,2 , Ravish Gupta 5,and Corey J. Keller 1,2,3 1Department of Psychiatry & Behavioral Sciences, Stanford University School of Medicine, Stanford, CA, USA 
+
+> 2
+
+Wu Tsai Neurosciences Institute, Stanford University, Stanford, CA, USA 
+
+> 3
+
+Veterans Affairs Palo Alto Healthcare System, and the Sierra Pacific Mental Illness, Research, Education, and Clinical Center (MIRECC), Palo Alto, CA, USA 
+
+> 4
+
+Kaiser Permanente, San Jose, CA, USA 
+
+> 5
+
+BigCommerce, Seattle, WA, USA 
+
+Corresponding author: Fangyi Zhu (contact@fangyizhu.com) 
+
+Abstract 
+
+Patients with depression present with diverse symptom profiles, yet clinical practice routinely reduces this variation to a single severity score. Large language models (LLMs) can potentially capture various symptoms and their severity from patient speech. However, how depressive symptoms are represented inside LLMs remains poorly understood, limiting clinical trust. To examine whether internal model activations match clinician judgment, we analyzed the residual stream of Gemma-3-27B-PT using mechanistic interpretability techniques. Recording activations across symptom descriptions drawn from validated clinical instruments, we found that symptom groups geometrically separated the most at layer 21 across multiple distance metrics. Using Semantic Projection, we then projected held-out naturalistic text onto Symptom Vectors constructed from these instruments. The resulting per-symptom coefficients preserved clinician-annotated rank ordering across mood, somatic, and suicidality axes. Furthermore, a single depression vector in Layer 21 separates held-out depressive from non-depressive text (AUC = 0.789), which can be used as an emotional valence gate that restricts symptom projection to depressive speech. These results reveal a decorrelated, clinician-aligned symptom signal readable directly from internal activations, offering a mechanistic foundation for interpretable depression-assessment tools. 
+
+# 1 Introduction 
+
+Major depressive disorder spans highly diverse symptom profiles, biological underpinnings, and treatment trajectories, a multidimensional complexity that remains one of the most significant barriers to effective psychiatric care. In the STAR*D cohort, for example, 3,703 patients meeting the same DSM-5 criteria produced 1,030 unique symptom profiles 1. Standard questionnaires like 
+
+> ∗These authors contributed equally to this work.
+
+1arXiv:2609.01832v1 [cs.CL] 1 Sep 2026 PHQ and HAM-D prioritize brevity; they collapse rich symptom dimensions into a single score while overlooking symptoms that matter to patients 2. These discarded nuances, however, are preserved when patients describe their own experiences in naturalistic language. Symptom-level extraction from such language could help differentiate patients with divergent underlying profiles and link linguistic markers to the neural and physiological biomarkers central to psychiatric neuroscience. Thus, symptom extraction from natural language has been a long-standing goal in clinical NLP. Recent LLMs, which can take context into account and process text as a whole, have renewed interest in this goal. Existing systems typically produce broad diagnostic labels or sum scores rather than symptom-level assessments 3–5 . Generated outputs are also an unreliable window into model internals: GPT-4’s internal schema of depression underemphasizes suicidality and overemphasizes psychomotor symptoms relative to expert and self-report ratings 6. Mechanistic interpretability techniques, however, offer a route to quantitative, per-symptom signals read directly from the model’s internal representations. Prior work has shown that emotion representations are often encoded as approximately linear directions in an LLM’s internal activations, with sentiment localized to specific layers in LLaMA 7,8 . Moreover, the emotional information models pick up from text can be traced to specific, interpretable internal signals 9. To our knowledge, no prior work has mapped a clinically validated depression symptom taxonomy onto decorrelated per-symptom signals in an LLM’s internal activations. As an LLM processes text, it builds internal representations in a high-dimensional activation space known as the residual stream. Prior work suggests emotions are encoded as linear di-rections in this space; depression symptom categories may be similarly represented. Apply-ing mechanistic interpretability techniques to Gemma-3-27B-PT, we show that these categories (mood/emotional/cognitive, somatic, and suicidality) are geometrically separable in the model’s ac-tivations, with maximal separation appearing at layer 21. Projecting held-out naturalistic narratives onto clinician-derived Symptom Vectors yields coefficients that predict clinician category annotations. Furthermore, a single Depression Vector can distinguish between depressive and positive affect text. This study establishes a pipeline for extracting interpretable symptom signals directly from an LLM’s internal state. These findings provide a methodological foundation for analyzing depression from patients’ natural language, preserving the nuanced profiles that brief severity scores obscure. With longitudinal validation, such granular signals could support symptom tracking for research and, eventually, clinical use. 
+
+# 2 Methods 
+
+As shown in Fig. 1, our analysis consists of four stages: (1) extracting residual stream activations from Gemma-3-27B-PT for symptom descriptions, (2) selecting the operating layer where the three symptom groups are most separable, (3) constructing Symptom Vectors at that layer to project held-out text, and (4) contrasting the depression and positive affect centroids to derive a single Depression Vector. 
+
+2.1 Data and preprocessing 
+
+2.1.1 Text Corpora 
+
+The Core Clinical corpus was used to construct the Symptom Vectors. It comprised symptom descriptions extracted from six validated depression assessment instruments: the DSM-5 10 , ICD-2Figure 1: Analysis pipeline. A Residual stream activations are extracted from Gemma-3-27B-PT across all 63 hook points ( ℓ = 0 , . . . , 62) while prompting with symptom descriptions from three groups. B For each layer × distance-metric combination, distance matrices are computed and tested with PERMANOVA and PERMDISP; the operating layer ℓ∗ is the layer maximizing pseudo-F subject to PERMDISP P > 0.05. C
+
+Symptom Vectors are constructed from the group centroids at ℓ∗, and naturalistic text samples are projected onto them to obtain symptom coefficients β. D The Depression Vector is defined as the difference between the Depression Centroid and the Positive Affect Centroid. 
+
+10 11 , Hamilton Depression Rating Scale (HAM-D) 12 , Montgomery-Åsberg Depression Rating Scale (MADRS) 13 , Patient Health Questionnaire (PHQ-9) 14 , and the patient-derived PROCEED outcome set 2. Each instrument was segmented into shorter, self-contained excerpts. Each excerpt was assigned to a single symptom group by one psychiatrist author; a second psychiatrist independently reviewed all assignments against DSM-5 item definitions. Disagreements were resolved through joint review until the two annotators reached consensus, and a final label was assigned only by agreement. This yielded 51 excerpts (19 mood, 24 somatic, 8 suicidality) distributed across DSM-5 (3), ICD-10 (3), HAM-D (16), MADRS (12), PHQ-9 (9), and PROCEED (8). We also assembled a Naturalistic corpus as held-out texts for Symptom Vector evaluation. This 3corpus comprised first-person and clinical-narrative descriptions of the same three symptom groups, drawn from three sources: William Styron’s memoir Darkness Visible: A Memoir of Madness 15 ,the Handbook of Depression , 3rd Edition 16 , and ReDSM5, a corpus of Reddit posts annotated at the sentence level against the nine DSM-5 depression symptoms by a licensed psychologist 17 . We selected Darkness Visible for its sustained first-person account of lived depressive experience and the Handbook of Depression for its third-person clinical description of symptoms; ReDSM5 was used to supplement the books. Darkness Visible and Handbook excerpts were annotated using the same two-author categorize-then-review procedure for the Core Clinical corpus. ReDSM5 samples, inheriting DSM-5 labels assigned by a licensed psychologist 17 , were programmatically mapped onto the three symptom groups under the same DSM-5-item assignment. To balance the symptom groups, we retained every book-sourced passage and added randomly selected ReDSM5 posts to each group until its count matched that of the largest book-sourced group. Table 1 reports the resulting sample counts. 
+
+> Table 1: Naturalistic corpus composition. Excerpt counts by source and symptom group (mood, somatic, suicidality).
+
+Source Mood Somatic Suicidality Source Total Darkness Visible 33 11 13 57 Handbook of Depression 108 42 22 172 ReDSM5 — 88 106 194 Symptom Total 141 141 141 423 Excerpts of the Core Clinical and Naturalistic corpora were annotated with one of three symptom groups: mood/emotional/cognitive (hereafter “mood”; DSM-5 A1, A2, A7, A8: depressed mood, anhedonia, guilt or shame, concentration difficulties); somatic (DSM-5 A3–A6: appetite or weight change, sleep disturbance, psychomotor change, and fatigue in the context of depression); and suicidality (DSM-5 A9: active suicidal ideation with or without specific plan, and passive death wishes). The mood and somatic groups were chosen to reflect depression’s distinct impact on the mind or body, following prior meta-analytic work on clinical instruments 18 . Given its clinical significance and risk profile, suicidality was assigned its own category. The Positive Affect corpus comprises short excerpts of a few sentences expressing positive affect such as joy, love, wonder, aspiration, and optimism, from deliberately diverse sources spanning translated classical Chinese poetry (Li Bai, Cao Cao), literary fiction (Tolstoy, García Márquez, Rothfuss), popular-science writing (Dawkins), political oratory (Kennedy), and foundational civic prose (the U.S. Constitution). This corpus was constructed to be opposite in valence relative to the depression corpora: it consists of emotionally positive text, whereas the depression corpora are negative. It also spans a broad range of genres and styles, so that any separation observed along the symptom axes reflects shared affective valence. There are 9 total excerpts in this group. The plain text of this corpus is included in the GitHub repository. To contrast depressive text with affectively positive language, we included HappyDB , a corpus of crowdsourced descriptions of happy moments 19 . We took the first 423 non-duplicate entries to match the size of the Naturalistic corpus. 42.1.2 Text Anonymization and Standardization 
+
+A pilot experiment on the unedited Core Clinical corpus showed that PROCEED’s residual stream is geometrically separated from all other clinical instruments regardless of clinical similarity. This separation is an artifact of its distinctive format of bullet-point symptom lists. To prevent stylistic confounds such as format, pronouns, and register from being picked up as signal, we rewrote every excerpt into a standard third-person register using Anthropic Claude Opus 4. All excerpts were rewritten with the same prompt: “Rewrite the following text into natural language as a description of a third person. Correct any grammar mistakes.” All rewrites were reviewed and corrected by the authors. These rewrites were deliberately minimal, comprising surface-level edits only: standardizing pronouns, removing severity ratings from clinical questionnaires, correcting grammar in ReDSM5 and HappyDB, and restructuring fragments into continuous prose in PROCEED. Names and identifying details were also removed. Clinical content was left unchanged. The full set of rewritten excerpts in the Core Clinical and Positive Affect corpora is provided in the supplementary materials. Table 2 shows representative examples of the rewriting from all corpora. 
+
+Table 2: Text standardization examples. Original and standardized excerpts from each publicly available corpus.      
+
+> Dataset Original Standardized Core Clinical INSOMNIA – Delayed (Waking in early hours of the morning and unable to fall asleep again) 0 = Absent 1 = Occasional 2 = Frequent Delayed Insomnia: The person wakes up in the early hours of the morning and is unable to fall asleep again. Naturalistic (Darkness Visible) I now see, as a means to calm the anxi-ety and incipient dread that I had hidden away for so long somewhere in the dun-geons of my spirit. They now see this as a means to calm the anxiety and incipient dread that they had hidden away for so long somewhere in the dungeons of their spirit. Naturalistic (Handbook of Depression) Individuals with depression exhibit cog-nitive deficits and biased processing of emotional material. They exhibit cognitive deficits and biased processing of emotional material. Positive Affect He spoke gently, laughed often, and never exercised his wit at the expense of others. They speak gently, laugh often, and never exercise their wit at the expense of others. HappyDB I went on a successful date with someone I felt sympathy and connection with. They went on a successful date with some-one they felt sympathy and a connection with.
+
+2.1.3 Residual Stream Extraction 
+
+For this study, we used Google’s official Hugging Face release of Gemma-3-27B-PT 20 , a 27.4-billion-parameter model with 62 transformer blocks and a residual stream width of 5,376. We used the pre-trained model rather than the instruction-tuned variant, since post-training safety alignment could distort the model’s representation of depression symptoms. Each excerpt was tokenized with the Gemma-3 SentencePiece tokenizer and processed in a single 5forward pass through the model, which was loaded and run with the Hugging Face Transformers library 21 on a PyTorch backend 22 using Apple’s Metal Performance Shaders (MPS). During each pass, forward hooks recorded the input embeddings and the residual stream output of every transformer block, yielding 63 activations in total. Activations corresponding to the initial <bos> token were discarded at every hook point prior to all subsequent analyses, to mitigate the attention-sink and massive-activation phenomena documented in transformer residual streams 23,24 .
+
+2.2 Per Residual Stream Layer Separability 
+
+Different residual stream layers encode different information. To identify where the model distin-guishes depression symptoms, we quantified symptom-group separability at each residual stream layer on the Core Clinical corpus using PERMANOVA. We then used the layer with the highest pseudo-F for the Symptom Vector extraction. 
+
+2.2.1 Pairwise Distance Matrices 
+
+Residual stream activations are high-dimensional (5,376) objects of varying length, whose token activations depend on preceding tokens through the self-attention mechanism. Tokens within an activation are therefore not independent samples; each activation has to be compared as a whole. There is no established method for measuring the distance between residual streams generated by prompts of different lengths for the purpose of comparing textual meaning. We tested the efficacy of eight distance-metric × normalization combinations: Centroid Cosine Distance, Centroid Euclidean Distance, Earth Mover’s Distance, and Energy Distance, each computed on both raw and 
+
+ℓ2-normalized residual stream activations, at every residual stream layer ℓ ∈ { 0, 1, . . . , 62 }.These metrics are not directly comparable, so we reduced each to a common representation: a pairwise distance matrix. For a given metric and layer, entry ( i, j ) is the distance between the residual stream activations of prompts i and j from the Core Clinical corpus. The distance matrices rule out classical ANOVA and MANOVA, which need fixed-length coordinate vectors and normally distributed underlying data, neither of which residual streams satisfy. PERMANOVA operates directly on the pairwise distances, and its pseudo-F statistic is sensitive to the distance between group centroids. Because pseudo-F is a ratio of between- to within-group variation, it is unaffected by the absolute scale of the input distances. PERMANOVA can thus be used to compare different metrics directly. The centroid metrics use the mean of all token activations. Let hℓt denote the residual stream activation of token t at layer ℓ, for a sequence of T tokens. The layer’s centroid is defined as: ¯hℓ = 1
+
+T
+
+> T∑
+> t=1
+
+hℓt . (1) The centroid distance is then computed using PyTorch tensor operations 25 .Distribution-based metrics (Earth Mover’s, Energy) were computed directly between full token distributions. Energy Distance was computed with the pted package 26 , an implementation of the energy statistic with permutation tests 27 . Earth Mover’s distance was computed with SciPy 28 .62.2.2 PERMANOVA with the PERMDISP eligibility gate 
+
+Using the pairwise distance matrices, we assessed the separability of residual stream activations across symptom groups with PERMANOVA, gated by PERMDISP. At each layer and for each metric, we computed a PERMANOVA pseudo-F statistic 29 :pseudo-F =
+
+> ∑
+
+(Between-Group Distance) 2/(g − 1) 
+
+> ∑
+
+(Within-Group Distance) 2/(n − g) , (2) where g = 3 is the number of symptom groups and n is the total number of excerpts. PERMANOVA is sensitive not only to differences in group centroid location but also to differences in within-group multivariate dispersion: a group whose excerpts are widely spread can produce a significant pseudo-F even when its centroid coincides with the others. A pseudo-F is therefore interpretable as centroid separation only at layers where within-group dispersion is homogeneous across groups. To identify those layers, we computed the Permutational Analysis of Multivariate Dispersions (PERMDISP) 30 , which tests the null hypothesis of equal within-group dispersion, at every layer. We define the eligible region of a metric as the set of layers at which PERMDISP is non-significant ( P > 0.05), meaning there is no significant difference in group dispersion; at these layers a PERMANOVA pseudo-F reflects genuine displacement of group centroids. All distance statistics were computed with the scikit-bio package 31 (PERMDISP with test="centroid" ), each on 9,999 permutations. 
+
+2.2.3 Operating Layer selection 
+
+For each metric, the operating layer is the layer of highest PERMANOVA pseudo-F within the eligible region. All eight metric–normalization combinations follow this identical procedure and are ordered by their operating PERMANOVA pseudo-F . At each operating layer we report the PERMANOVA pseudo-F and P -value and the PERMDISP F and P -value; a PERMDISP P just above 0.05 marks weakly supported eligibility. 
+
+2.3 Semantic Projection for Symptom Identification 
+
+The procedure below adapts the semantic projection framework of Grand et al. 32 , who showed that context-dependent human judgments about object features can be recovered from word embeddings by projecting word vectors onto interpretable axes: the line connecting “small” to “big,” for instance, yields an axis along which a word’s projection reflects perceived size. We extend this framework in three ways. First, symptom axes are constructed from class-centroid activations rather than antonymous word pairs, because clinical symptom categories (mood, somatic, suicidality) lack the natural antonymy of adjective pairs. Second, the three symptom axes are projected jointly rather than independently, with the resulting values decorrelated via a Gram-pseudoinverse correction. Third, the representations being projected are residual stream activations of a contemporary transformer language model, taken at the operating layer and in the raw activation geometry identified in the previous experiment, whereas the original framework used static distributional word vectors. The output of the procedure is, for each input passage x, a three-dimensional vector of decorrelated projection coefficients, 
+
+β(x) = ( βmood , β somatic , β suicidality ) ∈ R3, (3) each coefficient quantifying the unique contribution of one symptom axis to the passage’s represen-tation in residual stream space at the operating layer. We refer to the subspace of residual stream 7space spanned by the three symptom basis vectors as the symptom subspace . The construction of the basis, the projection, and the properties of β are described in turn below. 
+
+Symptom Vector Construction. At the operating layer ℓ∗ identified by the separability analysis, we constructed three Symptom Vectors vs ∈ R5376 for s ∈ { mood , somatic , suicidality } from the Core Clinical corpus. Each vs is the centroid of all residual stream activations associated with symptom s, computed in the model’s native activation geometry. As throughout, the initial <bos> 
+
+token is removed before averaging, to prevent attention-sink effects 23,24 , and all centroid arithmetic is performed in float64 on CPU. The three centroids were stacked to form the basis matrix: 
+
+V = [ vmood ; vsomatic ; vsuicidality ] ∈ R3×5376 . (4) 
+
+Gram matrix construction. Because the axes are nearly collinear, a naive projection conflates their contributions; we therefore decorrelate the projection using the inverse of the Gram matrix. The geometric relationships between vmood , v somatic , v suicidality are captured by the Gram matrix, formed from the basis matrix V constructed in the previous step: 
+
+G = V V ⊤ ∈ R3×3. (5) Its entries are the pairwise inner products Gij = vi · vj , so the diagonal Gii = ∥vi∥2 holds the squared norms of the Symptom Vectors and the off-diagonal entries hold their overlaps. An orthonormal basis would give G = I. As the basis approaches parallel, the smallest eigenvalue of G approaches zero and the condition number κ(G) = λmax /λ min becomes large, and inverting G amplifies small perturbations in the embeddings into large errors in the symptom loadings. This near-singular condition is addressed by the pseudoinverse below. 
+
+Pseudoinverse of the Gram matrix. Using G−1 is not practical here. The clinical symptom categories of depression are textually comorbid: a passage describing one symptom often touches on others, so the class-centroid basis is expected to be near-collinear. G is then ill-conditioned, and 
+
+G−1 amplifies small perturbations in the projected coordinates by a factor of up to κ(G). If the basis vectors were exactly parallel, G would be singular and G−1 would not exist at all. We therefore use the Moore–Penrose pseudoinverse G+ in place of G−1. For invertible G, G+ = G−1;for singular or near-singular G, G+ yields the unique β minimizing both the residual ∥V c (x) − Gβ ∥2
+
+and the coefficient norm ∥β∥2. The condition number of G in this study is reported in §3. 
+
+Symptom Projection. Finally, we reduce each excerpt from a residual stream of 5 ,376 dimensions 
+
+× excerpt length to 3 symptom coefficients. The decorrelated projection coefficients for a passage x
+
+are: 
+
+β(x) = G+V c (x), (6) where c(x) is the passage’s centroid representation: we extracted the operating-layer residual stream activations for x and computed the float64 centroid of the remaining tokens, using the identical procedure as for the symptom basis vectors (Symptom Vector Construction, above). This formulation is the multi-axis analogue of the projection step in Grand et al. 32 : when the basis is orthonormal, G+ = I and β reduces to an inner-product projection onto each axis independently. When the basis is collinear, as is generally the case for class-centroid bases over correlated taxonomies, the pseudoinverse generalizes that projection, recovering each axis’s unique contribution after accounting for the others. The resulting projection coefficients β have three interpretable properties: 8• Per-symptom isolation. Each βs reflects the unique contribution of vs alone, with the shared signal among correlated axes apportioned by the Gram correction. • Sign. The sign of βs indicates whether the passage points along vs (positive) or against it (negative). • Cross-passage comparability. Because β is derived from a fixed basis V and a uniform projection procedure, projection coefficients from different excerpts and corpora live in the same coordinate system, enabling direct cross-corpus comparison, e.g., comparing βsuicidality between clinical instrument and naturalistic depression descriptions. We projected each passage’s centroid from the Core Clinical and Naturalistic corpora onto V using this procedure. Core Clinical projections constitute an in-sample consistency check; only the Naturalistic projections evaluate whether the methodology generalizes to held-out text as external validation. Each passage thus received three decorrelated projection coefficients ( βmood , β somatic , β suicidality ), interpreted in §3. 
+
+2.4 Depressive and Positive Affect Distinction 
+
+Because projecting non-depressive text onto Symptom Vectors is not meaningful, we also tested whether an LLM can distinguish between depressive and non-depressive text. We performed a control experiment at the operating layer. Two centroids of opposite emotional valence were built from the operating layer: 1. The Depression centroid is the centroid of the three Symptom Vectors from the previous experiment, constructed from the Core Clinical corpus. This gives equal weight to all three symptoms: ¯hdepressive = vmood + vsomatic + vsuicidality 
+
+3 . (7) 2. The Positive Affect centroid is the token-weighted mean over all tokens of the entire Positive Affect corpus, excluding <bos> :¯hpositive = 1
+
+NP
+
+> ∑
+> x∈PTx∑
+> t=1
+
+hx,t , NP = ∑
+
+> x∈P
+
+Tx, (8) where P is the set of positive-affect texts, Tx is the number of tokens in text x, t indexes the tokens within a text, and NP is the total token count across the set. We then define the Depression Vector to be: 
+
+vdepression = ¯hdepressive − ¯hpositive . (9) The Naturalistic corpus and the HappyDB corpus are reserved as held-out tests that aren’t included in the construction of these axes. An excerpt x is scored by the cosine similarity between its token-weighted centroid ¯hx (computed as above, excluding <bos> ) and the Depression Vector; we call this the Depression Score of excerpt 
+
+x:Score( x) = cos (¯hx, v depression  
+
+> )
+
+= ¯hx · vdepression 
+
+∥¯hx∥ ∥ vdepression ∥ . (10) 9We compared Depression Scores between the held-out Naturalistic and HappyDB corpora (423 excerpts each) using a one-sided Mann–Whitney U test. We report the test statistic in its normalized form U/ (n1n2), where n1 and n2 are the number of excerpts in the two corpora being compared, which equals the area under the receiver operating characteristic curve (AUC) and is interpretable as a probability of superiority: the chance that a randomly drawn depressive excerpt scores higher than a randomly drawn non-depressive one. A value of 0.5 indicates no separation; 1.0 indicates complete separation. We computed the same statistic for Core Clinical versus Positive Affect as an in-sample consistency check. 
+
+# 3 Results 
+
+3.1 Symptom categories are most separable at layer 21 
+
+We first asked whether depression-symptom categories are geometrically separable in the model’s residual stream and, if so, at which layer that separability is strongest. Across all 63 hook points, we computed the PERMANOVA pseudo-F and its corresponding PERMDISP P -value for the eight distance-metric × normalization combinations. For each combination, we then selected the maximum pseudo-F within the eligible region (Fig. 2; Table 3).                                                             
+
+> Table 3: PERMANOVA and PERMDISP statistics at each metric’s eligible maximum. For each distance-metric ×normalization combination, we tabulated the residual stream layer where PERMANOVA pseudo-Fis maximized within the eligible region (PERMDISP P > 0.05). PERMANOVA PERMDISP Metric Normalization Layer pseudo-FPFP
+> Centroid Cosine raw 36 6.35 <0.0001 3.66 0.0686
+> ℓ2-normalized 40 6.37 <0.0001 3.76 0.0832 Centroid Euclidean raw 21 6.91 0.0002 1.24 0.4313
+> ℓ2-normalized 35 3.66 0.0005 3.83 0.1104 Earth Mover raw 21 2.83 <0.0001 1.20 0.4713
+> ℓ2-normalized 35 2.47 0.0016 2.92 0.1925 Energy raw 21 6.49 0.0010 0.68 0.6488
+> ℓ2-normalized 35 5.77 <0.0001 4.58 0.0566
+
+Three observations identify layer 21 as the operating layer for the subsequent experiments. First, the three raw distance metrics converged on the same layer: Centroid Euclidean, Energy, and Earth Mover’s distance each reached their eligible pseudo-F maximum at layer 21. Second, at layer 21 the PERMDISP P -values for all three distance metrics were far from significance ( P = 0 .43, 0 .65, and 0.47), so the pseudo-F at this layer is interpretable as centroid displacement rather than unequal dispersion. Third, the largest single eligible pseudo-F across the entire sweep, 6.91 for Centroid Euclidean (raw), occurred at layer 21. We therefore adopt layer 21 as the operating layer ℓ∗ for symptom-vector construction and projection. The remaining metrics’ separation maximized late in the network but with smaller centroid differences. The cosine metrics maximized at layers 36–40, and the ℓ2-normalized Euclidean, Energy, and Earth Mover’s variants maximized at layer 35. At each of these later maxima, PERMDISP sat narrowly above the eligibility threshold ( P > 0.05), so part of the separation at these layers is due to different group dispersion. The three raw metrics agree at layer 21, making it a more reliable operating point 10 than the weakly eligible maxima near layer 35. 0 20 40 60 024680 20 40 60 0 20 40 60 0 20 40 60 024680 20 40 60 0 20 40 60 0 20 40 60 024680 20 40 60 
+
+ineligible layer (PERMDISP p ≤ 0.05) operating peak excluded global peak Transformer Layer Transformer Layer Transformer Layer PERMANOVA pseudo-F Centroid Euclidean (raw) Energy (raw) Centroid Cosine (unit-normalized) Centroid Cosine (raw) Energy (unit-normalized) Centroid Euclidean (unit-normalized) Earth Mover's (raw) Earth Mover's (unit-normalized)    
+
+> F = 6.91 L21 F = 6.49 L21 F = 6.37 L40 F = 6.35 L36 F = 5.77 L35 F = 3.66 L35 F = 2.83 L21 F = 2.47 L35
+
+Figure 2: Layer 21 maximizes symptom separability. PERMANOVA pseudo-F (y-axis) across all 63 hook points ( x-axis) for each of the eight distance-metric × normalization combinations. Shaded regions mark layers where PERMDISP is significant ( P < 0.05) and pseudo-F is therefore ineligible as a measure of centroid separation; the operating maximum (filled marker) is the maximum pseudo-F within each metric’s eligible region ( P > 0.05), and the excluded maximum (open marker) is a higher but ineligible global maximum where shown. 
+
+11 3.2 Semantic Projection coefficients align with clinician ratings 
+
+Having identified layer 21 as the operating layer, we next asked whether projecting text onto it yields per-symptom coefficients that agree with independent clinician annotation, and whether that agreement holds on a held-out set of naturalistic narratives. We answer these questions by projecting every passage from the three corpora onto the three layer-21 Symptom Vectors using the decorrelation procedure, yielding coefficients β = ( βmood , β somatic , β suicidality ) per passage. As anticipated for textually comorbid symptom categories, the class-centroid basis was strongly collinear: the Gram matrix G of the three Symptom Vectors had a condition number of 14,611.6, confirming 
+
+G’s near-singularity, which would render a direct inverse numerically unstable and motivating the Moore–Penrose pseudoinverse correction. Table 4 reports the median together with Q1 and Q3 coefficients for each clinician-annotation group within each dataset; Fig. 3 shows the full per-axis distributions. 
+
+Table 4: Median projection coefficients by annotation group and symptom axis. Within each dataset, the annotation group matching a given symptom axis attains the highest median coefficient. This ordering holds from the in-sample Core Clinical corpus to the held-out Naturalistic corpus. Dataset Annotation N βmood median (Q1, Q3) βsomatic median (Q1, Q3) βsuicidality median (Q1, Q3) Core Clinical · In-Sample Mood 19 +0.77 (+0.49, +1.14) +0.04 ( −0.06, +0.20) +0.10 ( −0.00, +0.30) Somatic 24 −0.19 ( −0.53, +0.21) +1.01 (+0.86, +1.27) +0.14 ( −0.14, +0.38) Suicidality 8 −0.05 ( −0.27, +0.09) +0.04 ( −0.06, +0.08) +0.96 (+0.86, +1.34)                 
+
+> Naturalistic ·Held-Out Mood 141 −0.08 ( −0.33, +0.15) +0.22 (+0.11, +0.33) +0.85 (+0.66, +1.08) Somatic 141 −0.64 ( −1.04, −0.33) +0.74 (+0.61, +0.88) +0.91 (+0.58, +1.28) Suicidality 141 −0.74 ( −1.30, −0.28) +0.34 (+0.23, +0.46) +1.40 (+0.95, +1.89)
+
+Within the Core Clinical corpus, the projection was internally consistent (Fig. 3A–C): along each symptom axis the excerpts carrying the matching clinician annotation attained the highest coefficient. Mood-annotated excerpts projected most strongly onto the mood axis ( βmood median +0 .77), relative to somatic- and suicidality-annotated excerpts ( −0.19 and −0.05); somatic-annotated excerpts led on the somatic axis (+1 .01); and suicidality-annotated excerpts led on the suicidality axis (+0 .96). As an in-sample consistency check, each annotation group scores highest on its own symptom axis relative to the other groups, indicating Symptom Vectors recover the categories from which they were constructed. The same rank ordering was preserved in the held-out Naturalistic corpus (Fig. 3A–C), the true test of generalization. On each axis, the matching-annotation group again attained the maximum coefficient: on the mood axis, mood-annotated excerpts scored highest ( βmood median −0.08) above somatic-and suicidality-annotated excerpts ( −0.64 and −0.74); on the somatic axis, somatic-annotated excerpts scored highest (+0 .74) above mood- and suicidality-annotated excerpts (+0 .22 and +0 .34); and on the suicidality axis, suicidality-annotated excerpts scored highest (+1 .40) above mood-and somatic-annotated excerpts (+0 .85 and +0 .91). Projecting held-out naturalistic narratives onto Symptom Vectors constructed from clinical instruments yields coefficients that agree with independent clinician annotation. The joint structure of these coefficients is visible in the three-dimensional projection (Fig. 4): clinical and naturalistic excerpts sharing an annotation co-localize within the symptom subspace. The Gram-corrected projection recovered clinician annotations in-sample and preserved the same per-symptom rank ordering on held-out naturalistic text, demonstrating that Symptom Vectors distilled from clinical instruments generalize to naturalistic narratives. 12 Mood (n=141) Somatic (n=141) Suicidality (n=141) −2 02Mood (n=141) Somatic (n=141) Suicidality (n=141) 012Mood (n=141) Somatic (n=141) Suicidality (n=141) 024Mood (n=19) Somatic (n=24) Suicidality (n=8) −2 02Mood (n=19) Somatic (n=24) Suicidality (n=8) 012Mood (n=19) Somatic (n=24) Suicidality (n=8) 024
+
+> Coefficient (β)  Coefficient (β)
+
+A Mood Axis B Somatic Axis C Suicidality Axis 
+
+> Naturalistic · Held-Out Core Clinical · In-Sample
+
+*** 
+
+> ns
+
+**** 
+
+> ns
+
+*** *** *** 
+
+> ns
+
+*** *** *** 
+
+> ns
+
+** ** 
+
+> ns
+
+*** *** Mood Somatic Suicidality 
+
+> Clinician annotation
+
+Core Clinical   
+
+> In-sample
+> β Mood β Somatic β Suicidality
+> n = 19 n = 24 n = 8
+
+Naturalistic   
+
+> Held-out
+> β Mood β Somatic β Suicidality
+> n = 141 n = 141 n = 141
+> Shading: rank within column; 1st = highest median β
+
+D
+
++0.77 
+
+> #1
+
++0.04 
+
+> #3
+
++0.10 
+
+> #3
+
+-0.19 
+
+> #3
+
++1.01 
+
+> #1
+
++0.14 
+
+> #2
+
+-0.05 
+
+> #2
+
++0.04 
+
+> #2
+
++0.96 
+
+> #1
+
+-0.08 
+
+> #1
+
++0.22 
+
+> #3
+
++0.85 
+
+> #3
+
+-0.64 
+
+> #2
+
++0.74 
+
+> #1
+
++0.91 
+
+> #2
+
+-0.74 
+
+> #3
+
++0.34 
+
+> #2
+
++1.40   
+
+> #1 1st 2nd 3rd
+
+Figure 3: Semantic projection yields clinician-aligned symptom coefficients. Symptom coefficients (βmood , β somatic , β suicidality ) projected onto Symptom Vectors, grouped by clinician annotation and decorrelated. A–C Per-axis coefficient distributions (box plots with overlaid points) for the mood (A), somatic (B), and suicidality (C) axes, with the in-sample Core Clinical corpus on the top row and the held-out Naturalistic corpus on the bottom; boxes show the median and interquartile range, points show individual excerpts, and n is the number of excerpts per group. Brackets denote pairwise comparisons between annotation groups (***, P < 0.001; **, P < 0.01; *, P < 0.05; ns, not significant). P -values are from Dunn’s post-hoc test on pooled within-axis ranks, Benjamini–Hochberg-corrected jointly across all nine comparisons. D Median β for each annotation group on each axis, with cells shaded and ranked by within-column standing (1st = highest median β); the bordered diagonal marks each group scoring highest on its own axis. The preserved within-corpus rank ordering is the evidence of generalization. 
+
+13 −2 −1 01
+
+> Mood
+> −0.4 0.0 0.4 0.8 1.2 1.6
+> Somatic
+> −0.5 0.0 0.5 1.0 1.5 2.0 2.5 3.0 3.5
+> Suicidality
+> Annotation, Corpus
+> Mood, Core Clinical · In-Sample Mood, Naturalistic · Held-Out Somatic, Core Clinical · In-Sample Somatic, Naturalistic · Held-Out Suicidality, Core Clinical · In-Sample Suicidality, Naturalistic · Held-Out
+
+Figure 4: Passages sharing a clinician annotation occupy the same region of the symptom subspace. 
+
+Distribution of the three decorrelated projection coefficients (βmood , β somatic , β suicidality ) for all passages, plotted in the symptom subspace at layer 21. Each point is one passage, colored by clinician annotation (mood, somatic, suicidality) and shaped by corpus (squares, in-sample Core Clinical; circles, held-out Naturalistic). 
+
+3.3 A single depression vector distinguishes depressive and non-depressive text 
+
+Having established that symptom categories are separable and projectable at layer 21 (Figs. 3 and 4), we finally asked whether the same representational space supports the distinction between depressive and non-depressive text. We scored every excerpt by the cosine similarity between its token-weighted centroid and the Depression Vector (Fig. 5). Core Clinical excerpts ( n = 51) and Positive Affect excerpts ( n = 9) were completely separated by the Depression Score (AUC = 1.000, one-sided Mann–Whitney U , P = 1 .06 × 10 −6). Since both corpora participated in constructing the axis, this result serves only as an in-sample consistency check, not as evidence of generalization. Neither the held-out Naturalistic nor the HappyDB corpus contributed to the construction of the Depression Vector, so the difference between them tests generalization of the valence axis to unseen text. Naturalistic depressive excerpts ( n = 423) received higher Depression Scores than HappyDB happy-moment descriptions ( n = 423), with an AUC of 0.789 (one-sided Mann– Whitney U , P = 2 .51 × 10 −48 ): a randomly drawn depressive narrative outscores a randomly drawn happy-moment description roughly four times out of five. Notably, the two HappyDB outliers with visibly elevated Depression Scores are neutral in emotional valence. The highest-scoring entry reads, “Their sore throat cleared up”; the second highest, “They went shopping.” Two features of the score distributions are worth noting. First, the four corpora ordered as expected along the axis, with median cosine similarity decreasing monotonically from Core Clinical (0.231) to Naturalistic (0.229) to HappyDB (0.218) to Positive Affect (0.197), consistent with the Depression Vector capturing a graded valence signal rather than a corpus-identity artifact. Second, the held-out distributions overlap substantially: many HappyDB excerpts score within the Naturalistic range, and the absolute cosine values span a narrow band (0.18–0.25). The Depression Score therefore separates depressive from non-depressive text at the population level but is not, on its own, a reliable per-excerpt classifier; its role here is to establish that a valence gate is recoverable from the same layer-21 geometry used for symptom projection. 14 Core Clinical (Depressed) n=51 Naturalistic (Depressed) n=423 HappyDB n=423 Positive Affect n=9 0.18 0.2 0.22 0.24 0.26 0.28 
+
+> Cosine similarity to depression direction  Naturalistic (Depressed) > HappyDB · Held-Out AUC=0.789 *** Core Clinical (Depressed) > Positive Affect · In-Sample AUC=1.000 ***
+
+Figure 5: A consolidated layer-21 depression direction separates depressive from non-depressive text. Cosine similarity between each excerpt’s token-weighted centroid and the Depression Vector, by corpus. Core Clinical and Positive Affect are in-sample (both were used to construct the Depression Vector); Naturalistic and HappyDB are held out. Boxes show the median and interquartile range; points show individual excerpts. Brackets report AUC for the in-sample and held-out contrasts; ***, 
+
+P < 0.001, one-sided Mann–Whitney U test. 
+
+# 4 Discussion 
+
+One challenge in treating depression is its clinical heterogeneity: patients sharing a diagnosis exhibit widely divergent symptom profiles. Yet, standard questionnaires often collapse this complexity into a single severity score 1,2 . Here, we show that when a pre-trained large language model (Gemma-3-27B-PT) processes patient narratives, distinct depression symptoms are recoverable directly from its residual stream. Three key findings support this conclusion. First, the model’s internal representations of different symptom categories (mood/emotional/cognitive, somatic, and suicidality) are geometrically separable. This separability is most prominent at layer 21 across three raw distance metrics (Centroid Euclidean, Energy, and Earth Mover’s; pseudo-F = 6 .91, 6 .49, and 2 .83, respectively), driven by distinct group centroids rather than within-group dispersion (all PERMDISP P ≥ 0.43). Second, projecting new patient narratives onto these layer-21 Symptom Vectors with a Gram-pseudoinverse correction yields decorrelated coefficients that preserve clinician-aligned rank ordering on held-out naturalistic narratives. Finally, because these Symptom Vectors are built entirely from residual stream activations prompted by depressive text, their projection coefficients are only meaningful for depressive speech. To address this caveat, we introduce a “Depression Vector,” also derived from layer-21 activations, that acts as a preliminary valence gate to first identify whether the input text is depressive. Ultimately, this two-stage pipeline extracts decorrelated, clinician-aligned symptom profiles of patient speech directly from LLM activations. These findings extend a growing body of work showing that semantic categories are encoded as approximately linear directions in LLM residual streams 33 . Among these categories is sentiment, which is localized to specific layers 7,8 . While prior work has characterized coarse valence, we map an instrument-derived symptom taxonomy (DSM-5, ICD-10, HAM-D, MADRS, PHQ-9, and PROCEED) onto a model’s internal representations and recover symptom signals along three axes. Our approach substantially differs from prior systems that rely on generated output for broad diagnostic labels 3–5 or require task-specific fine-tuning for symptom-level analysis 34 . Instead, we 15 extract the signal directly from the internal activations of an unmodified pre-trained model. The Gram-pseudoinverse decorrelation of the three strongly collinear symptom axes (Gram matrix condition number ≈ 1.5 × 10 4) turns overlapping clinical categories into a stable set of measurement axes, so that text excerpts from different sources can be scored and compared on the same scale. The Depression Vector, by contrast, follows the semantic-projection framework of Grand et al. 32 
+
+closely: because depressive and positive affect are opposed in emotional valence, a contrastive axis between them is well defined, and a simple cosine projection onto it generalizes to unseen text. Interpretability is a major barrier to clinical trust and the translation of model-based tools into care. Our pipeline addresses this opacity by directly extracting symptom representations from residual stream activations. The practical value of this approach for digital medicine is that the signal is immediately available within the activation space, eliminating the need to inspect generated output. In practice, this pipeline should first apply a depressive valence gate to prevent assigning symptom scores to non-depressive speech by using the Depression Vector. The Symptom Vectors we found could also help fine-tune models to respond more safely to vulnerable users. Unlike prior steering methods, which typically rely on a single general-purpose direction 35,36 , they offer multiple directions grounded in clinical categories. Finally, these decorrelated coefficients would allow us to link LLM symptom signals and neurobiological biomarkers. Using LLMs to continuously extract per-symptom scores from naturalistic speech creates a quantitative signal that can be correlated with fMRI, resting EEG, or TMS-evoked potentials 37 . This methodology builds on established approaches that successfully mapped continuous behavioral markers to neural activity in naturalistic settings, such as decoding facial expressions for pain 38 and mood 39 . By applying this approach to language, we can test whether the distinct mood and somatic dimensions extracted by the LLM correspond to dissociable neural signatures. If successful, these language models may provide scalable, low-cost proxies for complex brain imaging, advancing the symptom-specific targets of precision psychiatry 40 .Several limitations must be addressed prior to clinical application. First, we collapsed the nine DSM-5 symptoms into three groups for statistical power, which limits the symptom specificity of our analysis. Second, all analyses derive from a single model; generalization across architectures and scales is untested. Third, preprocessing is a potential confound: every passage was rewritten into third-person prose by another large language model. Although the edits were minimal, reviewed by psychiatrist authors, and designed to preserve clinical content, this step may introduce bias. Fourth, and most importantly, agreement with clinician annotation is not equivalent to clinical validity: nothing reported here has been validated against diagnostic outcomes, treatment response, or longitudinal trajectories, and the method should not be construed as a clinical instrument. The prospect of an activation-level risk detector raises questions of consent, false-positive burden, and surveillance that any deployment would need to resolve through appropriate governance. Future research should address these limitations by granularizing Symptom Vectors using larger clinical corpora, replicating localization results across diverse model families and scales, calibrating projections into an absolute and longitudinally stable severity scale suitable for patient monitoring, and empirically testing the proposed electrophysiological links and risk-detection applications. With these steps, the clinician-aligned Symptom Vectors identified here provide a mechanistic and interpretable foundation for symptom analysis of patient language, and a generalizable template for extracting other clinical concepts from the internal representations of large language models. 16 Data availability 
+
+The third-person rewritten Core Clinical corpus (excluding copyright-protected source text) and the Positive Affect corpus (public-domain sources) are released at the project repository, together with the layer-21 Symptom Vectors and the Gram-corrected projection pipeline. The following corpora are withheld: raw clinical instrument text is not redistributed in accordance with source copyright, and the ReDSM5 corpus is not redistributed under its license terms; Darkness Visible and the 
+
+Handbook of Depression excerpts are also copyright-protected and not redistributable. Citations are provided in the Methods to allow independent assembly of an equivalent corpus. 
+
+# Code availability 
+
+All analyses were performed in Python. Code is available at https://github.com/PrecisionNeur oLab/Symptom-Vectors-for-Depression .
+
+# Ethics declarations 
+
+This study involved the secondary analysis of publicly available, de-identified datasets. Data sources included HappyDB, a corpus of crowdsourced text responses, and ReDSM5, a dataset of public social media posts. Because the research relied exclusively on pre-existing, de-identified, and publicly accessible data, the study was deemed exempt from Institutional Review Board (IRB) review. 
+
+# GenAI usage disclosure 
+
+Anthropic Claude Opus 4 has been used to pre-process text samples. Figure 1 is created with Claude Design. Generative AI tools were employed for coding assistance. All AI-written code has been reviewed, tested, and verified by the authors. During the preparation of this manuscript, generative AI tools were employed for editing purposes, including proofreading, grammar correction, vocabulary improvement, and overall language polishing. 
+
+# Acknowledgements 
+
+We thank P. J. Hansel of LeafEye for providing the Apple Silicon hardware on which the experiments were run, and Connor Stone (University of Toronto) for collaboration on the pted energy-distance package. We also thank P. J. Hansel and Ethan Andrew Solomon (Stanford University) for providing valuable feedback on the manuscript. 
+
+# Author contributions 
+
+All authors contributed to writing the manuscript. F.Z. wrote the analysis code, preprocessed all three datasets, conducted all experiments, and wrote the manuscript. A.S. conceived the study and 17 participated in all experiment designs. A.C. and C.W. identified symptom categories using clinical expertise and reviewed and edited the manuscript. R.G. helped with fact checking, reviewing, and editing parts of the manuscript. C.J.K. designed part of the experiments, data analysis and presentation, and supervised the study. 
+
+# Competing interests 
+
+F.Z. and R.G. hold stock in Alphabet Inc., the parent company of Google, which developed the Gemma model evaluated in this study. A.S. holds stock in Orchard Neuro. C.J.K. is a consultant for Salma Health, Flow Neuroscience, Kyron Medical, and Constellation Systems, and holds stock in Orchard Neuro. 
+
+# References 
+
+1. Fried, E. I. & Nesse, R. M. Depression is not a consistent syndrome: an investigation of unique symptom patterns in the STAR*D study. J. Affect. Disord. 172 , 96–102; 10.1016/j.jad.2014.10.010 (2015). 2. Chevance, A. et al. Identifying outcomes for depression that matter to patients, informal caregivers, and health-care professionals: qualitative content analysis of a large international online survey. Lancet Psychiatry 7, 692–702; 10.1016/S2215-0366(20)30191-7 (2020). 3. Yang, K. et al. MentaLLaMA: interpretable mental health analysis on social media with large language models. In Proc. ACM Web Conference 2024 (WWW ’24) 4489–4500; 10.1145/3589334.3648137 (ACM, 2024). 4. Xu, X. et al. Mental-LLM: leveraging large language models for mental health prediction via on-line text data. Proc. ACM Interact. Mob. Wearable Ubiquitous Technol. 8, 1–32; 10.1145/3643540 (2024). 5. Lamichhane, B. Evaluation of ChatGPT for NLP-based mental health applications. Preprint at 
+
+https://doi.org/10.48550/arXiv.2303.15727 (2023). 6. Ganesan, A. V. et al. Explaining GPTs’ schema of depression: a machine behavior analysis. J. Psychopathol. Clin. Sci. ; 10.1037/abn0001144 (2026). 7. Hollinsworth, O. J., Tigges, C., Geiger, A. & Nanda, N. Language models linearly represent sentiment. In Proc. 7th BlackboxNLP Workshop: Analyzing and Interpreting Neural Networks for NLP 58–87; 10.18653/v1/2024.blackboxnlp-1.5 (Association for Computational Linguistics, 2024). 8. Di Palma, D. et al. LLaMAs have feelings too: unveiling sentiment and emotion representations in LLaMA models through probing. In Proc. 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) 6124–6142; 10.18653/v1/2025.acl-long.306 (Association for Computational Linguistics, 2025). 9. Tak, A. N. et al. Mechanistic interpretability of emotion inference in large language mod-els. In Findings of the Association for Computational Linguistics: ACL 2025 13090–13120; 10.18653/v1/2025.findings-acl.679 (Association for Computational Linguistics, 2025). 18 10. American Psychiatric Association. Diagnostic and Statistical Manual of Mental Disorders 5th edn; 10.1176/appi.books.9780890425596 (American Psychiatric Publishing, 2013). 11. World Health Organization. The ICD-10 Classification of Mental and Behavioural Disorders 
+
+(World Health Organization, 1992). 12. Hamilton, M. A rating scale for depression. J. Neurol. Neurosurg. Psychiatry 23 , 56–62; 10.1136/jnnp.23.1.56 (1960). 13. Montgomery, S. A. & Åsberg, M. A new depression scale designed to be sensitive to change. Br. J. Psychiatry 134 , 382–389; 10.1192/bjp.134.4.382 (1979). 14. Kroenke, K., Spitzer, R. L. & Williams, J. B. W. The PHQ-9: validity of a brief depression severity measure. J. Gen. Intern. Med. 16 , 606–613; 10.1046/j.1525-1497.2001.016009606.x (2001). 15. Styron, W. Darkness Visible: A Memoir of Madness (Random House, 1990). 16. Gotlib, I. H. & Hammen, C. L. (eds) Handbook of Depression 3rd edn (Guilford Press, 2014). 17. Bao, E., Pérez, A. & Parapar, J. ReDSM5: a Reddit dataset for DSM-5 depression detection. In 
+
+Proc. 34th ACM International Conference on Information and Knowledge Management (CIKM ’25) 6323–6327; 10.1145/3746252.3761610 (ACM, 2025). 18. Shafer, A. B. Meta-analysis of the factor structures of four depression questionnaires: Beck, CES-D, Hamilton, and Zung. J. Clin. Psychol. 62 , 123–146; 10.1002/jclp.20213 (2006). 19. Asai, A. et al. HappyDB: a corpus of 100,000 crowdsourced happy moments. In Proc. 11th Interna-tional Conference on Language Resources and Evaluation (LREC 2018) ; 10.63317/2vs32uubt6id (European Language Resources Association, 2018). 20. Gemma Team. Gemma 3 technical report. Preprint at https://doi.org/10.48550/arXiv.2 503.19786 (2025). 21. Wolf, T. et al. Transformers: state-of-the-art natural language processing. In Proc. 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations 
+
+38–45; 10.18653/v1/2020.emnlp-demos.6 (Association for Computational Linguistics, 2020). 22. Paszke, A. et al. PyTorch: an imperative style, high-performance deep learning library. In 
+
+Advances in Neural Information Processing Systems 32 8024–8035; 10.48550/arXiv.1912.01703 (Curran Associates, 2019). 23. Xiao, G., Tian, Y., Chen, B., Han, S. & Lewis, M. Efficient streaming language models with attention sinks. In International Conference on Learning Representations (ICLR 2024) ;10.48550/arXiv.2309.17453 (2024). 24. Sun, M., Chen, X., Kolter, J. Z. & Liu, Z. Massive activations in large language models. In 
+
+Conference on Language Modeling (COLM 2024) ; 10.48550/arXiv.2402.17762 (2024). 25. Ansel, J. et al. PyTorch 2: faster machine learning through dynamic Python bytecode transfor-mation and graph compilation. In Proc. 29th ACM International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS ’24) Vol. 2, 929–947; 10.1145/3620665.3640366 (ACM, 2024). 19 26. Stone, C. & Zhu, F. ConnorStoneAstro/pted: v1.4.1. Zenodo ; 10.5281/zenodo.19903244 (2026). 27. Székely, G. J. & Rizzo, M. L. Energy statistics: a class of statistics based on distances. J. Stat. Plan. Inference 143 , 1249–1272; 10.1016/j.jspi.2013.03.018 (2013). 28. Virtanen, P. et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat. Methods 17 , 261–272; 10.1038/s41592-019-0686-2 (2020). 29. Anderson, M. J. A new method for non-parametric multivariate analysis of variance. Austral Ecol. 26 , 32–46; 10.1046/j.1442-9993.2001.01070.x (2001). 30. Anderson, M. J. Distance-based tests for homogeneity of multivariate dispersions. Biometrics 
+
+62 , 245–253; 10.1111/j.1541-0420.2005.00440.x (2006). 31. Aton, M. et al. scikit-bio: a fundamental Python library for biological omic data analysis. Nat. Methods 23 , 274–276; 10.1038/s41592-025-02981-z (2026). 32. Grand, G., Blank, I. A., Pereira, F. & Fedorenko, E. Semantic projection recovers rich human knowledge of multiple object features from word embeddings. Nat. Hum. Behav. 6, 975–987; 10.1038/s41562-022-01316-8 (2022). 33. Park, K., Choe, Y. J., Jiang, Y. & Veitch, V. The geometry of categorical and hierarchical concepts in large language models. In International Conference on Learning Representations (ICLR 2025) ; 10.48550/arXiv.2406.01506 (2025). 34. Weber, S. et al. Using a fine-tuned large language model for symptom-based depression evaluation. 
+
+npj Digit. Med. 8, 598; 10.1038/s41746-025-01982-8 (2025). 35. Panickssery, N. et al. Steering Llama 2 via contrastive activation addition. In Proc. 62nd Annual Meeting of the Association for Computational Linguistics 15504–15522; 10.18653/v1/2024.acl-long.828 (Association for Computational Linguistics, 2024). 36. Zou, A. et al. Representation engineering: a top-down approach to AI transparency. Preprint at 
+
+https://doi.org/10.48550/arXiv.2310.01405 (2023). 37. Parmigiani, S. et al. Reliability and validity of transcranial magnetic stimulation–elec-troencephalography biomarkers. Biol. Psychiatry Cogn. Neurosci. Neuroimaging 8, 805–814; 10.1016/j.bpsc.2022.12.005 (2023). 38. Huang, Y. et al. Naturalistic acute pain states decoded from neural and facial dynamics. Nat. Commun. 16 , 4371; 10.1038/s41467-025-59756-5 (2025). 39. Kakusa, B. et al. Distinct neural temporal architectures encode rapid social expressions and sustained internal mood states. Preprint at bioRxiv ; 10.64898/2025.12.20.692681 (2025). 40. Cline, C. C. & Keller, C. J. Personalizing brain stimulation for psychiatric disorders: from circuits to closed-loop control. Am. J. Psychiatry 183 , 169–179; 10.1176/appi.ajp.20251327 (2026). 20 Supplementary Material 
+
+Core Clinical Symptom Descriptions 
+
+Natural-language descriptions of depression symptoms, organized by clinical assessment instru-ment and grouped into three symptom dimensions (mood, somatic, and suicidality). Each entry corresponds to an item or item cluster from the source instrument. 
+
+DSM-5 Mood 
+
+This person experiences a depressed mood, feeling sad, empty, or hopeless, and may appear tearful to others. They have lost interest or pleasure in activities they used to enjoy. They struggle with feelings of worthlessness or carry excessive or inappropriate guilt that goes beyond normal self-criticism. They also have difficulty thinking clearly, concentrating, or making decisions. 
+
+Somatic 
+
+They experience noticeable changes in weight—either losing or gaining—without intentionally trying to diet, along with shifts in their appetite. Their sleep is disrupted, with difficulty falling or staying asleep, or alternatively, sleeping far more than usual. Others can observe changes in their physical movements and behavior: they may appear restless and agitated, or conversely, slowed down in their speech and actions. They feel persistently tired and lack the energy they once had. 
+
+Suicidality 
+
+The person frequently thinks about death, beyond simply fearing dying. They may have recurring thoughts of suicide without a specific plan, or they may have attempted suicide or developed a specific plan for committing suicide. 
+
+ICD-10 Mood 
+
+They experience a persistently low mood throughout the day, which others may also observe. They have lost interest or pleasure in activities they would normally enjoy. They struggle with feelings of worthlessness and carry excessive or inappropriate guilt. Their ability to think clearly or concentrate is diminished, and they often feel indecisive. Their self-confidence and self-esteem are reduced. 
+
+Somatic 
+
+They experience changes in their appetite—either eating much less or much more than usual—which leads to noticeable weight loss or gain. Their sleep is disrupted; they may struggle to fall or stay asleep, or conversely find themselves sleeping far more than normal. Even minimal effort leaves them feeling tired and drained, as though their energy has been depleted. Their physical movements and behavior have also changed—they may appear restless and agitated, or alternatively seem slowed 21 down in their speech and actions. 
+
+Suicidality 
+
+They experience recurring thoughts about death or have engaged in suicidal behavior. 
+
+HAM-D (Hamilton Depression Rating Scale) Mood Item 1. Depressed Mood. They have a gloomy attitude and feel pessimistic about the future. They experience persistent feelings of sadness and may have a tendency to weep. 
+
+Item 2. Feelings of Guilt. They engage in self-reproach and feel they have let people down. They experience ideas of guilt, and may believe their present illness is a punishment. In some cases, they may have delusions or hallucinations related to guilt. 
+
+Item 3. Work and Interests. They experience feelings of incapacity, listlessness, indecision, and vacillation. They have lost interest in hobbies and show decreased social activities. Their productivity has decreased, and they may be unable to work due to their present illness. 
+
+Item 4. Anxiety (Psychic). They experience tension and irritability. They worry about minor matters and have an apprehensive attitude. They may experience fears. 
+
+Somatic Item 1. Initial Insomnia. The person has difficulty falling asleep at the beginning of the night. 
+
+Item 2. Middle Insomnia. The person feels restless and disturbed during the night, often waking up during sleeping hours. 
+
+Item 3. Delayed Insomnia. The person wakes up in the early hours of the morning and is unable to fall asleep again. 
+
+Item 4. Retardation. The person experiences slowness in their thought processes, speech, and physical activity. They may appear apathetic or, in more pronounced cases, enter a state of stupor. 
+
+Item 5. Agitation. The person displays restlessness that is associated with feelings of anxiety. 
+
+Item 6. Somatic Anxiety. The person experiences physical symptoms related to anxiety, which may include gastrointestinal issues such as indigestion, cardiovascular symptoms like palpitations, headaches, respiratory difficulties, or genito-urinary complaints. 
+
+Item 7. Gastrointestinal Somatic Symptoms. The person experiences a loss of appetite, a heavy feeling in the abdomen, or constipation. 22 Item 8. General Somatic Symptoms. The person feels heaviness in their limbs, back, or head, and may experience diffuse backaches, a loss of energy, or easy fatiguability. 
+
+Item 9. Genital Symptoms. The person experiences a loss of libido or, in the case of women, menstrual disturbances. 
+
+Item 10. Hypochondriasis. The person shows excessive focus on their body and health, ranging from bodily self-absorption to preoccupation with health concerns, a tendency to complain about physical ailments, or fixed false beliefs about having a serious illness. 
+
+Item 11. Weight Loss. The person has experienced a noticeable decrease in body weight. 
+
+Suicidality 
+
+The person may experience thoughts related to not wanting to live. This can include feeling that life is not worth living, wishing they were dead, having suicidal ideas or making suicidal gestures, or attempting suicide. 
+
+MADRS (Montgomery–Åsberg Depression Rating Scale) Mood Item 1. Apparent Sadness. They appear despondent, gloomy, or in despair—beyond ordinary low spirits. This is reflected in their speech, facial expression, and posture. They may look dispirited or unhappy, and at times struggle to brighten up even when circumstances might warrant it. 
+
+Item 2. Reported Sadness. They describe feeling depressed, low in spirits, or despondent, regardless of whether this is visible in their appearance. They may report feeling beyond help or without hope. Their mood may be influenced by external circumstances to varying degrees, or it may feel continuous and unvarying. 
+
+Item 3. Inner Tension. They experience feelings of ill-defined discomfort, edginess, or inner turmoil. This mental tension can escalate to feelings of panic, dread, or anguish. They may seek reassurance and find it difficult to master these feelings on their own. 
+
+Item 4. Concentration Difficulties. They have difficulty collecting their thoughts or sustaining concentration. This may interfere with their ability to read, hold a conversation, or complete tasks that require focused attention. 
+
+Item 5. Inability to Feel. They experience reduced interest in their surroundings or in activities that would normally bring them pleasure. Their ability to react with appropriate emotion to circumstances or people feels diminished. They may feel emotionally numb or disconnected from friends and loved ones, struggling to feel anger, grief, or joy. 
+
+Item 6. Pessimistic Thoughts. They experience thoughts of guilt, inferiority, self-reproach, or remorse. They may engage in self-accusations or feel increasingly pessimistic about the future, 23 dwelling on ideas of failure, sin, or ruin. 
+
+Somatic Item 1. Reduced Sleep. They experience a reduction in the duration or depth of their sleep compared to their usual pattern when feeling well. This may manifest as difficulty falling asleep, lighter or more fitful sleep, sleep that is broken or shortened by several hours, or sleeping only a few hours per night. 
+
+Item 2. Reduced Appetite. They experience a diminished appetite compared to when they are well. This presents as a decreased desire for food or a need to force themselves to eat. Food may seem tasteless, and they may require encouragement or persuasion from others to eat at all. 
+
+Item 3. Lassitude. They have difficulty getting started with activities and experience slowness in initiating and performing everyday tasks. Routine activities require considerable effort to begin and carry out, and in more pronounced cases, they may feel unable to do anything without assistance from others. 
+
+Suicidality Item 1. This person has expressed feelings that life is not worth living and has indicated that a natural death would be welcome. They may feel weary of life, with fleeting or recurring thoughts of suicide. 
+
+Item 2. At times, they may believe they would be better off dead, viewing suicide as a possible solution, though not necessarily with specific plans or intention. 
+
+Item 3. They experience suicidal thoughts and may have made preparations for suicide. In some cases, they may have explicit plans for suicide or may be actively preparing for it. 
+
+PHQ-9 (Patient Health Questionnaire-9) Mood Item 1. They have little interest or pleasure in doing things. 
+
+Item 2. They feel down, depressed, or hopeless. 
+
+Item 3. They feel bad about themselves, or feel like a failure, or feel they have let themselves or their family down. 
+
+Item 4. They have trouble concentrating on things, such as reading the newspaper or watching television. 24 Somatic Item 1. They have trouble falling asleep, staying asleep, or sleep too much. 
+
+Item 2. They feel tired or have little energy. 
+
+Item 3. They have a poor appetite or overeat. 
+
+Item 4. They move or speak so slowly that other people could have noticed, or the opposite—they are so fidgety or restless that they have been moving around a lot more than usual. 
+
+Suicidality 
+
+They have thoughts that they would be better off dead or of hurting themselves in some way. 
+
+PROCEED (Participative Research on Outcomes’ and Core Expectations’ Elicitation for Depression) Mood Item 1. Perception of Self. This person often feels that others are against them or out to get them. They experience a profound sense of isolation, as though they are fundamentally alone in the world. They carry a belief that they are a burden to those around them and feel that others do not truly understand them. They struggle with confidence in their own abilities and hold a diminished view of their own worth. At times, they feel disconnected from themselves or their surroundings, and they may have difficulty recognizing themselves—whether in the mirror or in terms of who they feel they are as a person. 
+
+Item 2. Cognitive Symptoms. This person finds it difficult to feel motivated or to maintain interest in activities. They believe their condition is untreatable and hold a generally pessimistic view of situations. Their thinking tends to be distorted, often interpreting events in negatively skewed ways. They struggle to make decisions and have difficulty with planning, organizing, and following through on tasks. Adapting to new information or shifting between tasks is challenging for them. They find it hard to solve problems effectively and experience lapses in memory. Maintaining focus and concentration is difficult, as is managing their time. Their perception of time may feel altered—either dragging or slipping away. They have trouble envisioning a positive future and tend to dwell on negative thoughts repeatedly. Their thinking often feels foggy or unclear. They may have reduced capacity to understand or share in others’ feelings and show diminished interest in social connection. 
+
+Item 3. Mood and Emotional Symptoms. This person experiences significant psychological pain and a pervasive sense that things will not improve. They feel powerless to change their circumstances and see themselves as having little value. A general sense of feeling bad pervades their experience, often accompanied by guilt. Sadness is a frequent companion, along with feelings of anxiety and a fear of failing at things they attempt. They often feel restless and on edge, becoming 25 easily irritated and frustrated. They have difficulty managing their emotions and controlling their impulses. Their mood may not shift appropriately in response to positive events. They have lost their sense of humor and find little or no pleasure in activities they once enjoyed. They often feel empty inside, and their emotional responses in general feel muted or dulled. 
+
+Somatic Item 1. Physical Symptoms. They experience pain or other physical symptoms. Their appetite or weight has changed. They have difficulty with sexual function. 
+
+Item 2. Sleep. They sleep excessively. Their sleep is disturbed or restless. They have difficulty falling or staying asleep. 
+
+Item 3. Psychomotor and Expression. They cry. They speak very little or not at all. Their facial expressions appear flat or diminished. Their movements and reactions are slowed. 
+
+Item 4. Energy. They feel that everything requires effort. They feel physically weak. They have low energy. They feel fatigued or tired. 
+
+Suicidality Autoaggression symptoms. The individual experiences thoughts related to their desire to continue living. They report suicidal ideation and engage in self-harming behaviors. They have attempted suicide. 26
