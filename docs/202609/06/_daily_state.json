@@ -1,0 +1,25 @@
+{
+  "date": "20260906",
+  "date_label": "",
+  "generated_at": "2026-09-06 19:04:28 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.02606v1",
+      "route": "202609/06/2609.02606v1-predictors-of-loneliness-in-older-adults-using-multimodal-analysis-of-speech-and-language",
+      "title": "Predictors of Loneliness in Older Adults Using Multimodal Analysis of Speech and Language",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "以老年人为对象研究孤独感的言语与语言多模态标记，孤独感与抑郁、认知衰退紧密相关，可支撑社交支持不足情境下的心理风险筛查",
+      "first_seen_at": "2026-09-06 19:04:28 UTC",
+      "updated_at": "2026-09-06 19:04:28 UTC"
+    }
+  ]
+}

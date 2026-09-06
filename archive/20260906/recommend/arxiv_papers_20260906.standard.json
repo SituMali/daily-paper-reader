@@ -1,0 +1,60 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-06T19:02:48.367249+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.02606v1",
+      "source": "arxiv",
+      "title": "Predictors of Loneliness in Older Adults Using Multimodal Analysis of Speech and Language",
+      "abstract": "Loneliness is a critical public health issue among older adults, linked to higher risks of depression, cognitive decline, and mortality. Scalable, objective methods for its detection remain limited, particularly in natural conversational contexts. We analyzed speech and language markers of loneliness in 310 older adults using semi-structured telephone interviews to help understand how they process feeling lonely and how their language differs at different levels of feeling loneliness. Our multimodal framework combined linguistic features (psycholinguistic dictionaries, n-grams, and topic models) with acoustic features (pitch, tone, loudness) to examine associations with self-reported loneliness scores. Both predefined and data-driven methods captured patterns in verbal content and vocal delivery. Higher loneliness was associated with negations(r = 0.11), negative tone(r = 0.12), and conflict-related language. Lower loneliness was linked to social references(r = -0.18), motivational drives(r = -0.11), and emotional richness in speech(r = -0.12). We also found that the multimodal model (r = 0.298) outperforms the text-only and audio-only models. Findings suggest that loneliness manifests through both linguistic and acoustic cues, supporting the potential of speech-based analysis in psychological assessments and as an early indicator of emotional loneliness when used alongside existing assessments, rather than as standalone diagnostic tools.",
+      "authors": [
+        "Vinmay Khandode",
+        "Sai Karthik Kosuri",
+        "Neil K. R. Sehgal",
+        "Adam Greene",
+        "Elif Alpoge",
+        "Elana Duffy",
+        "Matthew Lee Smith",
+        "Thomas K. M. Cudjoe",
+        "Sharath Chandra Guntuku"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-02T13:48:14+00:00",
+      "link": "https://arxiv.org/pdf/2609.02606v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Loneliness in older adults is studied as linked to depression and cognitive decline, with multimodal speech-language markers enabling objective assessment of social isolation",
+      "llm_evidence_cn": "以老年人为对象研究孤独感的言语与语言多模态标记，孤独感与抑郁、认知衰退紧密相关，可支撑社交支持不足情境下的心理风险筛查",
+      "llm_evidence": "以老年人为对象研究孤独感的言语与语言多模态标记，孤独感与抑郁、认知衰退紧密相关，可支撑社交支持不足情境下的心理风险筛查",
+      "canonical_evidence": "以老年人为对象研究孤独感的言语与语言多模态标记，孤独感与抑郁、认知衰退紧密相关，可支撑社交支持不足情境下的心理风险筛查",
+      "llm_tldr_en": "Loneliness in older adults is linked to depression and cognitive decline, yet lacks scalable detection. On 310 telephone interviews, linguistic plus acoustic features helped predict loneliness levels, suggesting objective remote markers.",
+      "llm_tldr_cn": "老年人孤独感是抑郁和认知衰退的重要风险因素，但缺少可扩展的客观检测手段。论文利用310名老年人半结构化电话访谈，将心理语言学词典、n-gram与主题模型等语言特征同音高、语气和响度等声学特征结合，考察其与自评孤独感的关系。结果表明预定义与数据驱动特征均能揭示不同孤独水平下的言语差异，为老年人孤独感乃至抑郁风险的远程筛查提供多模态分析新途径。",
+      "llm_tldr": "老年人孤独感是抑郁和认知衰退的重要风险因素，但缺少可扩展的客观检测手段。论文利用310名老年人半结构化电话访谈，将心理语言学词典、n-gram与主题模型等语言特征同音高、语气和响度等声学特征结合，考察其与自评孤独感的关系。结果表明预定义与数据驱动特征均能揭示不同孤独水平下的言语差异，为老年人孤独感乃至抑郁风险的远程筛查提供多模态分析新途径。",
+      "llm_tags": [
+        "query:dep-support:composite"
+      ],
+      "matched_query_tag": "query:dep-support:composite",
+      "matched_query_text": "Papers central to 请帮我查找并持续追踪有关老年抑郁非典型症状（认知衰退、睡眠障碍、运动迟缓、躯体症状、躯体衰弱等）相关文献、老年人社会支持相关研究文献以及社会支持与老年抑郁非典型症状间关联的相关文献，如果有网络分析的研究更好, especially work that connects or combines: depressive disorder in older adults with atypical features; non-typical depressive manifestations including cognitive, sleep, motor, somatic, and frailty signs; cognitive impairment or decline associated with geriatric depression; physical pain and somatic complaints in older adults with depression; social support as a protective factor against depression in late life; investigate atypical symptoms of late life depression including cognitive decline, sleep disturbance, psychomotor retardation, somatic symptoms, and physical frailty; explore the association between social support and depressive symptoms in elderly populations.",
+      "matched_requirement_id": "req-composite-dep-support",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

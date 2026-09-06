@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-06",
+  "date": "2026-09-06",
+  "generated_at": "2026-09-06T19:04:30",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/06/2609.02606v1-predictors-of-loneliness-in-older-adults-using-multimodal-analysis-of-speech-and-language",
+      "section": "quick",
+      "title_en": "Predictors of Loneliness in Older Adults Using Multimodal Analysis of Speech and Language",
+      "authors": "Vinmay Khandode, Sai Karthik Kosuri, Neil K. R. Sehgal, Adam Greene, Elif Alpoge, Elana Duffy, Matthew Lee Smith, Thomas K. M. Cudjoe, Sharath Chandra Guntuku",
+      "date": "2026-09-02",
+      "pdf": "https://arxiv.org/pdf/2609.02606v1",
+      "score": "6.0",
+      "evidence": "以老年人为对象研究孤独感的言语与语言多模态标记，孤独感与抑郁、认知衰退紧密相关，可支撑社交支持不足情境下的心理风险筛查",
+      "tldr": "孤独感是老年人抑郁、认知衰退和死亡的重要风险因素，但自然情境下缺乏客观检测方法。本研究对310位老年人半结构化电话访谈提取心理语言学、主题模型及声学韵律特征，以多模态模型关联自评孤独分数。结果显示，高孤独者更多使用否定词、消极情绪词和冲突语言，语音语调偏负面；低孤独者交流中包含社交参照与情感丰富性，融合模型相关性达0.298。这表明语音信号可反映孤独水平，可作为临床筛查的辅助指标，而非替代诊断工具。",
+      "tags": "query:dep-support",
+      "abstract_en": "Loneliness is a critical public health issue among older adults, linked to higher risks of depression, cognitive decline, and mortality. Scalable, objective methods for its detection remain limited, particularly in natural conversational contexts. We analyzed speech and language markers of loneliness in 310 older adults using semi-structured telephone interviews to help understand how they process feeling lonely and how their language differs at different levels of feeling loneliness. Our multimodal framework combined linguistic features (psycholinguistic dictionaries, n-grams, and topic models) with acoustic features (pitch, tone, loudness) to examine associations with self-reported loneliness scores. Both predefined and data-driven methods captured patterns in verbal content and vocal delivery. Higher loneliness was associated with negations(r = 0.11), negative tone(r = 0.12), and conflict-related language. Lower loneliness was linked to social references(r = -0.18), motivational drives(r = -0.11), and emotional richness in speech(r = -0.12). We also found that the multimodal model (r = 0.298) outperforms the text-only and audio-only models. Findings suggest that loneliness manifests through both linguistic and acoustic cues, supporting the potential of speech-based analysis in psychological assessments and as an early indicator of emotional loneliness when used alongside existing assessments, rather than as standalone diagnostic tools.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
