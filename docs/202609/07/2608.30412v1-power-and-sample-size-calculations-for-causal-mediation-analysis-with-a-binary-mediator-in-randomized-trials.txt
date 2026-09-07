@@ -1,0 +1,3121 @@
+Title: Power and sample size calculations for causal mediation analysis with a binary mediator in randomized trials
+
+URL Source: https://arxiv.org/pdf/2608.30412v1
+
+Published Time: Tue, 01 Sep 2026 02:13:19 GMT
+
+Number of Pages: 36
+
+Markdown Content:
+# Power and sample size calculations for causal mediation analysis with a binary mediator in randomized trials 
+
+Bosen Cui 1, Yuhong Yang 1,2, and Fan Yang 1,2,∗
+
+> 1
+
+Yau Mathematical Sciences Center, Tsinghua University, Beijing, China 
+
+> 2
+
+Yanqi Lake Beijing Institute of Mathematical Sciences and Applications, Beijing, China 
+
+yangfan1987@tsinghua.edu.cn 
+
+Abstract 
+
+Mediation analyses are increasingly conducted in randomized trials, but a sample size adequate for the total treatment effect may leave the natural indirect effect (NIE) or natu-ral direct effect (NDE) substantially underpowered. Randomization does not extend to the mediator, so precision depends on the conditional mediator distribution and the mediator-outcome association, neither of which enters a total-effect calculation. Planning outside linear structural equation models is largely based on simulation under a fully specified data-generating mechanism rarely available at the design stage. This paper develops an-alytic power and sample size formulas for the NIE and NDE with a binary mediator and a continuous or binary outcome. Under standard identification assumptions, we focus on the ratio-of-mediator-probability weighting (RMPW) estimator that does not require an outcome model for effect estimation. We decompose the oracle variances of the RMPW estimators into components capturing mediator-probability-ratio variability, outcome vari-ation, and their association, with an additional shared-arm covariance term for the NIE. Under a probit latent-index mediator and a working outcome model, these components are determined by a small number of interpretable design inputs rather than by the full joint distribution of covariates, mediator, and outcome. Simulations show that the analytic sam-ple sizes closely match simulation-based benchmarks, attain the target power, and maintain type I error near the nominal level. An ACTG175 illustration shows how pilot data can calibrate the inputs. 
+
+Keywords: Causal mediation analysis; Natural direct effect; Natural indirect effect; Ratio-of-mediator-probability weighting; Sample size calculation; Study design. 
+
+# 1 Introduction 
+
+Understanding how an intervention produces its effect is often an important scientific objective in a randomized trial. Causal mediation analysis provides a formal framework for this objective by distinguishing effects transmitted through a mediator from those operating through other pathways [Lee et al., 2021]. In many clinical, behavioral, and policy applications, the mediator of interest is binary, indicating, for example, whether a participant adheres to treatment, achieves an early response, or experiences an intermediate clinical event [Ralston et al., 2014, Hong et al., 2015, Stensrud and Strohmaier, 2017, Vandenberghe et al., 2018, Heerspink et al., 2022, Rijnhart et al., 2023]. When these pathways are prespecified scientific targets, adequate power for the corresponding natural indirect effect (NIE) or natural direct effect (NDE) must be considered when the trial is designed. Power and sample size theory for the total treatment effect, i.e., the average treatment effect (ATE), is well developed, covering classical randomized-trial calculations, covariate-adjusted estimators and observational settings [Lachin, 1981, Dupont and Plummer Jr, 1990, Wittes, 1arXiv:2608.30412v1 [stat.ME] 31 Aug 2026 2002, Chow et al., 2017, Schuler, 2022, Shook-Sa and Hudgens, 2022, Branson et al., 2024, Liu et al., 2026]. These results, however, do not determine the sample size required for a mediation effect: on an additive scale, the same ATE can correspond to markedly different decompositions into the NIE and NDE. Even for a fixed target NIE or NDE, its precision depends on features not contained in conventional ATE calculations, including the treatment-specific conditional mediator distributions and the mediator–outcome relationship given baseline covariates in each treatment arm. The underlying difficulty is that treatment randomization does not extend to the mediator. Identification of natural effects therefore requires assumptions beyond randomization [Robins, 2003, Imai et al., 2010a,b], and their power calculations require additional design information about the mediator and mediator–outcome processes. Existing power and sample size methods for mediation analysis fall broadly into two classes. Earlier work studied the Baron and Kenny [1986] estimator and related tests under linear structural equation models, providing model-specific calculations or tabulated sample-size rec-ommendations [MacKinnon et al., 2002, Fritz and MacKinnon, 2007, Vittinghoff et al., 2009]. These methods, however, formulate the indirect effect as a product of coefficients, which has an NIE interpretation only under additional linearity assumptions. In particular, with treatment– mediator interaction in the outcome model or nonlinear links for binary mediators or outcomes, the coefficient product no longer identifies the NIE. Kelcey et al. [2017] provide an important extension, allowing treatment–mediator interaction in closed-form power calculations for indi-rect effects in group-randomized trials. Their analysis, however, is confined to indirect effects and retains linear mixed-effects models for continuous mediators and outcomes, and it does not cover the binary-mediator setting or the binary-outcome extension considered here. For more general mediation settings, broadly applicable power calculations rely on Monte Carlo simulation under prespecified mediator and outcome models [Thoemmes et al., 2010, Schoe-mann et al., 2017, Qin, 2024]. Simulation is flexible but requires specifying a detailed joint data-generating mechanism for the baseline covariates, mediator, and outcome. Such specifi-cations are often weakly informed at the design stage. Moreover, simulation alone offers little guidance on which design-stage summaries suffice: distinct data-generating mechanisms may agree on selected marginal summaries yet imply substantially different estimator variances and sample-size requirements. In summary, existing approaches to power and sample size calculation either impose linear specifications of the mediator and outcome models that do not accommodate a binary mediator, or require a detailed joint data-generating mechanism that is rarely well informed at the design stage. In this paper, we address this limitation by starting from the sampling variability of a prespecified causal mediation estimator. Specifically, we consider ratio-of-mediator-probability weighting (RMPW) estimators of the NIE and NDE with a binary mediator in randomized trials [Hong et al., 2015, Bein et al., 2018]. RMPW extends to mediation the role that inverse-probability-of-treatment weighting plays for the ATE and estimates the mediation ef-fects without an outcome model. Building on the oracle large-sample variance of the RMPW estimators, we decompose the arm-specific variance of each weighted outcome mean into three components: mediator-probability-ratio variability, outcome variation, and their association. For NIE, the calculation additionally requires the covariance between the two weighted means estimated from the same treatment arm. Under a probit latent-index mediator and a working outcome model, we then express these variance components in terms of interpretable design inputs. These inputs describe mediator prevalences and covariate-driven mediator heterogene-ity, outcome variance or event probabilities, pathway strength, and the association between the outcome and a baseline-covariate summary. Together with the target effect, treatment alloca-tion, and error rates, they yield Wald-type power and sample size calculations for continuous and binary outcomes. The remainder of the paper is organized as follows. Section 2 reviews the causal media-tion estimands, identification assumptions, and weighting representation. Section 3 derives a 2variance decomposition for the RMPW estimator with a binary mediator, and connects the variance to power and sample size. Section 4 introduces the working model used to evaluate the variance components at the design stage and links the power function with interpretable inputs. Section 5 examines the accuracy and sensitivity of the proposed calculations through simulation studies and a design illustration based on ACTG175 pilot data. Section 6 concludes. The Supplementary Material contains proofs and additional derivations; it also provides sample size calculations for both the NIE and NDE under linear mediator and outcome models with a continuous mediator, allowing treatment–mediator interaction in single-level data, thereby complementing the linear-model results discussed above. 
+
+# 2 Causal mediation estimands and the RMPW estimator 
+
+Consider a randomized trial with an i.i.d. sample of size N . For each participant, let O =(X, A, M, Y ), where X ∈ X ⊆ Rp is a vector of baseline covariates, A ∈ { 0, 1} is the randomized treatment assignment with known allocation probabilities πa = P (A = a) ∈ (0 , 1), M ∈ { 0, 1}
+
+is a binary mediator, and Y ∈ R is a continuous or binary outcome. Let M (a) denote the potential mediator value under treatment level a, and let Y (a, m ) denote the potential outcome if treatment were set to a and the mediator to m. The observed mediator and outcome satisfy the consistency assumptions M = M (A) and Y = Y (A, M (A)). For a, a ′ ∈ { 0, 1}, define the mediation functional θ(a, a ′) = E{Y (a, M (a′)) }. The natural indirect effect (NIE) under treatment level a is 
+
+δ(a) = θ(a, 1) − θ(a, 0) ,
+
+and the natural direct effect (NDE) at mediator distribution level a is 
+
+ζ(a) = θ(1 , a ) − θ(0 , a ).
+
+Thus, δ(a) varies the mediator from M (0) to M (1) while fixing the treatment at a, whereas 
+
+ζ(a) varies the treatment from 0 to 1 while holding the mediator at M (a). Because the mediator is not randomized, identification of θ(a, a ′) requires assumptions be-yond randomization of treatment assignment. We invoke sequential ignorability and positivity assumptions [Imai et al., 2010a,b]. 
+
+Assumption 1 (Sequential ignorability and positivity) . For a, a ′ ∈ { 0, 1} and m ∈ { 0, 1}: (i) 
+
+{Y (a′, m ), M (a)} ⊥ ⊥ A; (ii) Y (a, m ) ⊥⊥ M (a′) | A = a′, X; and (iii) 0 < p a(X) < 1 almost surely, where pa(x) = P (M = 1 | A = a, X = x).
+
+Condition (i) holds by randomization; (ii) requires no unmeasured pretreatment and no post-treatment mediator–outcome confounding given X; (iii) requires both mediator levels to occur with positive probability at every covariate value within each treatment arm. Among the equivalent identification strategies for θ(a, a ′), we develop the sample size calcu-lations based on the ratio-of-mediator-probability weighting (RMPW) estimator [Hong et al., 2015, Bein et al., 2018], a commonly used weighting estimator for mediation effects that plays a role analogous to inverse-probability-of-treatment weighting for the ATE. An equivalent weight-ing representation, with weights expressed through treatment propensities rather than mediator probabilities, is developed by Huber [2014]. Alternative estimators based on regressions or semi-parametric augmentation [Tchetgen and Shpitser, 2012] would require, for their design-stage variance, prior information about outcome-model parameter values that is difficult to obtain before data collection, whereas, as shown in Section 4, the RMPW calculation requires weaker outcome-model inputs. Writing ga(m | x) = pa(x)m (1 − pa(x)) 1−m and Ra,a ′ (m, x) = ga′ (m|x) 
+
+> ga(m|x)
+
+,under Assumption 1, 
+
+θ(a, a ′) = E
+
+ I(A = a)
+
+πa
+
+Ra,a ′ (M, X)Y
+
+
+
+,
+
+3where the ratio Ra,a ′ reweights participants in arm a so that, given covariates, their mediator distribution represents that under arm a′; when a′ = a, Ra,a ′ (M, X) = 1, and the estimand reduces to the arm-a outcome mean. The normalized RMPW estimator is ˆθ(a, a ′) = 
+
+PNi=1 I(Ai = a)Ra,a ′ (Mi, Xi)Yi
+
+PNi=1 I(Ai = a)Ra,a ′ (Mi, Xi) ,
+
+with ˆδ(a) = ˆθ(a, 1) − ˆθ(a, 0) and ˆζ(a) = ˆθ(1 , a ) − ˆθ(0 , a ). For the design stage calculations, we treat the mediator probabilities as known and use the resulting oracle estimator as a tractable benchmark. In practice, these probabilities are estimated from the data, and because the oracle and estimated-ratio variances have no general ordering [Bein et al., 2018], we examine the estimated-ratio implementation in simulations. In the settings considered, the estimated-ratio implementation yields empirical power similar to the oracle-ratio benchmark. 
+
+# 3 Variance decomposition and sample size calculation 
+
+This section derives the variance expressions underlying the design calculations, starting from the oracle large-sample variance of the RMPW estimator established by Bein et al. [2018], in which the mediator probability ratios are fixed at their population values. 
+
+Proposition 1 (Oracle variance of the RMPW estimator) . Suppose Assumption 1 holds and 
+
+E{R2 
+
+> a,a ′
+
+(M, X)(1 + Y )2 | A = a} < ∞. For the oracle normalized RMPW estimator, 
+
+√N {ˆθ(a, a ′) − θ(a, a ′)} = 1
+
+√N
+
+> N
+
+X
+
+> i=1
+
+ψa,a ′ (Oi) + op(1) ,
+
+where ψa,a ′ (O) = I(A=a) 
+
+> πa
+
+Ra,a ′ (M, X){Y − θ(a, a ′)}. Consequently, 
+
+√N {ˆθ(a, a ′) − θ(a, a ′)} d
+
+→ N (0 , V θ(a, a ′)) ,
+
+where 
+
+Vθ(a, a ′) = 1
+
+πa
+
+E R2 
+
+> a,a ′
+
+(M, X){Y − θ(a, a ′)}2 | A = a . (1) 
+
+The natural direct effect. To understand the variance of the NDE estimator, first consider the building block Vθ(a, a ′) in Equation (1). When a′ = a, Ra,a (M, X) = 1, and the formula reduces to the variance of an arm-specific sample mean. When a′̸ = a, the variance additionally depends on the distribution of the mediator weights and their relationship with the outcome. To separate these contributions, define da,a ′ = E[R2 
+
+> a,a ′
+
+(M, X) | A = a], B a,a ′ = E[{Y − θ(a, a ′)}2 | A = a],
+
+and Ca,a ′ = Cov 
+
+h
+
+R2 
+
+> a,a ′
+
+(M, X), {Y − θ(a, a ′)}2 | A = a
+
+i
+
+. Then (1) can be written as 
+
+Vθ(a, a ′) = 1
+
+πa
+
+da,a ′ Ba,a ′ + Ca,a ′ . (2) For a binary mediator, 
+
+da,a ′ = E
+
+ p2 
+
+> a′
+
+(X)
+
+pa(X) + {1 − pa′ (X)}2
+
+1 − pa(X)
+
+
+
+= 1 + E
+
+"
+
+[pa′ (X) − pa(X)] 2
+
+pa(X)(1 − pa(X)) 
+
+#
+
+≥ 1,
+
+with equality if and only if pa′ (X) = pa(X) almost surely, i.e., the two conditional mediator distributions coincide; da,a ′ is large when the two arms disagree on the conditional mediator probabilities in covariate regions where pa(X) is near 0 or 1. The term Ba,a ′ is an outcome second moment around θ(a, a ′), and Ca,a ′ captures how mediator reweighting concentrates observations 4with different outcome variability. Directly specifying Ca,a ′ at the design stage is difficult; its Cauchy-Schwarz bound gives a conservative alternative but discards both the sign of Ca,a ′ and the dependence structure that determines its magnitude. The NDE ζ(a) = θ(1 , a ) − θ(0 , a ) contrasts two mediation functionals whose RMPW esti-mators use observations from different treatment arms. The two influence functions contain mutually exclusive treatment indicators and therefore have zero covariance. Consequently, 
+
+Vζ (a) = 
+
+> 1
+
+X
+
+> j=0
+
+1
+
+πj
+
+{dj,a Bj,a + Cj,a } = Ba,a 
+
+πa
+
++ 1
+
+π1−a
+
+{d1−a,a B1−a,a + C1−a,a } . (3) The first term on the right-hand side involves no mediator reweighting, whereas the second term accounts for transporting the mediator distribution from arm a to arm 1 − a.
+
+The natural indirect effect. Unlike the NDE, the NIE δ(a) = θ(a, 1) − θ(a, 0) cannot be han-dled by simply adding two component variances: its RMPW estimators ˆθ(a, 1) and ˆθ(a, 0) use the same treatment-arm observations, so their influence functions overlap and their covariance enters the variance. Therefore, the asymptotic variance of ˆδ(a) is 
+
+Vδ(a) = 1
+
+πa
+
+E
+
+h
+
+{Ra, 1(M, X){Y − θ(a, 1) } − Ra, 0(M, X){Y − θ(a, 0) }} 2 | A = a
+
+i
+
+. (4) Equivalently, 
+
+Vδ(a) = 1
+
+πa
+
+{da, 1Ba, 1 + Ca, 1 + da, 0Ba, 0 + Ca, 0 − 2Ka} , (5) where Ka = Cov [ Ra, 1(M, X){Y − θ(a, 1) }, R a, 0(M, X){Y − θ(a, 0) } | A = a] is the covariance between the weighted residual terms associated with θ(a, 1) and θ(a, 0), which does not vanish in general because both terms are based on the same observations from treatment arm a. As shown in the Supplementary Material, Ka ≥ 0, so omitting the term −2Ka yields a conservative upper bound for Vδ(a); combining this omission with separate Cauchy–Schwarz bounds for Ca, 1 and 
+
+Ca, 0, however, is even more conservative and can substantially overstate the required sample size. Because Ca,a ′ and Ka involve joint weight–outcome behavior that is difficult to elicit directly, Section 4 evaluates them under working models in terms of interpretable design inputs. 
+
+Wald approximation. Let τ (a) denote ζ(a) or δ(a), with design-stage variance Vτ (a) on the √N scale. Consider a one-sided level α test of H0 : τ (a) = 0 against H1 : τ (a) > 0. We reject 
+
+H0 when ˆ τ (a) > z 1−α
+
+q Vτ (a) 
+
+> N
+
+. Under a prespecified alternative τ (a) = τ∗(a) > 0 with variance 
+
+Vτ∗ (a), the standard Wald approximation gives Power( N ; τ∗(a)) ≈ Φ
+
+√N τ ∗(a)
+
+pVτ∗ (a) − z1−α
+
+!
+
+,
+
+so the required sample size N to reach power 1 − β for a level-α test is 
+
+N ≈
+
+ (z1−α + z1−β )2Vτ∗ (a)
+
+τ 2 
+
+> ∗
+
+(a)
+
+
+
+. (6) The main task is therefore to specify Vτ∗ at the design stage, which the next section addresses. Proofs of Proposition 1, Equations (3)–(6), and the result Ka ≥ 0 are given in Section S1.1 of the Supplementary Material. 
+
+# 4 Design-stage calculation 
+
+This section expresses the variance components da,a ′ , Ba,a ′ , Ca,a ′ and Ka of Section 3 in terms of prespecified planning quantities under working models for the mediator and the outcome. 5We first evaluate da,a ′ under a binary-mediator working model, which does not depend on the outcome type, and then evaluate the remaining components separately for continuous and binary outcomes. Detailed derivations of the results in this section are provided in Section S1 of the Supplementary Material. Consider a probit latent-index representation for the binary mediator, 
+
+M (a) = I{fM (X) + a∆M + ϵM > 0},
+
+where ϵM ∼ N (0 , 1) is independent of X, fM (X) is the baseline component of the latent mediator propensity, and ∆ M is the treatment-induced shift. Let W = fM (X) denote this baseline-covariate summary. When fM (X) is a linear combination of standardized baseline covariates satisfying the Lyapunov-type condition in Lemma S1 of the Supplementary Material, which in essence requires that several covariates contribute to the index and none dominates it, we approximate the marginal distribution of W by N (μW , σ 2 
+
+> W
+
+). The approximation is plausible if the latent index aggregates many modest contributions rather than being driven by a single dominant covariate, or if any dominant covariates are approximately normally distributed. The former is common in practice: to make the sequential ignorability assumption credible, X is typically a rich collection of baseline covariates. This approximation is a design-stage device for translating planning inputs into variance components; the variance results of Section 3 do not depend on it. Section 5 confirms that the resulting calculations remain accurate under markedly non-Gaussian covariates. Under the latent-index representation, the conditional mediator probability is pWa (w) = 
+
+P {M (a) = 1 | W = w} = Φ( w + a∆M ), a = 0 , 1, where Φ( ·) denotes the standard normal dis-tribution function. Rather than specifying these latent parameters ( μW , σ 2 
+
+> W
+
+, ∆M ) directly, we parameterize the working model through three design inputs: the marginal mediator probabil-ities qa = P {M (a) = 1 }, a = 0 , 1, and R2 
+
+> M
+
+= σ2
+
+> W
+> 1+ σ2
+> W
+
+, the proportion of latent mediator variation explained by baseline covariates. These inputs determine the working parameters: 
+
+σ2 
+
+> W
+
+= R2
+
+> M
+
+1 − R2
+
+> M
+
+, μW = Φ−1(q0)
+
+q
+
+1 − R2
+
+> M
+
+, ∆M = Φ−1(q1) − Φ−1(q0)
+
+q
+
+1 − R2
+
+> M
+
+. (7) 
+
+Evaluation of da,a ′ . Define the working Bernoulli mass function and mediator probability ratio by gWa (m | w) = {pWa (w)}m{1 − pWa (w)}1−m and RWa,a ′ (m, w ) = gWa′ (m|w)  
+
+> gWa(m|w)
+
+. Under the working model, 
+
+da,a ′ = EW
+
+" 1X
+
+> m=0
+
+gWa (m | W ){RWa,a ′ (m, W )}2
+
+#
+
+= 1 + EW
+
+ {pWa′ (W ) − pWa (W )}2
+
+pWa (W ){1 − pWa (W )}
+
+
+
+,
+
+where EW denotes expectation over W ∼ N (μW , σ 2 
+
+> W
+
+). Given ( q0, q 1, R 2 
+
+> M
+
+), this is a one-dimensional Gaussian integral that can be evaluated numerically. 
+
+4.1 Continuous outcome 
+
+For a continuous outcome, the key step is to project the prognostic component of the potential outcome onto W . Consider the working outcome model 
+
+Y (a, m ) = fa(X) + γam + ϵa, E(ϵa | X, M (a)) = 0 ,
+
+where fa(X) is the prognostic component and γa describes the mediator–outcome pathway strength; both may differ across treatment arms. We further assume homoscedasticity Var {ϵa |
+
+W, M (a)} = σ2 
+
+> ϵ,a
+
+< ∞, and adopt a joint Gaussian working approximation for {fa(X), W }. The 6approximation is exact for jointly Gaussian covariates with linear fa(X) and W and is otherwise motivated by a multivariate Lyapunov argument (Section S1.2 of the Supplementary Material). The association between fa(X) and W is summarized by the population linear projection. For R2 
+
+> M
+
+> 0, define ba = Cov {fa(X),W }
+
+> σ2
+> W
+
+and write fa(X) = E{fa(X)} + ba(W − μW ) + ra. Under the joint Gaussian approximation, the residual ra satisfies E(ra) = 0 and is independent of W ,and hence of {M (a), W }, because M (a) depends on X only through W and an independent latent error. When R2 
+
+> M
+
+= 0, W is degenerate, ba is not defined by the ratio above, and the projection term ba(W − μW ) is omitted. The outcome model can then be written as 
+
+Y (a, m ) = E{fa(X)} + γaqa + ba(W − μW ) + γa(m − qa) + va, (8) where va = ra + ϵa satisfies E{va | W, M (a)} = 0 and E{v2 
+
+> a
+
+| W, M (a)} = Var( ra) + σ2 
+
+> ϵ,a
+
+:= σ2
+
+> v,a
+
+.
+
+These moments follow from the working models rather than being additional restrictions, and no distribution is imposed on va beyond them. Under (8), the NIE and NDE are 
+
+δ(a) = γa(q1 − q0), ζ(a) = E{f1(X)} − E{f0(X)} + ( γ1 − γ0)qa.
+
+The NIE is a pure pathway product: q1 − q0 is the treatment-induced change in mediator prevalence and γa the mediator–outcome pathway strength. The target NIE δ(a) therefore calibrates γa and thereby enters the variance components. The NDE additionally involves 
+
+E{f1(X)} − E{f0(X)}, which is unconstrained by the mediator pathway and enters none of the variance component; the target NDE ζ(a) is therefore specified as input, and affects the calculation only through the effect size in (6). When an ATE target is also prespecified, as is typical in trial planning, the NDE target is not free but implied by the decomposition ζ(a) = ATE − δ(1 − a), and should be specified accordingly. 
+
+Evaluation of Ba,a ′ . Recall Ba,a ′ = E[{Y −θ(a, a ′)}2 | A = a], which measures outcome varia-tion in arm a around θ(a, a ′). Because Y = Y (a, M (a)) given A = a, this second moment decom-poses into the variance of Y (a, M (a)) and the squared deviation of its mean θ(a, a ) from θ(a, a ′). We therefore take as a design input the marginal outcome variance S2 
+
+> a
+
+= Var {Y (a, M (a)) }, the standard variance input of conventional sample size calculations. Under the projected model (8) , 
+
+Ba,a ′ = S2 
+
+> a
+
++ γ2 
+
+> a
+
+(qa − qa′ )2.
+
+Thus, Ba,a = S2 
+
+> a
+
+, and for a′̸ = a the additional term reflects the mediator prevalence difference between the observed arm and the target. 
+
+Evaluation of Ca,a ′ . Recall Ca,a ′ = Cov 
+
+h
+
+R2 
+
+> a,a ′
+
+(M, X), {Y − θ(a, a ′)}2 | A = a
+
+i
+
+. Define the centered conditional mean ha,a ′ (m, w ) = E{Y − θ(a, a ′) | W = w, M = m, A = a} = ba(w −
+
+μW ) + γa(m − qa′ ), where the second equality holds under model (8). The mean-zero and homoscedasticity properties of va then give 
+
+Ca,a ′ = EW
+
+" 1X
+
+> m=0
+
+gWa (m | W ) {RWa,a ′ (m, W )}2 − da,a ′ h2 
+
+> a,a ′
+
+(m, W )
+
+#
+
+. (9) The mediator-related quantities in (9) are determined by ( q0, q 1, R 2 
+
+> M
+
+), and γa is calibrated from a target NIE δ(a) through γa = δ(a)/(q1 −q0); a nonzero target NIE requires q1̸ = q0, so the ratio is well defined. These inputs and S2 
+
+> a
+
+do not determine ba, so evaluating Ca,a ′ requires one additional input. We introduce κa = Corr {Y (a, M (a)) , W }, the correlation between the potential outcome and the baseline-covariate summary. Because M (a) and W are associated, translating κa into ba
+
+also requires the mediator-score covariance ξa = Cov {M (a), W }. Using the Gaussian marginal distribution of W , ξa = Cov {M (a), W } = Cov {pWa (W ), W } = R2
+
+> M
+
+√1−R2
+
+> M
+
+ϕ{Φ−1(qa)}, where ϕ
+
+7is the standard normal density, and the working outcome model gives Cov {Y (a, M (a)) , W } =
+
+baσ2 
+
+> W
+
++ γaξa. For R2 
+
+> M
+
+> 0, equating this expression with κaSaσW , where Sa = ( S2 
+
+> a
+
+)1/2, gives 
+
+ba = κaSaσW − γaξa
+
+σ2
+
+> W
+
+.
+
+Substituting this expression for ba into ha,a ′ in (9) leaves a one-dimensional expectation over 
+
+W . When R2 
+
+> M
+
+= 0, W is degenerate, so κa and the projection term are omitted and ha,a ′ (m) = 
+
+γa(m − qa′ ). 
+
+Evaluation of Ka. Because Ra,a (M, X) ≡ 1, the definition of Ka in Section 3 simplifies to 
+
+Ka = Cov [ Ra, 1−a(M, X){Y − θ(a, 1 − a)}, Y − θ(a, a ) | A = a] .
+
+Under model (8), 
+
+Ka = EW
+
+" 1X
+
+> m=0
+
+gW
+
+> 1−a
+
+(m | W ) h2
+
+> a, 1−a
+
+(m, W ) + σ2
+
+> v,a
+
+#
+
+≥ 0.
+
+The residual variance is determined by the planning inputs through 
+
+σ2 
+
+> v,a
+
+= S2 
+
+> a
+
+− b2
+
+> a
+
+σ2 
+
+> W
+
+− γ2 
+
+> a
+
+qa(1 − qa) − 2baγaξa.
+
+The requirement σ2 
+
+> v,a
+
+≥ 0 is a coherence check: a negative value indicates that the specified inputs cannot simultaneously hold under the working model. When R2 
+
+> M
+
+= 0, this expression reduces to σ2 
+
+> v,a
+
+= S2 
+
+> a
+
+− γ2 
+
+> a
+
+qa(1 − qa).
+
+Design-stage calculation. The preceding calculations determine every component of the NDE and NIE variance decompositions of Section 3. Table 1 collects the results: given the design-stage inputs (Panel A), the calibration and intermediate working quantities (Panel B) determine the variance components (Panel C), which, substituted into the variance decompositions, yield the sample size through (6). The tabulated expressions hold under Assumption 1, the oracle-ratio moment condition E{R2 
+
+> a,a ′
+
+(M, X)Y 2 | A = a} < ∞, and the working models of this subsection with the coherence condition σ2 
+
+> v,a
+
+≥ 0. 8Table 1: Design-stage inputs, working quantities, and variance components for a continuous outcome. 
+
+Quantity Notation Definition or working-model expression Design-stage inputs 
+
+Panel A. Design-stage inputs 
+
+Treatment allocation πa P (A = a), a = 0 , 1 (specified) Mediator prevalence qa P {M (a) = 1 }, a = 0 , 1 (specified) Latent mediator R2 R2
+
+> M
+
+proportion of within-arm latent-index variance explained by W (specified) Target NIE δ∗ target value of δ(a); NIE planning (specified) Target NDE ζ∗ target value of ζ(a); NDE planning (specified) Marginal outcome variance S2 
+
+> a
+
+Var {Y (a, M (a)) } (specified) Outcome–score correlation κa Corr {Y (a, M (a)) , W } (specified) 
+
+Panel B. Calibration and intermediate working quantities 
+
+Latent-score variance σ2 
+
+> W
+
+R2
+
+> M
+
+1 − R2
+
+> M
+
+R2
+
+> M
+
+Latent-score mean μW Φ−1(q0)
+
+p1 − R2
+
+> M
+
+q0, R 2
+
+> M
+
+Treatment shift ∆M Φ−1(q1) − Φ−1(q0)
+
+p1 − R2
+
+> M
+
+q0, q 1, R 2
+
+> M
+
+Mediator probability pWa (w) Φ( w + a∆M ) q0, q 1, R 2
+
+> M
+
+Mediator mass gWa (m | w) {pWa (w)}m{1 − pWa (w)}1−m q0, q 1, R 2
+
+> M
+
+Mediator ratio RWa,a ′ (m, w ) gWa′ (m | w)
+
+gWa (m | w) q0, q 1, R 2
+
+> M
+
+Pathway coefficient γa δ∗
+
+q1 − q0
+
+δ∗, q 0, q 1
+
+Mediator–score covariance ξa R2
+
+> M
+
+p1 − R2
+
+> M
+
+ϕ{Φ−1(qa)} qa, R 2
+
+> M
+
+Outcome–score coefficient ba κaSaσW − γaξa
+
+σ2
+
+> W
+
+qa, R 2 
+
+> M
+
+, S 2 
+
+> a
+
+,κa, γ a
+
+Residual variance σ2 
+
+> v,a
+
+S2 
+
+> a
+
+− b2
+
+> a
+
+σ2 
+
+> W
+
+− γ2 
+
+> a
+
+qa(1 − qa) − 2baγaξa qa, R 2 
+
+> M
+
+, S 2 
+
+> a
+
+,κa, γ a
+
+Centered mean function ha,a ′ (m, w ) ba(w − μW ) + γa(m − qa′ ) q0, q 1, R 2 
+
+> M
+
+, S 2 
+
+> a
+
+,κa, γ a
+
+Panel C. Variance components 
+
+Ratio second moment da,a ′ 1 + EW
+
+ {pWa′ (W ) − pWa (W )}2
+
+pWa (W ){1 − pWa (W )}
+
+
+
+q0, q 1, R 2
+
+> M
+
+Outcome second moment Ba,a ′ S2 
+
+> a
+
++ γ2 
+
+> a
+
+(qa − qa′ )2 q0, q 1, S 2 
+
+> a
+
+, γ a
+
+Ratio–outcome covariance Ca,a ′ EW            
+
+> "1X
+> m=0
+> gWa(m|W)
+> n
+> {RWa,a ′(m, W )}2−da,a ′
+> o
+> h2
+> a,a ′(m, W )
+> #
+
+q0, q 1, R 2 
+
+> M
+
+, S 2 
+
+> a
+
+,κa, γ a
+
+Shared-arm covariance Ka EW
+
+" 1X
+
+> m=0
+
+gW
+
+> 1−a
+
+(m | W ){h2
+
+> a, 1−a
+
+(m, W ) + σ2
+
+> v,a
+
+}
+
+# q0, q 1, R 2 
+
+> M
+
+, S 2 
+
+> a
+
+,κa, γ a
+
+4.2 Binary outcome 
+
+The mediator working model and da,a ′ are unchanged. Binary outcomes, however, have a mean-dependent variance and require a separate working model. We reevaluate Ba,a ′ , Ca,a ′ , and Ka
+
+under a latent-index outcome model. For each treatment level a, consider 
+
+Y (a, m ) = I {f ∗
+
+a (X) + γ∗
+
+a (m − qa) + ϵ∗
+
+a > 0} , ϵ∗
+
+a ∼ N (0 , 1) ,
+
+9where f ∗ 
+
+> a
+
+(X) is the prognostic component and γ∗ 
+
+> a
+
+is the mediator–outcome pathway strength, both on the latent scale, and the latent error ϵ∗ 
+
+> a
+
+is independent of {X, M (a)}. As in the continuous-outcome case, for R2 
+
+> M
+
+> 0, define eba = Cov {f ∗  
+
+> a(X),W }
+> σ2
+> W
+
+and write the population linear projection 
+
+f ∗ 
+
+> a
+
+(X) = E{f ∗ 
+
+> a
+
+(X)} + eba(W − μW ) + v∗
+
+> a
+
+,
+
+with v∗ 
+
+> a
+
+independent of {W, M (a)} under the joint Gaussian working approximation for {f ∗ 
+
+> a
+
+(X), W }.The compound latent residual u∗ 
+
+> a
+
+= v∗
+
+> a
+
++ϵ∗ 
+
+> a
+
+therefore satisfies u∗ 
+
+> a
+
+| { W, M (a)} ∼ N (0 , σ 2
+
+> u,a
+
+), where 
+
+σ2 
+
+> u,a
+
+= Var( v∗
+
+> a
+
+) + 1 .
+
+Define the standardized coefficients αρa = E{f ∗ 
+
+> a
+
+(X)}/σ u,a , bρa = eba/σ u,a , and γρa = γ∗ 
+
+> a
+
+/σ u,a .Under consistency, the conditional distribution of Y given ( A = a, M = m, W = w) is Bernoulli with event probability 
+
+ρa(w, m ) = Φ {αρa + bρa(w − μW ) + γρa (m − qa)} .
+
+The corresponding mediation functional is 
+
+θ(a, a ′) = EW
+
+" 1X
+
+> m=0
+
+gWa′ (m | W )ρa(W, m )
+
+#
+
+. (10) Given the mediator inputs ( q0, q 1, R 2 
+
+> M
+
+), the three coefficients ( αρa, b ρa, γ ρa ) in ρa(w, m ) are jointly calibrated to match the marginal event probability θ(a, a ), the outcome– W correlation κa, and the target NIE δ(a), whenever the corresponding calibration equations admit a compatible solution. 
+
+Evaluation of Ba,a ′ . Because Y is binary in arm a, its variance is θ(a, a ){1 − θ(a, a )}, so that 
+
+Ba,a ′ = θ(a, a ){1 − θ(a, a )} + {θ(a, a ) − θ(a, a ′)}2. (11) In particular, Ba,a = θ(a, a ){1 − θ(a, a )} and Ba, 1−a = θ(a, a ){1 − θ(a, a )} + δ2(a). Thus Ba,a ′
+
+is determined by the marginal event probability θ(a, a ) and the target NIE δ(a). 
+
+Evaluation of Ca,a ′ . Using the Bernoulli structure of the outcome and the centering of the squared mediator ratio around da,a ′ , Ca,a ′ can be reformulated as 
+
+Ca,a ′ = {1 − 2θ(a, a ′)}EW
+
+" 1X
+
+> m=0
+
+gWa (m | W ) {RWa,a ′ (m, W )}2 − da,a ′ ρa(W, m )
+
+#
+
+. (12) Unlike the constant residual variance in the continuous-outcome calculation, the Bernoulli vari-ance changes with ( W, M ) and is incorporated through ρa(W, m ) in (12). When a′ = a, the medi-ator ratio is identically one and Ca,a = 0. For a′̸ = a, Equation (12) is a one-dimensional expec-tation determined by the mediator inputs ( q0, q 1, R 2 
+
+> M
+
+) and the outcome inputs {θ(a, a ), κ a, δ (a)}.
+
+Evaluation of Ka. Because RWa,a ≡ 1, only the reweighting by RWa, 1−a enters the definition of 
+
+Ka in Section 3. Under the change of mediator distribution induced by this ratio, Y remains binary with event probability θ(a, 1 − a), and Ka reduces to the variance of this reweighted outcome: 
+
+Ka = θ(a, 1 − a){1 − θ(a, 1 − a)} ≥ 0; (13) 
+
+Ka requires only θ(a, 1 − a), which is determined by the design inputs θ(a, a ) and the target NIE δ(a). 
+
+Design-stage calculation The preceding calculations determine every component of the vari-ance decompositions of Section 3. Table 2 collects the results: given the design-stage in-puts (Panel A), the working quantities (Panel B) determine the variance components (Panel C), and the sample size follows from (6) as in the continuous case. Because the marginal event probabilities θ(1 , 1) and θ(0 , 0) are already required as inputs to determine the out-come variances, they and the target NIEs together determine the NDE targets through ζ(a) = 10 θ(1 , 1) − θ(0 , 0) − δ(1 − a), so the target NDE is not a separate design input here. The tabulated expressions hold under Assumption 1, the moment condition of Proposition 1, and the working models of this subsection, whenever the calibration system admits a solution compatible with the specified inputs. Table 2: Design-stage inputs, working quantities, and variance components for a binary out-come. 
+
+Quantity Notation Definition or working-model expression Design-stage inputs 
+
+Panel A. Design-stage inputs 
+
+Treatment allocation πa P (A = a), a = 0 , 1 (specified) Mediator prevalence qa P {M (a) = 1 }, a = 0 , 1 (specified) Latent mediator R2 R2
+
+> M
+
+proportion of within-arm latent-index variance explained by W (specified) Target NIE δ∗ target value of δ(a); NIE planning (specified) Marginal event probability θ(a, a ) P {Y (a, M (a)) = 1 } (specified) Outcome–score correlation κa Corr {Y (a, M (a)) , W } (specified) 
+
+Panel B. Calibration and intermediate working quantities 
+
+Latent-score variance σ2 
+
+> W
+
+R2
+
+> M
+
+1 − R2
+
+> M
+
+R2
+
+> M
+
+Latent-score mean μW Φ−1(q0)
+
+p1 − R2
+
+> M
+
+q0, R 2
+
+> M
+
+Treatment shift ∆M Φ−1(q1) − Φ−1(q0)
+
+p1 − R2
+
+> M
+
+q0, q 1, R 2
+
+> M
+
+Mediator probability pWa (w) Φ( w + a∆M ) q0, q 1, R 2
+
+> M
+
+Mediator mass gWa (m | w) {pWa (w)}m{1 − pWa (w)}1−m q0, q 1, R 2
+
+> M
+
+Mediator ratio RWa,a ′ (m, w ) gWa′ (m | w)
+
+gWa (m | w) q0, q 1, R 2
+
+> M
+
+Probit coefficients αρa, b ρa, γ ρa
+
+solved jointly from the calibration system in Section S1.4 of the Supplementary Material q0, q 1, R 2 
+
+> M
+
+, θ (a, a ),κa, δ ∗
+
+Outcome event probability ρa(w, m ) Φ{αρa + bρa(w − μW ) + γρa (m − qa)} q0, q 1, R 2 
+
+> M
+
+, θ (a, a ),κa, δ ∗
+
+Mediation functional θ(a, a ′) EW
+
+" 1X
+
+> m=0
+
+gWa′ (m | W )ρa(W, m )
+
+# q0, q 1, R 2 
+
+> M
+
+, θ (a, a ),κa, δ ∗
+
+Cross-arm functional θ(a, 1 − a) θ(a, a ) + (1 − 2a)δ∗ θ(a, a ), δ ∗
+
+Panel C. Variance components 
+
+Ratio second moment da,a ′ 1 + EW
+
+ {pWa′ (W ) − pWa (W )}2
+
+pWa (W ){1 − pWa (W )}
+
+
+
+q0, q 1, R 2
+
+> M
+
+Outcome second moment Ba,a ′ θ(a, a ){1 − θ(a, a )} + {θ(a, a ) − θ(a, a ′)}2 θ(a, a ), δ ∗
+
+Ratio–outcome covariance Ca,a ′ {1 − 2θ(a, a ′)}EW         
+
+> "1X
+> m=0
+> gWa(m|W)
+> n
+> {RWa,a ′(m, W )}2−da,a ′
+> o
+> ρa(W, m )
+> #
+
+q0, q 1, R 2 
+
+> M
+
+, θ (a, a ),κa, δ ∗
+
+Shared-arm covariance Ka θ(a, 1 − a){1 − θ(a, 1 − a)} θ(a, a ), δ ∗
+
+# 5 Numerical study 
+
+We conduct simulations to assess whether the proposed design-stage sample size calculation attains the nominal power for natural indirect and direct effects, followed by a design-calibration example based on the ACTG175 trial. 11 All simulation scenarios use a randomized trial with fixed 1:1 treatment allocation. For each estimand, its true value serves as the design alternative τ∗(a) in Equation (6), and the working-model variance in Section 4 determines the analytic sample size N for 80% power at a one-sided level α = 0 .05. We estimate power from 500 Monte Carlo replications at N and obtain a simulation-based benchmark Nsim by interpolating the simulated power curve. Accordingly, 
+
+N/N sim close to one and empirical power close to 0.80 indicate good calibration. Let X ∈ R10 denote the baseline covariates. We consider two covariate designs with mutually independent components. In the Gaussian design, the components of X are standard normal variables. In the mixed design, X contains standardized Bernoulli, uniform, Poisson, gamma, and beta components. The binary mediator is generated from the probit model 
+
+P (M = 1 | A = a, X) = pa(X) = Φ( W + a∆M ), W = μW + X⊤βM ,
+
+so that W is the baseline-covariate summary of Section 4. The intercept μW and the treatment shift ∆ M are calibrated so that E{p0(X)} = q0 and E{p1(X)} = q1, and the coefficient vector 
+
+βM is scaled so that R2 
+
+> M
+
+= Var( X⊤βM )1+Var( X⊤βM ) attains its design value. Complete distributional specifications are provided in Section S2 of the Supplementary Material. In the Gaussian design, W is exactly normal, so the mediator working model holds exactly; the mixed design departs from normality and probes the Gaussian approximation to W .
+
+5.1 Continuous outcome 
+
+The continuous outcome is generated as 
+
+Y = ηA + fY (X) + γAM + ϵA, fY (X) = X⊤βY , ϵA ∼ N (0 , σ 2
+
+> A
+
+).
+
+The coefficient vectors βM and βY are chosen so that Corr {W, f Y (X)} = ρ. The design there-fore allows the baseline covariates to jointly predict the mediator and the outcome, and it al-lows treatment–mediator interaction through γ0̸ = γ1. Under this data-generating mechanism, 
+
+θ(a, a ′) = E{ηa + fY (X) + γapa′ (X)} = ηa + γaqa′ , so the natural effects are δ(a) = γa(q1 − q0)and ζ(a) = η1 − η0 + ( γ1 − γ0)qa. We evaluate the four natural-effect estimands δ(1), δ(0), ζ(1), and ζ(0). The baseline setting uses π1 = 0 .5, q0 = 0 .35, q1 = 0 .55, R2 
+
+> M
+
+= 0 .25, ρ = 0 .5, η0 =0, η1 − η0 = 0 .08, γ0 = γ1 = 0 .4, and σ0 = σ1 = 1. We consider a range of simulation panels, each varying one design feature around this baseline. Complete panel definitions and the corresponding mixed-covariate results for both outcome types are provided in Section S2 of the Supplementary Material. Table 3 reports the oracle-ratio results under Gaussian covariates: for each estimand and panel setting, the analytic N , the benchmark Nsim , and the empirical power at N , with both N
+
+and Nsim computed using the oracle mediator probability ratios. The analytic calculation is well calibrated across the continuous-outcome settings. The results below are computed with the oracle mediator probability ratios; the estimated-ratio analysis is reported afterward. Under Gaussian covariates (Table 3), the mean empirical power at N is 0.799, with values ranging from 0.766 to 0.846 across panels and estimands, and the average ratio N/N sim is 0.997. Under mixed covariates (Table S2 of the Supplementary Material), the corresponding figures are 0.804, 0.750 to 0.842, and 1.002. In both designs the analytic formula therefore produces sample sizes close to those obtained by direct simulation, and the close agreement between the two designs shows that the accuracy of the calculation does not depend on Gaussian covariates. 12 Table 3: Oracle-ratio continuous-outcome simulations with Gaussian covariates.                                                                                                                                                                                                                                                                          
+
+> δ(1) δ(0) ζ(1) ζ(0) Setting NNsim Power NNsim Power NNsim Power NNsim Power Baseline 437 455 0.786 477 467 0.802 5246 5506 0.794 5166 5610 0.790
+> γ0=γ1= 0 .21757 1786 0.810 1916 1916 0.800 5066 5116 0.806 5013 5123 0.784
+> γ0=γ1= 0 .4436 425 0.804 476 482 0.794 5235 5385 0.772 5155 5560 0.796
+> γ0=γ1= 0 .6194 186 0.814 212 214 0.798 5514 5622 0.780 5395 5395 0.800
+> η1−η0= 0 .04 436 457 0.774 475 504 0.790 20963 20072 0.794 20644 20037 0.794
+> η1−η0= 0 .08 438 439 0.834 477 486 0.792 5246 5222 0.806 5166 5246 0.786
+> η1−η0= 0 .12 437 448 0.794 476 434 0.818 2331 2423 0.784 2296 2450 0.788
+> {q0, q 1}={0.40 ,0.60 }449 419 0.846 449 425 0.822 5195 5084 0.808 5195 5077 0.808
+> {q0, q 1}={0.20 ,0.40 }462 468 0.796 701 743 0.780 5497 5073 0.808 5092 4794 0.832
+> {q0, q 1}={0.60 ,0.80 }702 672 0.824 462 437 0.822 5086 4930 0.810 5491 6011 0.770
+> R2
+> M= 0 363 385 0.772 394 401 0.794 5028 4847 0.798 4971 4788 0.818
+> R2
+> M= 0 .25 436 431 0.806 475 503 0.796 5240 5241 0.796 5160 5221 0.782
+> R2
+> M= 0 .50 586 572 0.810 642 609 0.826 5461 5408 0.766 5358 5310 0.804
+> ρ= 0 449 444 0.786 491 488 0.802 5129 5081 0.802 5062 5099 0.782
+> ρ= 0 .5436 416 0.826 475 486 0.788 5236 5589 0.772 5156 5134 0.802
+> ρ= 0 .8428 433 0.796 465 479 0.796 5309 5239 0.824 5222 5137 0.806
+> {γ0, γ 1}={0.30 ,0.50 }279 283 0.796 848 874 0.810 933 938 0.798 1474 1421 0.826
+> {γ0, γ 1}={0.20 ,0.60 }194 203 0.782 1915 2053 0.798 375 378 0.798 685 734 0.770
+
+We perform two additional checks. First, we estimate the mediator probability ratios within each simulated trial using a probit model. Because the analytic variance does not include the first-order contribution of nuisance estimation, this estimated-ratio analysis serves as an empirical robustness check. It gives a mean empirical power of 0.799 (range 0.748–0.846), pooled across covariate designs, panels, and estimands. Second, under null NIE and NDE scenarios, the type-I errors are 0.056 and 0.050 using oracle ratios and 0.051 and 0.046 using estimated ratios, all close to the nominal 0.05 level. Detailed results are reported in Section S3 of the Supplementary Material. 
+
+5.2 Binary outcome 
+
+The binary outcome is generated from the probit model 
+
+P (Y = 1 | A = a, M = m, X) = μa(m, X) = Φ {αY + ηa + fY (X) + γam},fY (X) = X⊤βY . The intercept αY is calibrated so that θ(0 , 0) equals the target risk r0. Under this data-generating mechanism, θ(a, a ′) = E [μa(1 , X)pa′ (X) + μa(0 , X){1 − pa′ (X)}] , where 
+
+pa′ (X) = P (M = 1 | A = a′, X). As in the continuous-outcome study, we evaluate δ(1), δ(0), 
+
+ζ(1), and ζ(0). The baseline setting uses π1 = 0 .5, q0 = 0 .35, q1 = 0 .55, R2 
+
+> M
+
+= 0 .25, ρ = 0 .5, 
+
+η0 = 0, η1 = 0 .25, γ0 = γ1 = 0 .35, and r0 = 0 .30. The simulation panels vary one design feature around this baseline as in the continuous case, panel definitions are given in Section S2 of the Supplementary Material. Table 4 reports the oracle-ratio results under Gaussian covariates: for each estimand and panel setting, the analytic N , the benchmark Nsim , and the empirical power at N , with both 
+
+N and Nsim computed using the oracle mediator probability ratios. The analytic calculation is also well calibrated for binary outcomes. Under Gaussian covariates, the mean empirical power at N is 0.804, with values ranging from 0.764 to 0.844 across panels and estimands, and the average ratio N/N sim is 1.019. Under mixed covariates (Table S4 of the Supplementary Material), the corresponding figures are 0.798, 0.748 to 0.848, and 1.008. The analytic sample sizes are thus close to the direct simulation benchmarks, and the close agreement again shows that the accuracy of the calculation does not depend on Gaussian covariates. 13 Table 4: Oracle-ratio binary-outcome simulations with Gaussian covariates.                                                                                                                                                                                                                                                                                            
+
+> δ(1) δ(0) ζ(1) ζ(0) Setting NNsim Power NNsim Power NNsim Power NNsim Power Baseline 923 909 0.808 1087 1094 0.786 885 883 0.808 879 867 0.810
+> γ0=γ1= 0 .20 2851 2968 0.786 3302 3085 0.796 861 841 0.824 859 823 0.812
+> γ0=γ1= 0 .35 920 913 0.796 1085 1005 0.830 883 891 0.796 877 882 0.784
+> γ0=γ1= 0 .50 449 445 0.812 538 538 0.800 920 871 0.800 909 870 0.810
+> η1−η0= 0 .15 938 985 0.780 1084 1088 0.828 2495 2320 0.766 2466 2349 0.818
+> η1−η0= 0 .25 924 885 0.802 1088 1041 0.794 885 844 0.804 879 827 0.828
+> η1−η0= 0 .35 910 906 0.808 1086 1077 0.804 445 417 0.796 443 426 0.820
+> {q0, q 1}={0.40 ,0.60 }952 1037 0.786 1031 1036 0.810 876 787 0.818 881 799 0.816
+> {q0, q 1}={0.20 ,0.40 }952 941 0.824 1549 1638 0.772 930 905 0.800 874 857 0.812
+> {q0, q 1}={0.60 ,0.80 }1478 1434 0.814 1056 1045 0.832 855 845 0.816 917 939 0.798
+> R2
+> M= 0 750 723 0.822 901 874 0.786 848 856 0.796 840 841 0.794
+> R2
+> M= 0 .25 920 995 0.772 1084 1012 0.800 884 846 0.780 878 838 0.804
+> R2
+> M= 0 .50 1234 1092 0.806 1461 1460 0.816 923 895 0.802 917 895 0.818
+> ρ= 0 923 898 0.806 1124 1038 0.844 865 880 0.770 856 842 0.806
+> ρ= 0 .5920 875 0.828 1085 1075 0.816 884 910 0.780 877 884 0.764
+> ρ= 0 .8917 895 0.818 1059 1027 0.786 897 897 0.800 892 819 0.792
+> {γ0, γ 1}={0.25 ,0.45 }549 578 0.818 2118 2132 0.768 403 406 0.776 510 486 0.830
+> {γ0, γ 1}={0.15 ,0.55 }364 377 0.788 5854 6142 0.802 229 218 0.832 335 332 0.814
+> r0= 0 .15 1122 1117 0.802 1477 1436 0.792 1122 1116 0.804 1123 1109 0.820
+> r0= 0 .30 923 930 0.798 1087 1076 0.822 885 833 0.786 879 853 0.806
+> r0= 0 .50 935 905 0.812 987 1046 0.790 849 824 0.808 836 819 0.834
+
+The two additional checks give the same picture as in the continuous outcome. Estimating the mediator probability ratios within each simulated trial gives mean empirical power 0.800 (range 0.758 to 0.850) pooled across covariate designs, panels, and estimands, nearly identical to the oracle-ratio analysis. In null scenarios, the type-I errors of the Wald test are 0.051 for the NIE and 0.052 for the NDE in the oracle-ratio analysis, and 0.046 and 0.050 in the estimated-ratio analysis, all close to the nominal 0.05 level. Detailed binary-outcome results are reported in Section S3 of the Supplementary Material. As a complementary comparison, we evaluate the power of the natural-effect tests in tri-als sized for the ATE. In three representative continuous-outcome and three binary-outcome Gaussian-covariates settings, we compute the two-arm ATE sample size NATE for 80% power and evaluate the tests in 1000 simulated trials of that size. Empirical ATE power ranges from 0.790 to 0.816, whereas power ranges from 0.249 to 1.000 for the NIE and from 0.199 to 0.655 for the NDE. Because ATE-based planning does not incorporate the mediator pathway, NATE 
+
+may be smaller or larger than the sample size required for a prespecified natural effect. The complete comparison is reported in Section S4 of the Supplementary Material. 
+
+5.3 ACTG175 design-calibration example 
+
+We illustrate how pilot trial data can calibrate the design inputs of the proposed calculation using the ACTG175 randomized trial, which compared zidovudine monotherapy with other antiretroviral therapies in adults with HIV infection and baseline CD4 T-cell counts between 200 and 500 cells per cubic millimeter [Hammer et al., 1996]. The data are available through the speff2trial package [Juraska et al., 2022]. We define A = 0 as zidovudine monotherapy and A = 1 as the pooled other therapy arms. The primary mediator is the early immunologic response M = I(∆CD4 ≥ 50), where ∆CD4 is the change in CD4 T-cell count from baseline to week 20. The 50-cell threshold is consistent with previously used definitions of short-term immunologic response [Bisson et al., 2006, Moore et al., 2009, Boatman et al., 2019]; thresholds of 25 and 100 cells are considered in sensitivity 14 analyses. The outcome is an indicator of remaining free through week 96 of CD4 decline of at least 50 cells, progression to AIDS, or death. We restrict the analysis to participants with observed mediator and outcome, yielding a working pilot population of 1941 participants (468 in arm 0 and 1473 in arm 1). At the 25-, 50-, and 100-cell thresholds, mediator prevalences are 0.314, 0.231, and 0.103 in arm 0 and 0.506, 0.428, and 0.258 in arm 1; the corresponding arm-specific 96-week event-free proportions are 0.752 and 0.870. For illustration, we do not address the missingness in the mediator and the outcome; these quantities are used only as descriptive pilot-calibration inputs for illustrating how the proposed formulas operate and should not be interpreted as causal NIE or NDE estimates for the full randomized cohort. For each threshold, we fit a probit model for P (M = 1 | A, X) using baseline covariates and use the resulting mediator probability ratios in the RMPW estimators. At the corresponding design-stage sample size N , we estimate power from 500 arm-stratified bootstrap resamples that preserve the observed allocation ratio. For each resample, we recompute the RMPW point estimate and apply the one-sided Wald-type test using the corresponding design-stage variance. Additional details on the construction of the pilot population, calibration of the design inputs, and resampling procedure are provided in Section S5 of the Supplementary Material. Table 5: ACTG175 pilot-calibrated design quantities and fixed-ratio resampling results by me-diator threshold.                                                                      
+
+> Mediator definition Estimand Pilot target VNResampling power ∆CD4 ≥25 δ(1) 0.0293 0.0251 181 0.812 (0.017)
+> δ(0) 0.0373 0.1054 469 0.780 (0.019)
+> ζ(1) 0.0809 0.8598 813 0.788 (0.018)
+> ζ(0) 0.0889 1.0019 784 0.786 (0.018) ∆CD4 ≥50 δ(1) 0.0285 0.0229 174 0.790 (0.018)
+> δ(0) 0.0333 0.1260 705 0.778 (0.019)
+> ζ(1) 0.0849 0.8997 771 0.788 (0.018)
+> ζ(0) 0.0897 0.9983 768 0.800 (0.018) ∆CD4 ≥100 δ(1) 0.0191 0.0121 207 0.780 (0.019)
+> δ(0) 0.0259 0.1275 1174 0.816 (0.017)
+> ζ(1) 0.0923 0.9354 680 0.814 (0.017)
+> ζ(0) 0.0991 0.9703 611 0.788 (0.018)
+> Pilot target is the normalized RMPW estimate obtained from the full pilot sample. Vis the model-implied design-stage variance, and Nis the sample size for 80% power under a one-sided level-0.05 test. Resampling power and its Monte Carlo standard error are based on 500 arm-preserving resamples at N. The 50-cell threshold is the primary mediator definition.
+
+Table 5 reports the pilot-calibrated targets, design-stage variances, sample sizes, and resam-pling power. At the primary 50-cell threshold, the pilot targets are 0.029 for δ(1), 0.033 for 
+
+δ(0), 0.085 for ζ(1), and 0.090 for ζ(0). Despite the similar NIE targets, δ(1) and δ(0) require markedly different sample sizes, 174 and 705, because their design-stage variances are 0.0229 and 0.1260. This contrast reflects differences in the effect-specific treatment arm, mediator overlap, outcome variation, and shared-arm covariance. At the 100-cell threshold, the required sample size for δ(0) increases to 1174, whereas those for ζ(1) and ζ(0) decrease to 680 and 611. Across all 12 threshold–estimand combinations, resampling power ranges from 0.778 to 0.816, close to the target of 0.80. Figure 1 shows how the sample size required for each natural effect responds to changes in the design inputs. Starting from the working laws calibrated at the primary threshold, we vary one input at a time, holding the others fixed, and recompute the natural effects, design-stage variances, and required sample sizes. The inputs varied are the latent treatment–mediator shift ∆ M , the mediator–outcome pathway coefficients γρa scaled jointly across arms, and the 15 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0 200  400  600  800  1000        
+
+> A. Mediator shift
+> Ep1 (X)− p0 (X)
+> Required sample size delta(1) delta(0) zeta(1) zeta(0) 0 1000  2000  3000  4000  5000
+> B. Mediator−outcome strength
+> Scaled mediator−outcome coefficient Required sample size 0.5 γa1γa1.5 γadelta(1) delta(0) zeta(1) zeta(0) 0.3 0.4 0.5 0.6 0.7 0.8 0 200  400  600  800  1000
+> C. Treatment allocation
+> π1Required sample size delta(1) delta(0) zeta(1) zeta(0)
+> CD4 increase >= 50 at 20 weeks
+
+Figure 1: ACTG175-calibrated working-design sensitivity for the primary mediator definition 
+
+M = 1 {∆CD4 ≥ 50 }. The panels vary the latent-probit treatment-to-mediator shift, jointly scale the arm-specific mediator–outcome coefficients γρa , and vary the treatment allocation while holding the remaining pilot-calibrated quantities fixed. Vertical dotted lines indicate the baseline values. treatment allocation π1. Each panel plots N against one input, with the pilot-calibrated value indicated by a vertical dotted line. The required sample size is most sensitive to the mediator– outcome pathway: as γρa decreases, the variance-to-squared-effect ratio increases, leading to a particularly sharp increase in the sample sizes for the indirect effects. Changes in ∆ M have more moderate, estimand-specific effects. The allocation π1 also produces different patterns because the four estimators draw information differently from the two treatment arms; hence, the allocation minimizing N need not be the same across natural effects. 
+
+# 6 Conclusion 
+
+This paper develops power and sample size calculation methods for causal mediation analy-sis with a binary mediator in randomized trials, using the RMPW estimators. The variance decomposition of Section 3 makes explicit how the required sample size depends on treatment allocation, mediator prevalence and overlap, outcome variation, the mediator–outcome pathway, and the outcome–covariate association, and the working models of Section 4 reduce these to a small set of design-stage inputs for continuous and binary outcomes. For a binary outcome, the marginal event probabilities replace the outcome variances as inputs, and the direct effects are then determined by the event probabilities and the indirect effects. Simulation studies showed that the analytic calculations are well calibrated for both outcome types and under both Gaus-sian and non-Gaussian covariates, with similar empirical power under oracle and estimated mediator probability ratios. The ACTG175 example illustrated how pilot data can calibrate the design inputs and showed that the required sample size, and the allocation that minimizes it, differ across natural effects even at similar effect sizes. Future work could extend the design calculations to alternative causal mediation estimands, such as interventional effects, and to settings with multivalued or longitudinal mediators. 
+
+# References 
+
+Reuben M Baron and David A Kenny. The moderator–mediator variable distinction in so-cial psychological research: Conceptual, strategic, and statistical considerations. Journal of Personality and Social Psychology , 51(6):1173, 1986. 16 Edward Bein, Jonah Deutsch, Guanglei Hong, Kristin E Porter, Xu Qin, and Cheng Yang. Two-step estimation in ratio-of-mediator-probability weighted causal mediation analysis. Statistics in Medicine , 37(8):1304–1324, 2018. Gregory P Bisson, Robert Gross, Jordan B Strom, Caitlin Rollins, Scarlett Bellamy, Rachel Weinstein, Harvey Friedman, Diana Dickinson, Ian Frank, Brian L Strom, et al. Diagnos-tic accuracy of cd4 cell count increase for virologic response after initiating highly active antiretroviral therapy. AIDS , 20(12):1613–1619, 2006. Jeffrey A Boatman, Jason V Baker, Sean Emery, Hansjakob Furrer, David M Mushatt, Dalibor Sedl´ aˇ cek, Jens D Lundgren, James D Neaton, INSIGHT START Study Group, et al. Risk factors for low cd4+ count recovery despite viral suppression among participants initiating antiretroviral treatment with cd4+ counts¿ 500 cells/mm3: findings from the strategic timing of antiretroviral therapy (start) trial. Journal of Acquired Immune Deficiency Syndromes , 81 (1):10–17, 2019. Zach Branson, Xinran Li, and Peng Ding. Power and sample size calculations for rerandomiza-tion. Biometrika , 111(1):355–363, 2024. Shein-Chung Chow, Jun Shao, Hansheng Wang, and Yuliya Lokhnygina. Sample size calcula-tions in clinical research . Chapman and Hall/CRC, 2017. William D Dupont and Walton D Plummer Jr. Power and sample size calculations: a review and computer program. Controlled Clinical Trials , 11(2):116–128, 1990. Matthew S Fritz and David P MacKinnon. Required sample size to detect the mediated effect. 
+
+Psychological Science , 18(3):233–239, 2007. Scott M. Hammer et al. A trial comparing nucleoside monotherapy with combination therapy in hiv-infected adults with cd4 cell counts from 200 to 500 per cubic millimeter. New England Journal of Medicine , 335:1081–1090, 1996. Hiddo JL Heerspink, David Cherney, Douwe Postmus, Bergur V Stef´ ansson, Glenn M Chertow, Jamie P Dwyer, Tom Greene, Mikhail Kosiborod, Anna Maria Langkilde, John JV McMurray, et al. A pre-specified analysis of the dapagliflozin and prevention of adverse outcomes in chronic kidney disease (dapa-ckd) randomized controlled trial on the incidence of abrupt declines in kidney function. Kidney International , 101(1):174–184, 2022. Guanglei Hong, Jonah Deutsch, and Heather D Hill. Ratio-of-mediator-probability weighting for causal mediation analysis in the presence of treatment-by-mediator interaction. Journal of Educational and Behavioral Statistics , 40(3):307–340, 2015. Martin Huber. Identifying causal mechanisms (primarily) based on inverse probability weight-ing. Journal of Applied Econometrics , 29(6):920–943, 2014. Kosuke Imai, Luke Keele, and Dustin Tingley. A general approach to causal mediation analysis. 
+
+Psychological Methods , 15(4):309, 2010a. Kosuke Imai, Luke Keele, and Teppei Yamamoto. Identification, inference and sensitivity anal-ysis for causal mediation effects. Statistical Science , 25(1):51–71, 2010b. Michal Juraska, Peter B. Gilbert, Xiaomin Lu, Min Zhang, Marie Davidian, and Anastasios A. Tsiatis. speff2trial: Semiparametric Efficient Estimation for a Two-Sample Treatment Effect ,2022. URL https://CRAN.R-project.org/package=speff2trial . R package version 1.0.5. 17 Benjamin Kelcey, Nianbo Dong, Jessaca Spybrook, and Kyle Cox. Statistical power for causally defined indirect effects in group-randomized trials with individual-level mediators. Journal of Educational and Behavioral Statistics , 42(5):499–530, 2017. John M Lachin. Introduction to sample size determination and power analysis for clinical trials. 
+
+Controlled Clinical Trials , 2(2):93–113, 1981. Hopin Lee, Aidan G Cashin, Sarah E Lamb, Sally Hopewell, Stijn Vansteelandt, Tyler J Van-derWeele, David P MacKinnon, Gemma Mansell, Gary S Collins, Robert M Golub, et al. A guideline for reporting mediation analyses of randomized trials and observational studies: the agrema statement. JAMA , 326(11):1045–1056, 2021. Bo Liu, Chengxin Yang, and Fan Li. Sample size and power calculations for causal inference in observational studies. The Annals of Statistics , 54(4):2191–2208, 2026. David P MacKinnon, Chondra M Lockwood, Jeanne M Hoffman, Stephen G West, and Virgil Sheets. A comparison of methods to test mediation and other intervening variable effects. 
+
+Psychological Methods , 7(1):83, 2002. David M Moore, Ross Harris, Viviane Lima, Bob Hogg, Margaret May, Benita Yip, Amy Justice, Amanda Mocroft, Peter Reiss, Fiona Lampe, et al. Effect of baseline cd4 cell counts on the clinical significance of short-term immunologic response to antiretroviral therapy in individuals with virologic suppression. Journal of Acquired Immune Deficiency Syndromes ,52(3):357–363, 2009. Xu Qin. Sample size and power calculations for causal mediation analysis: A tutorial and shiny app. Behavior Research Methods , 56(3):1738–1769, 2024. JD Ralston, AJ Cook, ML Anderson, SL Catz, PA Fishman, J Carlson, R Johnson, and BB Green. Home blood pressure monitoring, secure electronic messaging and medication intensification for improving hypertension control. Applied Clinical Informatics , 5(01):232– 248, 2014. Judith JM Rijnhart, Matthew J Valente, Heather L Smyth, and David P MacKinnon. Statistical mediation analysis for models with a binary mediator and a binary outcome: the differences between causal and traditional mediation analysis. Prevention Science , 24(3):408–418, 2023. James M Robins. Semantics of causal dag models and the identification of direct and indirect effects. Highly Structured Stochastic Systems , pages 70–82, 2003. Alexander M Schoemann, Aaron J Boulton, and Stephen D Short. Determining power and sample size for simple and complex mediation models. Social Psychological and Personality Science , 8(4):379–386, 2017. Alejandro Schuler. Designing efficient randomized trials: power and sample size calculation when using semiparametric efficient estimators. The International Journal of Biostatistics ,18(1):151–171, 2022. Bonnie E Shook-Sa and Michael G Hudgens. Power and sample size for observational studies of point exposure effects. Biometrics , 78(1):388–398, 2022. Mats Julius Stensrud and Susanne Strohmaier. Diastolic hypotension due to intensive blood pressure therapy: is it harmful? Atherosclerosis , 265:29–34, 2017. Eric J Tchetgen Tchetgen and Ilya Shpitser. Semiparametric theory for causal mediation anal-ysis: efficiency bounds, multiple robustness, and sensitivity analysis. Annals of Statistics , 40 (3):1816, 2012. 18 Felix Thoemmes, David P MacKinnon, and Mark R Reiser. Power analysis for complex me-diational designs using monte carlo methods. Structural Equation Modeling , 17(3):510–534, 2010. Sjouke Vandenberghe, Luc Duchateau, Leen Slaets, Jan Bogaerts, and Stijn Vansteelandt. Sur-rogate marker analysis in cancer clinical trials through time-to-event mediation techniques. 
+
+Statistical Methods in Medical Research , 27(11):3367–3385, 2018. Eric Vittinghoff, ´S Sen, and CE McCulloch. Sample size calculations for evaluating mediation. 
+
+Statistics in Medicine , 28(4):541–557, 2009. Janet Wittes. Sample size calculations for randomized controlled trials. Epidemiologic Reviews ,24(1):39–53, 2002. 19 Supplementary Material for “Power and sample size calculations for causal mediation analysis with a binary mediator in random-ized trials” 
+
+The Supplementary Material is organized as follows. Section S1 provides proofs and derivations for the main-text results, including the oracle RMPW variance decomposition, a Lyapunov central limit theorem, and the continuous- and binary-outcome design-stage variance formulas. Section S2 describes the complete simulation settings and reports additional oracle-ratio results. Section S3 presents simulation results when the mediator probability ratios are estimated within each simulated trial. Section S4 compares natural-effect-based planning with conventional total-effect-based planning. Section S5 documents the construction of the ACTG175 pilot population, the calibration of the design inputs, and the resampling procedure used in the design illustration. Finally, Section S6 develops the continuous-mediator regression working model and provides the corresponding theorem and corollary proofs. 
+
+# S1 Proofs for main-text theoretical results 
+
+This section collects an auxiliary normal-approximation result and proof details deferred from the main text. The proof of the oracle variance decomposition is followed by a Lyapunov central limit theorem that motivates the Gaussian baseline-score working approximation, the derivation of the continuous-outcome and binary outcome design-stage variances, in the order in which these results appear in Section 4. 
+
+S1.1 Proof of the oracle RMPW variance decomposition 
+
+Proof of Proposition 1 and the Section 3 contrast formulas. Let 
+
+SN (a, a ′) = N −1
+
+> N
+
+X
+
+> i=1
+
+I(Ai = a)Ra,a ′ (Mi, Xi)Yi
+
+and 
+
+DN (a, a ′) = N −1
+
+> N
+
+X
+
+> i=1
+
+I(Ai = a)Ra,a ′ (Mi, Xi).
+
+By identification and the definition of the mediator probability ratio, 
+
+E{SN (a, a ′)} = πaθ(a, a ′), E{DN (a, a ′)} = πa.
+
+A first-order Taylor expansion of SN (a, a ′)/D N (a, a ′) around these expectations gives 
+
+√N {ˆθ(a, a ′) − θ(a, a ′)} = 1
+
+√N
+
+> N
+
+X
+
+> i=1
+
+I(Ai = a)
+
+πa
+
+Ra,a ′ (Mi, Xi){Yi − θ(a, a ′)} + op(1) .
+
+The assumed second moment condition and the central limit theorem then yield Proposition 1 and the variance (1). The design-effect decomposition (2) follows from 
+
+E(R2U 2 | A = a) = E(R2 | A = a)E(U 2 | A = a) + Cov( R2, U 2 | A = a),
+
+with R = Ra,a ′ (M, X) and U = Y − θ(a, a ′). The identity da,a ′ = 1 + Var {Ra,a ′ (M, X) | A = a}
+
+follows from E{Ra,a ′ (M, X) | A = a} = 1. For a binary mediator, conditioning on X gives 
+
+E{R2 
+
+> a,a ′
+
+(M, X) | X, A = a} = p2 
+
+> a′
+
+(X)
+
+pa(X) + {1 − pa′ (X)}2
+
+1 − pa(X) ,
+
+20 and averaging over X gives the displayed expression for da,a ′ in the main text. For the direct effect, the influence functions for θ(1 , a ) and θ(0 , a ) are supported on disjoint treatment arms. Their covariance is therefore zero, and substituting the arm-specific variance decomposition gives (3). For the indirect effect, both components are estimated within arm a,so the influence-function contrast is 
+
+I(A = a)
+
+πa
+
+[Ra, 1(M, X){Y − θ(a, 1) } − Ra, 0(M, X){Y − θ(a, 0) }] .
+
+Taking its second moment gives (4). Expanding the square and applying the same decomposition to the two diagonal terms gives (5). To establish the nonnegativity of Ka, note that Ra,a (M, X) = 1 and, for a′ ∈ { 0, 1},
+
+E Ra,a ′ (M, X){Y − θ(a, a ′)} | A = a = 0 .
+
+Using the symmetry of covariance, it follows that 
+
+Ka = E [Ra, 1−a(M, X){Y − θ(a, 1 − a)}{ Y − θ(a, a )} | A = a]= E Ra, 1−a(M, X){Y − θ(a, 1 − a)}2 | A = a
+
++ {θ(a, 1 − a) − θ(a, a )}E [Ra, 1−a(M, X){Y − θ(a, 1 − a)} | A = a]= E Ra, 1−a(M, X){Y − θ(a, 1 − a)}2 | A = a ≥ 0,
+
+because the mediator probability ratio is nonnegative. Finally, suppose that for the target contrast τ (a), 
+
+√N {ˆτ (a) − τ (a)} d
+
+→ N {0, V τ∗ (a)}
+
+under the design alternative τ (a) = τ∗(a). For a one-sided test in the prespecified direction, the Wald statistic is approximately normal with unit variance and mean √N |τ∗(a)|/pVτ∗ (a). Thus the approximate power is Φ
+
+√N |τ∗(a)|
+
+pVτ∗ (a) − z1−α
+
+!
+
+.
+
+Equating this expression to 1 − β and rounding upward yields (6). 
+
+S1.2 A Lyapunov central limit theorem for baseline-covariate scores 
+
+The following result restates Theorem 1 of Liu et al. [2026]. It gives a sufficient Lyapunov condition under which a weighted covariate score is asymptotically Gaussian. 
+
+Lemma S1. Let X1, X 2, . . . be independent random variables, each with mean 0 and variance 1. Let β1, β 2, . . . be real coefficients. Suppose that there exists a positive constant B < ∞ such that E(X4 
+
+> j
+
+) < B for every j, and 
+
+max 1≤j≤p β2
+
+> j
+
+Ppj=1 β2
+
+> j
+
+= o(1) .
+
+Then, as p → ∞ , Ppj=1 βj Xj
+
+Ppj=1 β2
+
+> j
+
+1/2
+
+> d
+
+−→ N (0 , 1) .
+
+A corresponding multivariate approximation can be obtained by applying the same Lya-punov argument to every fixed linear combination and invoking the Cram´ er–Wold device, pro-vided that the limiting covariance matrix exists. Here these results motivate the Gaussian working approximations; they are not used as identification assumptions. 21 S1.3 Derivation of the continuous-outcome design-stage variances 
+
+To establish the parameterization in (7), recall that W ∼ N (μW , σ 2 
+
+> W
+
+) and ϵM ∼ N (0 , 1) are independent. Therefore, 
+
+W + a∆M + ϵM ∼ N (μW + a∆M , 1 + σ2 
+
+> W
+
+),
+
+and hence 
+
+qa = P {M (a) = 1 } = P (W + a∆M + ϵM > 0) = Φ 
+
+ μW + a∆M
+
+q
+
+1 + σ2
+
+> W
+
+ .
+
+Writing za = Φ −1(qa) gives 
+
+μW + a∆M =
+
+q
+
+1 + σ2 
+
+> W
+
+za.
+
+Moreover, 
+
+R2 
+
+> M
+
+= σ2
+
+> W
+
+1 + σ2
+
+> W
+
+=⇒ σ2 
+
+> W
+
+= R2
+
+> M
+
+1 − R2
+
+> M
+
+,
+
+q
+
+1 + σ2 
+
+> W
+
+= 1
+
+q
+
+1 − R2
+
+> M
+
+.
+
+Setting a = 0 and then subtracting the equation for a = 0 from that for a = 1 yields the expressions for μW and ∆ M in (7). Next, 
+
+ξa = Cov {Φ( W + a∆M ), W }.
+
+Stein’s identity gives 
+
+ξa = σ2 
+
+> W
+
+E{ϕ(W + a∆M )}.
+
+Because W + a∆M is normal with mean μW + a∆M and variance σ2 
+
+> W
+
+,
+
+E{ϕ(W + a∆M )} = 1
+
+q
+
+1 + σ2
+
+> W
+
+ϕ
+
+ μW + a∆M
+
+q
+
+1 + σ2
+
+> W
+
+ ,
+
+Substituting (7) yields 
+
+ξa = R2
+
+> M
+
+q
+
+1 − R2
+
+> M
+
+ϕ{Φ−1(qa)}.
+
+The formulas for ba and σ2 
+
+> v,a
+
+follow by matching the two design inputs S2 
+
+> a
+
+and κa. Under (8) with m = M (a), 
+
+Y (a, M (a)) = E{fa(X)} + γaqa + ba(W − μW ) + γa{M (a) − qa} + va.
+
+Because E{va | W, M (a)} = 0, the residual is uncorrelated with both W and M (a). Hence Cov {Y (a, M (a)) , W } = baσ2 
+
+> W
+
++ γaξa.
+
+On the other hand, Cov {Y (a, M (a)) , W } = κaSaσW .
+
+For R2 
+
+> M
+
+> 0, equating the two expressions gives 
+
+ba = κaSaσW − γaξa
+
+σ2
+
+> W
+
+.
+
+22 Similarly, using Var {M (a)} = qa(1 − qa), Cov {M (a), W } = ξa, and E{v2 
+
+> a
+
+| W, M (a)} = σ2
+
+> v,a
+
+,we obtain 
+
+S2 
+
+> a
+
+= Var {Y (a, M (a)) }
+
+= b2
+
+> a
+
+σ2 
+
+> W
+
++ γ2 
+
+> a
+
+qa(1 − qa) + 2 baγaξa + σ2
+
+> v,a
+
+.
+
+Solving for the residual variance yields 
+
+σ2 
+
+> v,a
+
+= S2 
+
+> a
+
+− b2
+
+> a
+
+σ2 
+
+> W
+
+− γ2 
+
+> a
+
+qa(1 − qa) − 2baγaξa.
+
+When R2 
+
+> M
+
+= 0, W is degenerate, κa is not required, and the projection term ba(W − μW ) is omitted. Thus ξa = 0 and 
+
+σ2 
+
+> v,a
+
+= S2 
+
+> a
+
+− γ2 
+
+> a
+
+qa(1 − qa).
+
+Under the working projection (8), 
+
+Y (a, m ) − θ(a, a ′) = ha,a ′ (m, W ) + va.
+
+The assumptions on va imply the conditional second moment 
+
+E {Y (a, m ) − θ(a, a ′)}2 | W, M (a) = m = h2 
+
+> a,a ′
+
+(m, W ) + σ2
+
+> v,a
+
+.
+
+Because ha,a ′ (m, W ) = ha,a (m, W ) + γa(qa − qa′ ), E{ha,a (M, W ) | A = a} = 0, and S2 
+
+> a
+
+=
+
+E{h2
+
+> a,a
+
+(M, W ) | A = a} + σ2
+
+> v,a
+
+, it follows that 
+
+Ba,a ′ = S2 
+
+> a
+
++ γ2 
+
+> a
+
+(qa − qa′ )2.
+
+Moreover, since RWa,a ′ (M, W ) is determined by ( W, M ), 
+
+Ca,a ′ = EW
+
+" 1X
+
+> m=0
+
+gWa (m | W ) {RWa,a ′ (m, W )}2 − da,a ′
+
+h2 
+
+> a,a ′
+
+(m, W ) + σ2
+
+> v,a
+
+#
+
+= EW
+
+" 1X
+
+> m=0
+
+gWa (m | W ) {RWa,a ′ (m, W )}2 − da,a ′ h2 
+
+> a,a ′
+
+(m, W )
+
+#
+
+.
+
+Here conditional mean zero removes the cross term involving va, while conditional homoscedas-ticity makes its second-moment contribution constant; the latter cancels because E[{RWa,a ′ (M, W )}2−
+
+da,a ′ | A = a] = 0. This gives (9). The same conditional-moment calculation gives 
+
+Ka = EW
+
+" 1X
+
+> m=0
+
+gWa (m | W )RWa, 1−a(m, W ) ha, 1−a(m, W )ha,a (m, W ) + σ2
+
+> v,a
+
+#
+
+.
+
+Since gWa RWa, 1−a = gW 
+
+> 1−a
+
+and ha,a = ha, 1−a + γa(q1−a − qa), the last display also equals 
+
+EW
+
+" 1X
+
+> m=0
+
+gW
+
+> 1−a
+
+(m | W ){h2
+
+> a, 1−a
+
+(m, W ) + σ2
+
+> v,a
+
+}
+
+#
+
+≥ 0,
+
+because the term linear in ha, 1−a has mean zero under gW
+
+> 1−a
+
+.Substituting the conditional second moment above into (1) gives the mediation-mean design-stage variance. Finally, Ra,a = 1 implies da,a = 1, Ca,a = 0, and Ba,a = S2 
+
+> a
+
+. Substitution into (3) and (5), together with the displayed expression for Ka, gives the NDE and NIE design-stage variances. 23 S1.4 Derivation of the binary-outcome design-stage variances 
+
+Latent-scale reduction and calibration. For R2 
+
+> M
+
+> 0, the population projection residual is 
+
+v∗ 
+
+> a
+
+= f ∗ 
+
+> a
+
+(X) − E{f ∗ 
+
+> a
+
+(X)} − eba(W − μW ).
+
+Joint normality of f ∗ 
+
+> a
+
+(X) and W implies that v∗ 
+
+> a
+
+is independent of W . Because the latent mediator error is independent of X, the mediator model further implies that v∗ 
+
+> a
+
+is independent of M (a) conditional on W . The latent outcome error satisfies 
+
+ϵ∗ 
+
+> a
+
+∼ N (0 , 1) , ϵ∗ 
+
+> a
+
+⊥⊥ { X, M (a)}.
+
+Because v∗ 
+
+> a
+
+is Gaussian and independent of M (a) conditional on W , it follows that 
+
+u∗ 
+
+> a
+
+| { W, M (a)} ∼ N (0 , σ 2
+
+> u,a
+
+), σ2 
+
+> u,a
+
+= Var( v∗
+
+> a
+
+) + 1 .
+
+Thresholding the latent outcome gives 
+
+P (Y = 1 | A = a, M = m, W = w) = Φ 
+
+(
+
+E{f ∗ 
+
+> a
+
+(X)}
+
+σu,a 
+
++ eba
+
+σu,a 
+
+(w − μW ) + γ∗
+
+> a
+
+σu,a 
+
+(m − qa)
+
+)
+
+= ρa(w, m ).
+
+When R2 
+
+> M
+
+= 0, W is degenerate and the projection term is omitted. For R2 
+
+> M
+
+> 0, the three standardized quantities E{f ∗ 
+
+> a
+
+(X)}/σ u,a , bρa, and γρa are jointly cali-brated by solving 
+
+EW
+
+" 1X
+
+> m=0
+
+gWa (m | W )ρa(W, m )
+
+#
+
+= θ(a, a ),EW
+
+h
+
+(W − μW ) P1 
+
+> m=0
+
+gWa (m | W )ρa(W, m )
+
+i
+
+σW [θ(a, a ){1 − θ(a, a )}]1/2 = κa,EW
+
+{pW 
+
+> 1
+
+(W ) − pW 
+
+> 0
+
+(W )}{ ρa(W, 1) − ρa(W, 0) } = δ(a).
+
+These one-dimensional expectations can be evaluated by numerical Gaussian quadrature, and the equations can then be solved by standard nonlinear root-finding whenever the specified inputs admit a compatible solution. When R2 
+
+> M
+
+= 0, the second equation and the term bρa(W −
+
+μW ) are omitted. If q1 = q0, the mediator distributions coincide and the third equation requires 
+
+δ(a) = 0. For the two-arm NDE calculation used in the numerical study, the working- variance inputs are the two observed-arm event probabilities, outcome– W correlations, and arm-specific NIEs. The two probit laws are calibrated separately using θ(a, a ), κa, and δ(a) in the system above. The cross-arm mediation means and NDEs then follow from 
+
+θ(0 , 1) = θ(0 , 0) + δ(0) , θ(1 , 0) = θ(1 , 1) − δ(1) ,ζ(0) = θ(1 , 0) − θ(0 , 0) , ζ(1) = θ(1 , 1) − θ(0 , 1) .
+
+Thus, the NDE is derived after calibration rather than imposed as an additional calibration target. All implied mediation probabilities must lie in [0 , 1], and both numerical systems must admit compatible solutions. 
+
+Componentwise calculations. Conditional on ( W = w, M = m, A = a), Y is Bernoulli with event probability ρa(w, m ). Hence 
+
+E {Y − θ(a, a ′)}2 | W = w, M = m, A = a
+
+= {ρa(w, m ) − θ(a, a ′)}2 + ρa(w, m ){1 − ρa(w, m )}
+
+= θ2(a, a ′) + {1 − 2θ(a, a ′)}ρa(w, m ).
+
+24 Averaging over the mediator distribution in arm a gives 
+
+Ba,a ′ = θ2(a, a ′) + {1 − 2θ(a, a ′)}θ(a, a )= θ(a, a ){1 − θ(a, a )} + {θ(a, a ) − θ(a, a ′)}2,
+
+which proves (11). Because E[{RWa,a ′ (M, W )}2 − da,a ′ | A = a] = 0, the covariance component is 
+
+Ca,a ′ = EW
+
+" 1X
+
+> m=0
+
+gWa (m | W ) {RWa,a ′ (m, W )}2 − da,a ′
+
+× E {Y − θ(a, a ′)}2 | W, M = m, A = a #
+
+= {1 − 2θ(a, a ′)}EW
+
+" 1X
+
+> m=0
+
+gWa (m | W ) {RWa,a ′ (m, W )}2 − da,a ′ ρa(W, m )
+
+#
+
+,
+
+which proves (12); the constant term θ2(a, a ′) vanishes because the centered squared ratio has mean zero. For the shared-arm component, the residual-centering identity established in Section 3 gives 
+
+Ka = E RWa, 1−a(M, W ){Y − θ(a, 1 − a)}{ Y − θ(a, a )} | A = a
+
+= E RWa, 1−a(M, W ){Y − θ(a, 1 − a)}2 | A = a .
+
+Since gWa (m | W )RWa, 1−a(m, W ) = gW
+
+> 1−a
+
+(m | W ), 
+
+Ka = EW
+
+" 1X
+
+> m=0
+
+gW
+
+> 1−a
+
+(m | W )
+
+h
+
+{ρa(W, m ) − θ(a, 1 − a)}2 + ρa(W, m ){1 − ρa(W, m )}
+
+i#
+
+.
+
+Under this reweighted law, Y is binary with mean θ(a, 1 − a). Therefore, 
+
+Ka = θ(a, 1 − a){1 − θ(a, 1 − a)},
+
+which proves (13). Finally, Proposition 1 and (2) give 
+
+V Bθ (a, a ′) = da,a ′ Ba,a ′ + Ca,a ′
+
+πa
+
+,
+
+which is the mediation-mean design-stage variance. When a′ = a, RWa,a = 1, so da,a = 1, 
+
+Ca,a = 0, and Ba,a = θ(a, a ){1 − θ(a, a )}. Substitution into (3) and (5), together with (13), gives the NDE and NIE design-stage variances. 
+
+# S2 Simulation settings and additional oracle-ratio results 
+
+This section provides the complete simulation-panel definitions and the oracle-ratio results un-der the mixed-covariate designs. The corresponding Gaussian-covariate results are reported in the main text. For the mixed-covariate design, the mutually independent components of X
+
+are generated as follows before standardization: Xj ∼ Bernoulli( pj ) for j = 1 , . . . , 4, where (p1, p 2, p 3, p 4) = (0 .2, 0.4, 0.6, 0.8); X5 ∼ Uniform(0 , 1); Xj ∼ Poisson( j − 5) for j = 6 , 7, 8; 
+
+X9 ∼ Gamma(shape = 2 , scale = 3); and X10 ∼ Beta(2 , 3). Each component is then cen-tered and scaled to have mean zero and variance one, with the notation Xj retained for the standardized variable. 25 For both covariate designs, define the fixed orthonormal vectors 
+
+uM = 1
+
+√10 (1 , . . . , 1) ⊤, u⊥ = 1
+
+√82 .5 (−4.5, −3.5, −2.5, −1.5, −0.5, 0.5, 1.5, 2.5, 3.5, 4.5) ⊤.
+
+For given values of R2 
+
+> M
+
+and ρ, the coefficient vectors are constructed as 
+
+βM =
+
+ R2
+
+> M
+
+1 − R2
+
+> M
+
+1/2
+
+uM , βY = 0 .4
+
+n
+
+ρu M + (1 − ρ2)1/2u⊥
+
+o
+
+.
+
+Consequently, Var( X⊤βM ) = R2
+
+> M
+> 1−R2
+> M
+
+, and, when R2 
+
+> M
+
+> 0, Corr( X⊤βM , X⊤βY ) = ρ. When 
+
+R2 
+
+> M
+
+= 0, we set βM = 0, in which case the mediator score is constant and the correlation is not defined. The same coefficient construction is used for the continuous- and binary-outcome simulations. 
+
+S2.1 Continuous outcome 
+
+Table S1: Continuous-outcome simulation panels.                                                   
+
+> Panel Design feature varied Values Baseline Baseline setting η1−η0= 0 .08 , γ 0=γ1= 0 .4, q 0= 0 .35 , q 1= 0 .55 , R 2
+> M= 0 .25 , ρ = 0 .5AIndirect pathway strength γ0=γ1∈ { 0.2,0.4,0.6}
+> BDirect pathway strength η1−η0∈ { 0.04 ,0.08 ,0.12 }
+> CMediator prevalence {q0, q 1} ∈ {{ 0.40 ,0.60 },{0.20 ,0.40 },{0.60 ,0.80 }}
+> DMediator heterogeneity R2
+> M∈ { 0,0.25 ,0.50 }
+> EPrognostic-score correlation ρ∈ { 0,0.5,0.8}
+> FTreatment–mediator interaction {γ0, γ 1} ∈ {{ 0.3,0.5},{0.2,0.6}}
+
+Table S2: Oracle-ratio continuous-outcome simulations with mixed covariates. 
+
+δ(1) δ(0) ζ(1) ζ(0) Setting N Nsim Power N Nsim Power N Nsim Power N Nsim Power Baseline 438 459 0.812 477 474 0.810 5250 5109 0.818 5170 5058 0.788 
+
+γ0 = γ1 = 0 .2 1755 1816 0.808 1915 1934 0.814 5068 5165 0.766 5014 5066 0.790 
+
+γ0 = γ1 = 0 .4 436 435 0.774 476 480 0.780 5244 5169 0.834 5164 5006 0.818 
+
+γ0 = γ1 = 0 .6 194 188 0.786 211 218 0.782 5506 5765 0.826 5387 5501 0.810 
+
+η1 − η0 = 0 .04 436 439 0.806 476 460 0.798 20950 23089 0.796 20631 20511 0.786 
+
+η1 − η0 = 0 .08 437 440 0.792 477 465 0.826 5245 5241 0.786 5165 5142 0.812 
+
+η1 − η0 = 0 .12 437 454 0.820 476 434 0.798 2331 2310 0.814 2295 2319 0.800 
+
+{q0, q 1} = {0.40 , 0.60 } 449 436 0.822 450 450 0.808 5204 5182 0.750 5204 4979 0.792 
+
+{q0, q 1} = {0.20 , 0.40 } 462 488 0.788 702 680 0.798 5493 5777 0.802 5089 5059 0.824 
+
+{q0, q 1} = {0.60 , 0.80 } 702 726 0.798 462 481 0.840 5083 4739 0.786 5487 5404 0.784 
+
+R2 
+
+> M
+
+= 0 363 374 0.780 395 398 0.798 5038 4982 0.810 4982 4818 0.822 
+
+R2 
+
+> M
+
+= 0 .25 436 431 0.816 476 477 0.800 5244 5010 0.842 5164 4902 0.830 
+
+R2 
+
+> M
+
+= 0 .50 586 568 0.816 643 670 0.814 5462 5280 0.796 5359 5414 0.828 
+
+ρ = 0 448 425 0.820 490 497 0.798 5129 5110 0.812 5062 5103 0.828 
+
+ρ = 0 .5 437 436 0.794 477 491 0.768 5248 5232 0.794 5168 5148 0.812 
+
+ρ = 0 .8 429 450 0.782 466 465 0.810 5311 5418 0.798 5224 5185 0.818 
+
+{γ0, γ 1} = {0.30 , 0.50 } 279 256 0.800 847 872 0.810 930 919 0.820 1468 1529 0.818 
+
+{γ0, γ 1} = {0.20 , 0.60 } 194 185 0.820 1916 1985 0.796 375 360 0.808 683 681 0.802 
+
+26 Table S3: Binary-outcome simulation panels.                                                         
+
+> Panel Design feature varied Values Baseline Baseline setting η1−η0= 0 .25 , γ 0=γ1= 0 .35 , q 0= 0 .35 , q 1= 0 .55 , R 2
+> M= 0 .25 , ρ = 0 .5, r 0= 0 .30 AIndirect pathway strength γ0=γ1∈ { 0.20 ,0.35 ,0.50 }
+> BDirect pathway strength η1−η0∈ { 0.15 ,0.25 ,0.35 }
+> CMediator prevalence {q0, q 1} ∈ {{ 0.40 ,0.60 },{0.20 ,0.40 },{0.60 ,0.80 }}
+> DMediator heterogeneity R2
+> M∈ { 0,0.25 ,0.50 }
+> EPrognostic-score correlation ρ∈ { 0,0.5,0.8}
+> FTreatment–mediator interaction {γ0, γ 1} ∈ {{ 0.25 ,0.45 },{0.15 ,0.55 }}
+> GOutcome prevalence r0∈ { 0.15 ,0.30 ,0.50 }
+
+Table S4: Oracle-ratio binary-outcome simulations with mixed covariates. 
+
+δ(1) δ(0) ζ(1) ζ(0) Setting N Nsim Power N Nsim Power N Nsim Power N Nsim Power Baseline 928 881 0.748 1094 1093 0.814 889 865 0.848 883 861 0.804 
+
+γ0 = γ1 = 0 .20 2865 2711 0.814 3323 3472 0.806 864 859 0.790 863 901 0.788 
+
+γ0 = γ1 = 0 .35 925 952 0.786 1091 1059 0.818 888 912 0.772 882 898 0.780 
+
+γ0 = γ1 = 0 .50 449 481 0.772 539 540 0.792 922 914 0.814 912 880 0.818 
+
+η1 − η0 = 0 .15 944 866 0.804 1091 1081 0.780 2504 2494 0.810 2477 2477 0.800 
+
+η1 − η0 = 0 .25 927 880 0.792 1093 1088 0.838 888 888 0.804 882 888 0.792 
+
+η1 − η0 = 0 .35 914 947 0.780 1093 1065 0.810 446 432 0.808 445 426 0.824 
+
+{q0, q 1} = {0.40 , 0.60 } 955 1000 0.784 1036 1038 0.786 881 866 0.808 886 872 0.818 
+
+{q0, q 1} = {0.20 , 0.40 } 961 943 0.818 1566 1539 0.814 932 927 0.802 877 911 0.790 
+
+{q0, q 1} = {0.60 , 0.80 } 1473 1576 0.772 1055 1005 0.806 857 863 0.790 921 900 0.820 
+
+R2 
+
+> M
+
+= 0 754 751 0.804 907 944 0.778 852 835 0.774 845 848 0.794 
+
+R2 
+
+> M
+
+= 0 .25 926 918 0.812 1092 1019 0.826 888 871 0.788 882 871 0.776 
+
+R2 
+
+> M
+
+= 0 .50 1242 1241 0.800 1471 1487 0.778 927 971 0.776 922 912 0.816 
+
+ρ = 0 923 901 0.784 1122 1081 0.794 865 847 0.772 857 841 0.776 
+
+ρ = 0 .5 927 880 0.778 1093 1082 0.822 889 886 0.842 883 885 0.764 
+
+ρ = 0 .8 922 893 0.798 1067 1028 0.814 901 962 0.798 897 863 0.816 
+
+{γ0, γ 1} = {0.25 , 0.45 } 550 532 0.814 2128 2149 0.806 404 410 0.796 512 523 0.786 
+
+{γ0, γ 1} = {0.15 , 0.55 } 365 384 0.766 5892 5741 0.810 231 240 0.792 337 343 0.798 
+
+r0 = 0 .15 1136 1141 0.794 1488 1430 0.812 1134 1135 0.784 1138 1136 0.824 
+
+r0 = 0 .30 923 1001 0.770 1089 1066 0.824 888 885 0.828 882 865 0.778 
+
+r0 = 0 .50 932 965 0.770 986 921 0.766 845 764 0.786 833 766 0.794 
+
+27 S2.2 Binary outcome 
+
+# S3 Estimated-ratio simulation results 
+
+This section reports the estimated-ratio results under both covariate designs. In these analyses, the mediator probit model is refit within each simulated trial before constructing the mediator probability ratios. The analytic sample size N is the same design-stage sample size as in the main oracle-ratio analysis, while Nsim is the simulation-based benchmark obtained under the estimated-ratio implementation. For each estimand, Nsim is computed from an estimand-specific local adaptive grid that brackets 0.80, followed by monotone interpolation of the empirical power curve. The reported power at N is obtained from 500 trials at the design-stage sample size. Wald standard errors use the same influence-function plug-in calculation as in the oracle analysis, with the fitted mediator probability ratios treated as fixed. 
+
+S3.1 Continuous outcome 
+
+Table S5: Robustness checks for continuous-outcome simulations.             
+
+> Analysis Mean power (SD) Power range Indirect-effect null (SD) Direct-effect null (SD) Oracle mediator ratio 0.802 (0.017) 0.750–0.846 0.056 (0.010) 0.050 (0.011) Estimated mediator ratio 0.799 (0.019) 0.748–0.846 0.051 (0.009) 0.046 (0.010)
+
+Table S6: Estimated-ratio continuous-outcome simulations with Gaussian covariates. 
+
+δ(1) δ(0) ζ(1) ζ(0) Setting N Nsim Power N Nsim Power N Nsim Power N Nsim Power Baseline 437 435 0.768 477 462 0.800 5246 5309 0.814 5166 5413 0.838 
+
+γ0 = γ1 = 0 .2 1757 1734 0.790 1916 1886 0.812 5066 4925 0.822 5013 4776 0.794 
+
+γ0 = γ1 = 0 .4 436 422 0.790 476 459 0.788 5235 5185 0.826 5155 5155 0.812 
+
+γ0 = γ1 = 0 .6 194 193 0.784 212 206 0.802 5514 5589 0.806 5395 5611 0.806 
+
+η1 − η0 = 0 .04 436 434 0.784 475 471 0.794 20963 20160 0.804 20644 21383 0.804 
+
+η1 − η0 = 0 .08 438 455 0.826 477 483 0.778 5246 5435 0.820 5166 5032 0.798 
+
+η1 − η0 = 0 .12 437 436 0.788 476 468 0.804 2331 2368 0.840 2296 2286 0.798 
+
+{q0, q 1} = {0.40 , 0.60 } 449 472 0.796 449 442 0.798 5195 5129 0.816 5195 5108 0.790 
+
+{q0, q 1} = {0.20 , 0.40 } 462 454 0.788 701 713 0.812 5497 5381 0.804 5092 5015 0.772 
+
+{q0, q 1} = {0.60 , 0.80 } 702 712 0.806 462 491 0.790 5086 5595 0.808 5491 5148 0.776 
+
+R2 
+
+> M
+
+= 0 363 369 0.794 394 398 0.778 5028 5123 0.760 4971 5028 0.786 
+
+R2 
+
+> M
+
+= 0 .25 436 442 0.782 475 451 0.796 5240 5409 0.804 5160 4600 0.798 
+
+R2 
+
+> M
+
+= 0 .50 586 603 0.794 642 627 0.784 5461 5735 0.778 5358 5179 0.790 
+
+ρ = 0 449 426 0.838 491 479 0.790 5129 5322 0.824 5062 5314 0.800 
+
+ρ = 0 .5 436 458 0.804 475 484 0.808 5236 5379 0.794 5156 5385 0.820 
+
+ρ = 0 .8 428 441 0.796 465 475 0.762 5309 5320 0.800 5222 5081 0.810 
+
+{γ0, γ 1} = {0.30 , 0.50 } 279 288 0.794 848 860 0.824 933 882 0.836 1474 1469 0.834 
+
+{γ0, γ 1} = {0.20 , 0.60 } 194 208 0.820 1915 1994 0.786 375 367 0.784 685 671 0.788 
+
+S3.2 Binary outcome 
+
+# S4 Comparison with total-effect-based planning 
+
+We compare the proposed natural-effect sample sizes with the conventional two-arm ATE cal-culation in the baseline setting and two representative panel settings for each outcome type. The ATE calculation targets 80% power for a one-sided level-0.05 test using the marginal arm-specific outcome variances. At the resulting sample size NATE , each of 1000 simulated trials is 28 Table S7: Estimated-ratio continuous-outcome simulations with mixed covariates. 
+
+δ(1) δ(0) ζ(1) ζ(0) Setting N Nsim Power N Nsim Power N Nsim Power N Nsim Power Baseline 438 445 0.818 477 474 0.810 5250 5072 0.792 5170 5082 0.824 
+
+γ0 = γ1 = 0 .2 1755 1768 0.804 1915 1944 0.798 5068 4928 0.796 5014 4868 0.808 
+
+γ0 = γ1 = 0 .4 436 449 0.846 476 511 0.776 5244 5399 0.776 5164 5209 0.802 
+
+γ0 = γ1 = 0 .6 194 216 0.790 211 206 0.770 5506 5226 0.790 5387 5193 0.818 
+
+η1 − η0 = 0 .04 436 431 0.774 476 521 0.778 20950 20348 0.820 20631 20298 0.806 
+
+η1 − η0 = 0 .08 437 484 0.758 477 494 0.786 5245 5384 0.816 5165 5170 0.760 
+
+η1 − η0 = 0 .12 437 428 0.800 476 466 0.790 2331 2346 0.806 2295 2363 0.828 
+
+{q0, q 1} = {0.40 , 0.60 } 449 467 0.824 450 437 0.812 5204 5013 0.802 5204 5001 0.814 
+
+{q0, q 1} = {0.20 , 0.40 } 462 460 0.772 702 684 0.766 5493 5303 0.806 5089 5046 0.812 
+
+{q0, q 1} = {0.60 , 0.80 } 702 693 0.790 462 469 0.794 5083 5003 0.794 5487 5278 0.794 
+
+R2 
+
+> M
+
+= 0 363 367 0.788 395 400 0.784 5038 4984 0.812 4982 4916 0.748 
+
+R2 
+
+> M
+
+= 0 .25 436 468 0.818 476 475 0.804 5244 5108 0.812 5164 4953 0.800 
+
+R2 
+
+> M
+
+= 0 .50 586 595 0.768 643 673 0.790 5462 5352 0.788 5359 5418 0.818 
+
+ρ = 0 448 439 0.800 490 475 0.780 5129 5292 0.788 5062 4864 0.786 
+
+ρ = 0 .5 437 444 0.818 477 509 0.808 5248 5093 0.800 5168 4914 0.820 
+
+ρ = 0 .8 429 434 0.778 466 480 0.784 5311 5596 0.762 5224 5263 0.810 
+
+{γ0, γ 1} = {0.30 , 0.50 } 279 292 0.784 847 861 0.840 930 950 0.834 1468 1425 0.796 
+
+{γ0, γ 1} = {0.20 , 0.60 } 194 201 0.796 1916 1864 0.810 375 369 0.828 683 658 0.792 
+
+Table S8: Robustness checks for binary-outcome simulations.             
+
+> Analysis Mean power (SD) Power range Indirect-effect null (SD) Direct-effect null (SD) Oracle mediator ratio 0.801 (0.019) 0.748–0.848 0.051 (0.010) 0.052 (0.011) Estimated mediator ratio 0.800 (0.018) 0.758–0.850 0.046 (0.009) 0.050 (0.010)
+
+Table S9: Estimated-ratio binary-outcome simulations with Gaussian covariates. 
+
+δ(1) δ(0) ζ(1) ζ(0) Setting N Nsim Power N Nsim Power N Nsim Power N Nsim Power Baseline 923 923 0.794 1087 1068 0.818 885 896 0.806 879 901 0.826 
+
+γ0 = γ1 = 0 .20 2851 2800 0.820 3302 3147 0.798 861 840 0.804 859 854 0.824 
+
+γ0 = γ1 = 0 .35 920 1022 0.758 1085 1104 0.820 883 883 0.784 877 890 0.802 
+
+γ0 = γ1 = 0 .50 449 504 0.774 538 527 0.822 920 938 0.828 909 878 0.770 
+
+η1 − η0 = 0 .15 938 1017 0.804 1084 1085 0.822 2495 2496 0.798 2466 2397 0.796 
+
+η1 − η0 = 0 .25 924 912 0.796 1088 1065 0.810 885 872 0.794 879 862 0.764 
+
+η1 − η0 = 0 .35 910 975 0.790 1086 1138 0.812 445 440 0.772 443 439 0.814 
+
+{q0, q 1} = {0.40 , 0.60 } 952 967 0.808 1031 985 0.802 876 784 0.788 881 910 0.772 
+
+{q0, q 1} = {0.20 , 0.40 } 952 987 0.788 1549 1601 0.808 930 986 0.798 874 924 0.792 
+
+{q0, q 1} = {0.60 , 0.80 } 1478 1632 0.798 1056 1098 0.832 855 873 0.788 917 927 0.782 
+
+R2 
+
+> M
+
+= 0 750 788 0.780 901 909 0.794 848 909 0.804 840 817 0.784 
+
+R2 
+
+> M
+
+= 0 .25 920 935 0.806 1084 1030 0.774 884 905 0.806 878 862 0.792 
+
+R2 
+
+> M
+
+= 0 .50 1234 1234 0.768 1461 1401 0.802 923 916 0.788 917 871 0.816 
+
+ρ = 0 923 952 0.798 1124 1102 0.802 865 827 0.788 856 813 0.810 
+
+ρ = 0 .5 920 915 0.804 1085 1101 0.806 884 911 0.796 877 912 0.786 
+
+ρ = 0 .8 917 941 0.776 1059 1052 0.816 897 893 0.822 892 857 0.796 
+
+{γ0, γ 1} = {0.25 , 0.45 } 549 561 0.798 2118 2050 0.822 403 448 0.772 510 499 0.810 
+
+{γ0, γ 1} = {0.15 , 0.55 } 364 400 0.780 5854 6045 0.812 229 245 0.808 335 338 0.792 
+
+r0 = 0 .15 1122 1088 0.806 1477 1427 0.836 1122 1180 0.810 1123 1086 0.776 
+
+r0 = 0 .30 923 923 0.772 1087 1073 0.780 885 890 0.808 879 912 0.798 
+
+r0 = 0 .50 935 923 0.792 987 1038 0.790 849 833 0.828 836 863 0.814 
+
+29 Table S10: Estimated-ratio binary-outcome simulations with mixed covariates. 
+
+δ(1) δ(0) ζ(1) ζ(0) Setting N Nsim Power N Nsim Power N Nsim Power N Nsim Power Baseline 928 949 0.790 1094 1070 0.814 889 928 0.820 883 836 0.778 
+
+γ0 = γ1 = 0 .20 2865 2760 0.788 3323 3215 0.818 864 857 0.828 863 871 0.822 
+
+γ0 = γ1 = 0 .35 925 955 0.780 1091 1124 0.832 888 867 0.786 882 874 0.798 
+
+γ0 = γ1 = 0 .50 449 458 0.822 539 525 0.782 922 894 0.810 912 903 0.786 
+
+η1 − η0 = 0 .15 944 970 0.780 1091 1189 0.846 2504 2554 0.808 2477 2520 0.850 
+
+η1 − η0 = 0 .25 927 965 0.790 1093 1050 0.822 888 878 0.778 882 904 0.810 
+
+η1 − η0 = 0 .35 914 876 0.784 1093 1130 0.810 446 437 0.812 445 459 0.808 
+
+{q0, q 1} = {0.40 , 0.60 } 955 924 0.808 1036 1020 0.786 881 928 0.808 886 865 0.810 
+
+{q0, q 1} = {0.20 , 0.40 } 961 937 0.778 1566 1554 0.806 932 943 0.810 877 854 0.796 
+
+{q0, q 1} = {0.60 , 0.80 } 1473 1503 0.788 1055 1052 0.794 857 888 0.820 921 952 0.808 
+
+R2 
+
+> M
+
+= 0 754 704 0.820 907 890 0.812 852 792 0.798 845 824 0.790 
+
+R2 
+
+> M
+
+= 0 .25 926 913 0.798 1092 1055 0.794 888 862 0.778 882 856 0.808 
+
+R2 
+
+> M
+
+= 0 .50 1242 1248 0.798 1471 1533 0.802 927 954 0.810 922 994 0.782 
+
+ρ = 0 923 961 0.776 1122 1091 0.804 865 862 0.774 857 910 0.820 
+
+ρ = 0 .5 927 935 0.808 1093 1045 0.840 889 847 0.774 883 894 0.792 
+
+ρ = 0 .8 922 918 0.778 1067 1029 0.780 901 881 0.804 897 922 0.784 
+
+{γ0, γ 1} = {0.25 , 0.45 } 550 564 0.788 2128 2041 0.818 404 391 0.766 512 501 0.784 
+
+{γ0, γ 1} = {0.15 , 0.55 } 365 377 0.798 5892 5835 0.818 231 238 0.802 337 353 0.772 
+
+r0 = 0 .15 1136 1109 0.794 1488 1408 0.822 1134 1161 0.812 1138 1127 0.814 
+
+r0 = 0 .30 923 923 0.810 1089 1089 0.786 888 915 0.792 882 816 0.802 
+
+r0 = 0 .50 932 916 0.798 986 1101 0.788 845 923 0.834 833 874 0.770 
+
+analyzed using the ordinary treatment-arm mean difference and the four normalized RMPW estimators. The RMPW analyses use the true mediator probability ratios and the known-ratio influence-function standard errors used in the main oracle-ratio simulations. Table S11: Comparison of conventional total-effect and proposed mediation designs in repre-sentative Gaussian-covariate settings. For each natural effect, the entry is N (empirical power at NATE ).                                                                  
+
+> Total treatment effect Natural effect: N(power at NATE )Outcome Scenario NATE Power δ(1) δ(0) ζ(1) ζ(0) Continuous Baseline 1187 0.790 437 (0.994) 477 (0.988) 5246 (0.338) 5166 (0.339) Continuous γ0=γ1= 0 .20 2035 0.816 1757 (0.857) 1916 (0.832) 5066 (0.442) 5013 (0.445) Continuous η1−η0= 0 .04 2111 0.803 436 (1.000) 475 (1.000) 20963 (0.199) 20644 (0.209) Binary Baseline 479 0.801 923 (0.538) 1087 (0.502) 885 (0.577) 879 (0.576) Binary γ0=γ1= 0 .20 574 0.797 2851 (0.310) 3302 (0.249) 861 (0.655) 859 (0.654) Binary η1−η0= 0 .15 1020 0.806 938 (0.818) 1084 (0.794) 2495 (0.500) 2466 (0.500)
+
+# S5 ACTG175 pilot calibration and resampling details 
+
+S5.1 Pilot population and variable construction 
+
+We use the ACTG175 data distributed with the speff2trial package as a working pilot popu-lation. Treatment is coded as A = 0 for zidovudine monotherapy and A = 1 for the three other treatment arms pooled together. The mediator is the indicator 
+
+M = I(CD4 20 − CD4 0 ≥ c),
+
+where c ∈ { 25 , 50 , 100 } cells per cubic millimeter and c = 50 is the primary threshold. 30 The outcome is the indicator of remaining free of the ACTG175 composite event through 96 weeks. The composite event is the first occurrence of a decline in CD4 count of at least 50 cells per cubic millimeter, progression to AIDS, or death. Participants are included only if they remain event-free through the 20-week mediator landmark and have sufficient follow-up to determine their 96-week event status. We also require complete information on the mediator, outcome, treatment, and baseline covariates used in the mediator model. The resulting working pilot population contains 1941 participants, with 468 in arm 0 and 1473 in arm 1. The baseline covariates are age, weight, sex, race, hemophilia, homosexual activity, history of intravenous drug use, Karnofsky score, prior non-zidovudine antiretroviral therapy, zidovudine use during the 30 days before treatment initiation, prior zidovudine use, duration of previous antiretroviral therapy, antiretroviral-treatment history, symptomatic status, and baseline CD4 and CD8 counts. Age, weight, Karnofsky score, baseline CD4 count, and baseline CD8 count are standardized. The duration of previous antiretroviral therapy is transformed using log(1+ x)and then standardized. Because eligibility for this working population depends partly on post-randomization sur-vival, mediator ascertainment, and outcome follow-up, treatment randomization does not nec-essarily preserve exchangeability within the selected landmark population. We therefore use these data only to illustrate the calibration of design inputs and do not interpret the resulting pilot targets as definitive causal effects for the full randomized ACTG175 population. The re-ported sample sizes refer to analyzable participants satisfying the landmark and ascertainment criteria; translating them into baseline enrollment targets would additionally require anticipated landmark eligibility, mediator ascertainment, and outcome follow-up rates. 
+
+S5.2 Calibration of the design inputs 
+
+For each mediator threshold, we fit the pooled probit model 
+
+P (M = 1 | A, X) = Φ  β0 + βAA + X⊤βX
+
+.
+
+Let cWi = bβ0 + X⊤ 
+
+> i
+
+bβX , b∆M = bβA.
+
+The mediator inputs are calibrated as 
+
+bqa = 1
+
+Np
+
+> Np
+
+X
+
+> i=1
+
+Φ( cWi + a b∆M ), a = 0 , 1,
+
+and 
+
+bR2 
+
+> M
+
+= dVar( cW )1 + dVar( cW ) ,
+
+where Np = 1941 is the pilot sample size. For numerical stability, fitted mediator probabilities used in the probability ratios are truncated to [10 −4, 1 − 10 −4]. Using these fitted probabilities, we calculate the normalized RMPW means 
+
+bθH (a, a ′) = 
+
+P 
+
+> i:Ai=a
+
+bRa,a ′ (Mi, Xi)Yi
+
+P 
+
+> i:Ai=a
+
+bRa,a ′ (Mi, Xi) ,
+
+and obtain the pilot targets for δ(1), δ(0), ζ(1), and ζ(0) from the corresponding contrasts of the four nested means. Within each treatment arm, we also calculate 
+
+bκa = [Corr( Y, cW | A = a).
+
+For the binary-outcome working model, the arm-specific parameters αρa, bρa, and γρa are calibrated to match the pilot values of θ(a, a ), κa, and δ(a). Together with ( bq0, bq1, bR2 
+
+> M
+
+), these 31 parameters determine the variance components da,a ′ , Ba,a ′ , Ca,a ′ , and Ka. Substitution of these components into the variance formulas gives the design-stage variance Vwork for each estimand. Under the observed pilot allocation 
+
+bπ1 = 1473 1941 ,
+
+the required sample size is 
+
+Nwork =
+
+ {z0.95 + z0.80 }2Vwork 
+
+τ 2
+
+> ∗
+
+
+
+,
+
+where τ∗ is the corresponding pilot-calibrated natural-effect target. 
+
+S5.3 Fixed-ratio pilot resampling 
+
+We assess finite-sample behavior at each effect-specific Nwork using 500 arm-stratified resamples. For a sample size N , we draw 
+
+n1 = round( bπ1N ), n0 = N − n1
+
+participants with replacement from the two pilot treatment arms. The mediator probabilities fitted in the full pilot population are carried with the sampled participants and are not refitted within a resample. Each resample is used to recompute the four normalized RMPW means and the corresponding natural-effect estimate. For an estimand with pilot target τ∗, rejection is recorded when sign( τ∗) bτ (b)
+
+pVwork /N work 
+
+> z 0.95 .
+
+Thus, both the mediator probability ratios and the design-stage variance are held fixed at their full-pilot calibrated values. The reported resampling power is the proportion of the 500 resamples that reject, and its Monte Carlo standard error is 
+
+( \Power(1 − \Power) 500 
+
+)1/2
+
+.
+
+# S6 Continuous-mediator regression working model 
+
+This section collects the continuous-mediator regression approximation. The continuous media-tor case is not the primary focus of the main text, but it is useful as a reference point because it connects the proposed causal mediation sample size framework to familiar product-of-coefficients calculations. The working model is not needed for defining the causal mediation functionals; it provides a tractable design approximation under which variances can be expressed in terms of path coefficients and residual variances. 
+
+S6.1 Regression working model and estimators 
+
+We assume the following potential mediator model: 
+
+M (a) = fM (X) + a∆M + σM ϵM , (S6.14) where fM (X) is the baseline mediator mean function, ∆ M is the treatment-induced shift in the mediator, σM is the mediator noise scale, and ϵM ∼ N (0 , 1). Throughout the paper, for simplicity, we set σM = 1. The potential outcome working model is 
+
+Y (a, m ) = fa(X) + γam + ϵa, (S6.15) 32 where fa(X) is the treatment-specific prognostic function, γa is the mediator–outcome coefficient under treatment level a, and ϵa is the outcome error satisfying E(ϵa | X) = 0, E(ϵ2 
+
+> a
+
+| X) = σ2 
+
+> a
+
+<
+
+∞. We further assume that ϵM ⊥⊥ ϵa | X, ϵM ⊥⊥ X.Under this working model, the natural indirect effect under treatment level a can be iden-tified as 
+
+δ(a) = θ(a, 1) − θ(a, 0) = γa∆M .
+
+We consider the regression-based product estimator ˆδR(a) = ˆ γa ˆ∆M ,
+
+where ˆ∆M and ˆ γa are obtained from the planned regression-based mediation analysis. For design-stage sample size calculation, we consider a pre-specified regression-based mediation anal-ysis. Specifically, the treatment-to-mediator path coefficient ∆ M and the arm-specific mediator-to-outcome path coefficient γa are estimated by residualized least squares under the structural models ( S6.14) and ( S6.15). For the natural direct effect, under the structural working model, 
+
+ζ(a) = θ(1 , a ) − θ(0 , a ) = θ(1 , 1) − θ(0 , 0) − γ1−a∆M .
+
+This representation motivates the estimator ˆζR(a) = ¯Y1 − ¯Y0 − ˆγ1−a ˆ∆M ,
+
+where ¯Yj is the sample mean of Y among subjects with A = j.The following theorem gives the design-stage variances of these regression-based estimators. 
+
+Theorem S1 (Variance of regression based method) . Under Assumption 1, for indirect effect estimator √N (ˆδR(a) − δ(a)) d
+
+→ N (0 , V Rδ (a)) ,
+
+where 
+
+V Rδ (a) = γ2
+
+> a
+
+π(1 − π) + ∆2 
+
+> M
+
+σ2
+
+> a
+
+πa
+
+.
+
+For the direct effect estimator 
+
+√N (ˆζR(a) − ζ(a)) d
+
+→ N (0 , V Rζ (a)) ,
+
+where 
+
+V Rζ (a) = S2 
+
+> a
+
+− γ2 
+
+> a
+
++ ( γa − γ1−a)2
+
+πa
+
++ S21−a − γ21−a + ∆ 2 
+
+> M
+
+σ21−a
+
+π1−a
+
+,
+
+and S2 
+
+> a
+
+= Var( Y (a, M (a))) .
+
+The first variance formula has the usual product-of-coefficients structure: uncertainty in the treatment-mediator path contributes through γ2 
+
+> a
+
+, while uncertainty in the mediator-outcome path contributes through ∆ 2 
+
+> M
+
+. The second formula is not obtained by simply adding the vari-ance of the total-effect estimator and the variance of the product term. It accounts for their covariance, because both components are estimated from the same randomized trial. Based on these variances, the required sample size for a one-sided Wald-type test of H0 :∆ = 0 against H1 : ∆ > 0, under a design alternative ∆ = ∆ ∗ > 0, is approximately (z1−α + z1−β )2 V
+
+∆2
+
+> ∗
+
+,
+
+where V is V Rδ (a) for the indirect effect and V Rζ (a) for the direct effect. A two-sided test can be handled analogously by replacing z1−α with z1−α/ 2. Thus, for the same effect size, variance, power, and type-I error level, the two-sided design requires a larger sample size because 
+
+z1−α/ 2 > z 1−α. In practice, the one-sided formula is appropriate when the direction of the mediation effect is specified in advance; otherwise, the two-sided version should be used. 33 S6.2 Restricted Baron–Kenny working model 
+
+The regression-based formulas above include the classical Baron–Kenny working model as a special case. Specifically, suppose 
+
+M (a) = fM (X) + a∆M + ϵM ,
+
+and 
+
+Y (a, m ) = fY (X) + ζBK a + γm + ϵY ,
+
+where the mediator-to-outcome coefficient is common across treatment levels. Then 
+
+δ(0) = δ(1) = γ∆M .
+
+Moreover, under this restricted model, 
+
+ζ(0) = ζ(1) = ζBK .
+
+Thus the regression coefficient of A in the pooled outcome regression adjusting for M and X
+
+coincides with the natural direct effect only because the restricted working model rules out treatment modification of the mediator-to-outcome path. 
+
+Corollary S1 (Variance formulas under the restricted Baron–Kenny model) . Suppose the re-stricted Baron–Kenny working model in the preceding remark is correct, with 
+
+E(ϵM | X) = 0 , E(ϵ2 
+
+> M
+
+| X) = 1 , E(ϵY | X) = 0 , E(ϵ2 
+
+> Y
+
+| X) = σ2 
+
+> Y
+
+,
+
+and the usual least-squares regularity conditions hold. Let ˆδBK = ˆγ ˆ∆M be the product-of-coefficients estimator. Then 
+
+√N
+
+ˆδBK − γ∆M
+
+ d
+
+→ N  0, V BK 
+
+> δ
+
+ ,
+
+where 
+
+V BK  
+
+> δ
+
+= γ2
+
+π(1 − π) + ∆ 2 
+
+> M
+
+σ2 
+
+> Y
+
+.
+
+If ˆζBK denotes the coefficient of A in the pooled least-squares regression of Y on A, M , and X,then √N
+
+ˆζBK − ζBK 
+
+ d
+
+→ N  0, V BK 
+
+> ζ
+
+ ,
+
+where 
+
+V BK  
+
+> ζ
+
+= σ2
+
+> Y
+
+ 1
+
+π(1 − π) + ∆ 2
+
+> M
+
+
+
+.
+
+S6.3 Proof of Theorem S1 
+
+By the Frisch–Waugh–Lovell theorem, ˆ∆M and ˆ γa can be written as residualized least-squares estimators. For ∆ M , treatment randomization gives the population residual A − π, and for γa,the population residualized mediator within arm a is M − E(M | X, A = a) = ϵM . Under the correctly specified structural models and standard least-squares regularity conditions, simple calculation gives us 
+
+√N ( ˆ∆M − ∆M ) = 1
+
+√N
+
+> N
+
+X
+
+> i=1
+
+Ai − ππ(1 − π) ϵM,i + op(1) d
+
+→ N (0 , V ∆M ),
+
+34 where V∆M = 1 
+
+> π2(1 −π)2
+
+E (A − π)2ϵ2
+
+> M
+
+ = 1 
+
+> π(1 −π)
+
+. Also 
+
+√N (ˆ γa − γa) = 1
+
+√N
+
+> N
+
+X
+
+> i=1
+
+I(Ai = a)
+
+πa
+
+ϵM,i ϵa,i + op(1) d
+
+→ N (0 , V γa ),
+
+where Vγa = 1
+
+> π2
+> a
+
+E I(A = a)ϵ2 
+
+> M
+
+ϵ2
+
+> a
+
+ = σ2 
+
+> a
+> πa
+
+. The covariance between ∆ M and γa can be computed as Cov( ˆ∆M , ˆγa) = E
+
+ A − ππ(1 − π) ϵM
+
+I(A = a)
+
+πa
+
+ϵM ϵa
+
+
+
+= 0 ,
+
+since E(ϵ2 
+
+> M
+
+ϵa | X) = E(ϵ2 
+
+> M
+
+| X)E(ϵa | X) = 0. Using delta method, we have 
+
+V Rδ (a) = γ2 
+
+> a
+
+V∆M + ∆ 2 
+
+> M
+
+Vγa + 2 γa∆M Cov( ˆ∆M , ˆγa) = γ2
+
+> a
+
+π(1 − π) + ∆2 
+
+> M
+
+σ2
+
+> a
+
+πa
+
+.
+
+The variance of ˆζR(a) cannot be obtained by simply adding the variance of ¯Y1 − ¯Y0 and the variance of ˆ γ1−a ˆ∆M , because the sample mean difference and ˆ∆M are estimated from the same randomized trial. To account for this dependence, we use the following first-order expansion: 
+
+√N {ˆζR(a) − ζ(a)} = 1
+
+√N
+
+> N
+
+X
+
+> i=1
+
+φζ,a (Oi) + op(1) ,
+
+where 
+
+φζ,a (Oi) = I(Ai = 1) 
+
+π {Yi − θ(1 , 1) } − I(Ai = 0) 1 − π {Yi − θ(0 , 0) }− γ1−a
+
+ I(Ai = 1) 
+
+π ϵM,i − I(Ai = 0) 1 − π ϵM,i 
+
+
+
+− ∆M
+
+I(Ai = 1 − a)
+
+π1−a
+
+ϵM,i ϵ1−a,i .
+
+The first line is the influence function of the randomized-arm mean difference, the second line is the contribution from estimating ∆ M and γ1−a.Since A is randomized, the two treatment arms contribute additively to the asymptotic variance. In the arm A = a, the corresponding residual component is, up to an irrelevant sign, 
+
+Y (a, M (a)) − θ(a, a ) − γ1−aϵM .
+
+Under the structural working model, Cov {Y (a, M (a)) , ϵ M } = γa. Therefore, Var {Y (a, M (a)) − θ(a, a ) − γ1−aϵM } = S2 
+
+> a
+
++ γ21−a − 2γaγ1−a = S2 
+
+> a
+
+− γ2 
+
+> a
+
++ ( γa − γ1−a)2.
+
+In the arm A = 1 − a, the corresponding residual component is 
+
+Y (1 − a, M (1 − a)) − θ(1 − a, 1 − a) − γ1−aϵM ,
+
+together with the additional term from estimating γ1−a. Since Var {Y (1 − a, M (1 − a)) − θ(1 − a, 1 − a) − γ1−aϵM } = S21−a − γ21−a
+
+and Var( ϵM ϵ1−a) = σ21−a,
+
+while the corresponding covariance term is zero under the stated orthogonality conditions, the contribution from the arm A = 1 − a is 
+
+S21−a − γ21−a + ∆ 2 
+
+> M
+
+σ21−a.
+
+Combining the two arms gives 
+
+V Rζ (a) = S2 
+
+> a
+
+− γ2 
+
+> a
+
++ ( γa − γ1−a)2
+
+πa
+
++ S21−a − γ21−a + ∆ 2 
+
+> M
+
+σ21−a
+
+π1−a
+
+.
+
+35 S6.4 Proof of Corollary S1 
+
+Proof. Under the Baron–Kenny restriction, the mediator-to-outcome coefficient does not depend on the treatment level. Hence, 
+
+θ(a, 1) − θ(a, 0) = γ{E[M (1)] − E[M (0)] } = γ∆M .
+
+This gives the product representation of the indirect effect. By the Frisch–Waugh–Lovell theorem, the residualized treatment in the mediator regression is A − π, and the residualized mediator in the outcome regression after adjusting for A and X
+
+is ϵM . Since E(ϵ2 
+
+> M
+
+) = 1, the least-squares influence functions are 
+
+A − ππ(1 − π) ϵM
+
+for ˆ∆M , and 
+
+ϵM ϵY
+
+for ˆ γ. Therefore, 
+
+V∆M = 1
+
+π(1 − π) , Vγ = σ2 
+
+> Y
+
+.
+
+Their covariance is zero because 
+
+E
+
+ A − ππ(1 − π) ϵ2 
+
+> M
+
+ϵY
+
+
+
+= 0 .
+
+Applying the delta method to ˆδBK = ˆ γ ˆ∆M gives 
+
+V BK  
+
+> δ
+
+= γ2V∆M + ∆ 2 
+
+> M
+
+Vγ = γ2
+
+π(1 − π) + ∆ 2 
+
+> M
+
+σ2 
+
+> Y
+
+.
+
+For the direct effect, consider the residualized outcome regression 
+
+Y = fY (X) + ζBK A + γM + ϵY .
+
+After adjusting for X, write Ac = A − π and Mc = ∆ M Ac + ϵM . The design matrix for ( Ac, M c)has second moment 
+
+Q = E
+
+ A2 
+
+> c
+
+AcMc
+
+AcMc M 2
+
+> c
+
+
+
+=
+
+ π(1 − π) ∆M π(1 − π)∆M π(1 − π) ∆2 
+
+> M
+
+π(1 − π) + 1 
+
+
+
+.
+
+Thus the first diagonal element of Q−1, corresponding to the coefficient of A, is 
+
+{Q−1}11 = 1
+
+π(1 − π) + ∆ 2 
+
+> M
+
+.
+
+Since the outcome regression residual variance is σ2 
+
+> Y
+
+, we obtain 
+
+V BK  
+
+> ζ
+
+= σ2
+
+> Y
+
+ 1
+
+π(1 − π) + ∆ 2
+
+> M
+
+
+
+.
+
+36

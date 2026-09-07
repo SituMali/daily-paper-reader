@@ -1,0 +1,39 @@
+{
+  "label": "2026-09-07",
+  "date": "2026-09-07",
+  "generated_at": "2026-09-07T19:26:08",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202609/07/2609.02606v1-predictors-of-loneliness-in-older-adults-using-multimodal-analysis-of-speech-and-language",
+      "section": "quick",
+      "title_en": "Predictors of Loneliness in Older Adults Using Multimodal Analysis of Speech and Language",
+      "authors": "Vinmay Khandode, Sai Karthik Kosuri, Neil K. R. Sehgal, Adam Greene, Elif Alpoge, Elana Duffy, Matthew Lee Smith, Thomas K. M. Cudjoe, Sharath Chandra Guntuku",
+      "date": "2026-09-02",
+      "pdf": "https://arxiv.org/pdf/2609.02606v1",
+      "score": "7.0",
+      "evidence": "研究老年人孤独感的语音与语言多模态预测标记；孤独感与抑郁及社会支持不足密切相关，贴近主题。",
+      "tldr": "孤独感是老年人重大公共卫生问题，但缺乏客观检测方法。本研究分析310名老年人电话访谈的语音和语言特征，结合心理语言学、n-gram、主题模型和声学特征，发现孤独感与否定词、负面语气和冲突语言正相关，与社会参照、动机驱动和情感丰富度负相关。多模态模型优于单一文本或音频模型，表明语音分析可辅助心理评估。",
+      "tags": "query:dep-support",
+      "abstract_en": "Loneliness is a critical public health issue among older adults, linked to higher risks of depression, cognitive decline, and mortality. Scalable, objective methods for its detection remain limited, particularly in natural conversational contexts. We analyzed speech and language markers of loneliness in 310 older adults using semi-structured telephone interviews to help understand how they process feeling lonely and how their language differs at different levels of feeling loneliness. Our multimodal framework combined linguistic features (psycholinguistic dictionaries, n-grams, and topic models) with acoustic features (pitch, tone, loudness) to examine associations with self-reported loneliness scores. Both predefined and data-driven methods captured patterns in verbal content and vocal delivery. Higher loneliness was associated with negations(r = 0.11), negative tone(r = 0.12), and conflict-related language. Lower loneliness was linked to social references(r = -0.18), motivational drives(r = -0.11), and emotional richness in speech(r = -0.12). We also found that the multimodal model (r = 0.298) outperforms the text-only and audio-only models. Findings suggest that loneliness manifests through both linguistic and acoustic cues, supporting the potential of speech-based analysis in psychological assessments and as an early indicator of emotional loneliness when used alongside existing assessments, rather than as standalone diagnostic tools.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/07/2608.30412v1-power-and-sample-size-calculations-for-causal-mediation-analysis-with-a-binary-mediator-in-randomized-trials",
+      "section": "quick",
+      "title_en": "Power and sample size calculations for causal mediation analysis with a binary mediator in randomized trials",
+      "authors": "Bosen Cui, Yuhong Yang, Fan Yang",
+      "date": "2026-08-31",
+      "pdf": "https://arxiv.org/pdf/2608.30412v1",
+      "score": "6.0",
+      "evidence": "提出含二元中介变量的因果中介分析功效与样本量公式，可用于社会支持与抑郁关系机制研究的设计。",
+      "tldr": "随机试验中按总效应设计样本量常使自然中介效应或直接效应检验不足，因为随机化不延伸到中介变量。本文针对二元中介变量和连续或二元结局，提出RMPW估计量解析功效与样本量公式，将方差分解为少量可解释的设计参数。模拟显示解析结果接近模拟基准并能控制错误率，ACTG175示例说明可用试点数据校准输入。",
+      "tags": "query:dep-support",
+      "abstract_en": "Mediation analyses are increasingly conducted in randomized trials, but a sample size adequate for the total treatment effect may leave the natural indirect effect (NIE) or natural direct effect (NDE) substantially underpowered. Randomization does not extend to the mediator, so precision depends on the conditional mediator distribution and the mediator-outcome association, neither of which enters a total-effect calculation. Planning outside linear structural equation models is largely based on simulation under a fully specified data-generating mechanism rarely available at the design stage. This paper develops analytic power and sample size formulas for the NIE and NDE with a binary mediator and a continuous or binary outcome. Under standard identification assumptions, we focus on the ratio-of-mediator-probability weighting (RMPW) estimator that does not require an outcome model for effect estimation. We decompose the oracle variances of the RMPW estimators into components capturing mediator-probability-ratio variability, outcome variation, and their association, with an additional shared-arm covariance term for the NIE. Under a probit latent-index mediator and a working outcome model, these components are determined by a small number of interpretable design inputs rather than by the full joint distribution of covariates, mediator, and outcome. Simulations show that the analytic sample sizes closely match simulation-based benchmarks, attain the target power, and maintain type I error near the nominal level. An ACTG175 illustration shows how pilot data can calibrate the inputs.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,41 @@
+{
+  "date": "20260907",
+  "date_label": "",
+  "generated_at": "2026-09-07 19:26:06 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.02606v1",
+      "route": "202609/07/2609.02606v1-predictors-of-loneliness-in-older-adults-using-multimodal-analysis-of-speech-and-language",
+      "title": "Predictors of Loneliness in Older Adults Using Multimodal Analysis of Speech and Language",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "研究老年人孤独感的语音与语言多模态预测标记；孤独感与抑郁及社会支持不足密切相关，贴近主题。",
+      "first_seen_at": "2026-09-07 19:26:06 UTC",
+      "updated_at": "2026-09-07 19:26:06 UTC"
+    },
+    {
+      "paper_id": "2608.30412v1",
+      "route": "202609/07/2608.30412v1-power-and-sample-size-calculations-for-causal-mediation-analysis-with-a-binary-mediator-in-randomized-trials",
+      "title": "Power and sample size calculations for causal mediation analysis with a binary mediator in randomized trials",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "提出含二元中介变量的因果中介分析功效与样本量公式，可用于社会支持与抑郁关系机制研究的设计。",
+      "first_seen_at": "2026-09-07 19:26:06 UTC",
+      "updated_at": "2026-09-07 19:26:06 UTC"
+    }
+  ]
+}
