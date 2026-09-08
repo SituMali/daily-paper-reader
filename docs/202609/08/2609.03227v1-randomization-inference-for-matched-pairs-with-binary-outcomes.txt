@@ -1,0 +1,1824 @@
+Randomization Inference for Matched Pairs with
+Binary Outcomes
+Bob Wilson1,∗
+1Marketing Data Science at Meta
+∗Work done at Meta
+We give an exact randomization-based confidence set for the average treatment effect (ATE) in
+matched-pair studies with a binary outcome, requiring neither monotonicity nor any distributional
+assumption beyond the within-pair coin flip. At its core is an analytic solution to the worst-case
+allocation of attributable effects: two binomial-symmetry lemmas identify the pattern hardest to
+reject as a single boundary corner, so testing null hypotheses needs no integer program and no
+numerical search. Inverting the test via binary search yields a prediction set for the attributable
+effect in O(log S) Binomial tail calculations; the Bonferroni proposition of Rigdon and Hudgens (2015)
+produces the ATE confidence set at the same computational cost. The same corner extends without
+further machinery to a sensitivity analysis for matched observational studies under Rosenbaum’s Γ-
+model. A simple formula for the design sensitivity illuminates when an observational study can hope
+to provide evidence for an effect.
+Date: August 2026
+Correspondence: Bob Wilson at rwilson4@meta.com
+1
+Introduction
+Matched-pair designs are used for both experimental and observational causal inference.
+Units may be
+paired as a variance reduction strategy, with one unit from each pair randomly selected for treatment. In an
+observational study, treated units may be matched to controls on the basis of observed covariates to reduce
+selection bias. Inference about a treatment effect in such a design ought to rest on no more than the structure
+imposed by the assignment mechanism, whether imposed by the experiment or assumed in the matching.
+When the hypothesis of constant treatment effects is reasonable, we may use the Hodges-Lehmann method
+to obtain a point estimate (Hodges and Lehmann, 1963; Rosenbaum, 1993). For a binary outcome that
+hypothesis is implausible, since a constant nonzero effect forces every untreated unit to a single common
+counterfactual value, incompatible with anything but a perfectly homogeneous population.
+Rosenbaum
+(2001) introduced the notion of an attributable effect as an effect size identified by randomization. It is the
+number of successes caused by treatment among the treated, A1, and its mirror A0 for the untreated, the
+number of control failures that would have been successes under treatment.
+Rosenbaum (2001) built exact prediction sets for A1 in the unstratified case by inverting Fisher’s exact test
+on a discrete pivot, under the monotonicity assumption that treatment never prevents a success. Rosenbaum
+(2002) extended attributable effects to matched observational studies, giving exact randomization inference
+together with a large-sample approximation via asymptotic separability, both under monotonicity. Rigdon
+and Hudgens (2015) dropped monotonicity in the unstratified randomized experiment and combined A1 with
+A0 via Bonferroni into a confidence set for the average treatment effect; their procedure is fast because each
+prediction set inverts a single hypergeometric. They consider stratified problems (including matched pairs)
+only briefly, but propose a generic integer programming solution impractical in large sample sizes.
+The computational diﬀiculty of exact randomization inference for binary outcomes has drawn recent attention.
+Aronow et al. (2025) reduce the computational cost of the unstratified interval of Rigdon and Hudgens (2015)
+to O(n log n) permutation tests in balanced designs, but leave the stratified case explicitly open. Li et al.
+(2025) treat the stratified binary ATE directly, obtaining exact and conservative intervals by maximizing a
+1
+arXiv:2609.03227v1  [stat.ME]  3 Sep 2026
+
+
+permutation p-value over the compatible potential-outcome tables through a pruned search, at computational
+cost polynomial in the stratum sizes and with no closed form for the worst case. Zhang (2026) gives an O(log n)
+matched-pair ATE interval, also locating the worst case at a boundary corner; there, however, the corner
+is found for each pair stratum by solving a fixed-dimension integer program with a generic solver, and the
+construction targets the ATE alone. None of these address hidden bias.
+This note gives an analytic solution to the worst-case allocation for matched pairs, and builds the full
+attributable-effect and sensitivity machinery around it. Our contributions are:
+1. A closed-form worst-case pattern. Two binomial-symmetry lemmas (§4) identify the pattern of treat-
+ment effects hardest to reject among the combinatorial number of patterns consistent with a hypothe-
+sized A1 = a0, as the unique boundary corner of a two-dimensional integer rectangle. The worst-case
+test is a single Binomial tail calculation, with no integer program and no numerical search.
+2. A point estimate for the ATE matching the textbook McNemar formula, but motivated by random
+assignment rather than sampling arguments.
+3. An O(log S) ATE confidence set without monotonicity. Sweeping a0 inverts the test in O(log S) Binomial
+tail calculations; the mirror procedure handles A0, and the Bonferroni combination of Rigdon and
+Hudgens (2015) delivers the ATE set at the same computational cost, assuming no more than the
+within-pair coin flip. A continuity-corrected Gaussian approximation (§5) delivers the endpoints and
+the ATE interval in closed form.
+4. A sensitivity analysis. The construction extends to matched observational studies via Rosenbaum’s Γ-
+model at no additional computational cost (§7), including adjusted p-values, closed-form bounds on
+the Hodges-Lehmann point estimate, and expanded confidence intervals.
+5. A simple formula for the design sensitivity of a matched pairs study. The design sensitivity tells us the
+threshold of “hidden biases” beyond which the null hypothesis of no net treatment effect cannot be
+rejected at any sample size, playing a similar role in observational studies that power analysis plays in
+experiment design.
+§2 sets up the matched-pair design, the random attributable effects, and the prediction-set framing.
+§3
+reduces the testing problem to a family of equivalence classes via McNemar’s test. §4 proves two monotonicity
+lemmas and identifies the single hardest pattern. §5 inverts the test by binary search, provides a large-sample
+approximation, and proves the standard point estimate may be motivated by random assignment alone. §6
+combines A1 and A0 into the ATE confidence set and compares with sampling-based sets. §7 extends the
+procedure to observational studies via Rosenbaum’s sensitivity model. §8 summarizes the main takeaways.
+2
+Setting, target, and the randomization test
+Suppose we have 2S units arranged in S pairs, where units within a pair are matched on covariates measured
+before the study. In an experiment, one unit is selected for treatment uniformly at random within each
+pair. In an observational study, each treated unit is paired with a control unit, and we assume for now
+that within-pair selection probabilities are equal and strictly between 0 and 1 (strongly ignorable treatment
+selection); §7 relaxes this.
+Let Zsi = 1 if unit i in pair s is treated and 0 otherwise, with ∑2
+i=1 Zsi = 1. We assume the outcome
+experienced by a unit depends on that unit’s treatment selection, but not the selection made by any other
+unit, the Stable Unit Treatment Value Assumption (Rubin, 1980).
+As a result, each unit has potential
+outcomes {rCsi, rT si} ∈{0, 1}, and the observed outcome is Rsi = ZsirT si + (1 −Zsi)rCsi.
+Let R′
+si =
+(1 −Zsi)rT si + ZsirCsi denote the counterfactual outcome. Call an outcome of 1 a success and 0 a failure.
+Define the treatment effect τsi := rT si −rCsi ∈{−1, 0, 1}. The average treatment effect over all 2S units is
+ATE := 1
+2S
+S
+∑
+s=1
+2
+∑
+i=1
+τsi.
+2
+
+
+The vector τ is a fixed feature of the finite population. The randomness in the problem comes solely from
+the treatment assignment or selection mechanism that determines Z.
+It is convenient to split the ATE into two random pieces, the attributable effects of Rosenbaum (2001, 2002)
+and Rigdon and Hudgens (2015):
+A1(Z, τ) :=
+∑
+s,i
+Zsi · τsi,
+A0(Z, τ) :=
+∑
+s,i
+(1 −Zsi) · τsi.
+A1 is the net treatment effect among treated units: the number of successes observed among treated units the
+treatment caused minus the number of successes the treatment prevented. A0 is the corresponding quantity for
+the untreated. Both are random quantities because they depend on the treatment assignments, Z; however,
+A1(Z, τ) + A0(Z, τ) =
+∑
+s,i
+τsi = 2S · ATE,
+(1)
+a non-random quantity. Following Rigdon and Hudgens, we call the sets we construct for A1 and A0 prediction
+sets, not confidence sets, because the targets are random. As a parameter, the ATE has a confidence set we
+will build from the two prediction sets in §6.
+Routine algebra rewrites A1 in terms of observed and counterfactual outcomes:
+A1 =
+∑
+s,i
+Zsi · Rsi · (1 −R′
+si) −
+∑
+s,i
+Zsi · R′
+si · (1 −Rsi).
+The non-zero contributions to the first term are the treated units with observed successes (Rsi = 1) that
+would have been failures had they not been treated (R′
+si = 0); these are successes caused by treatment.
+The second term counts treated successes prevented by treatment (observed failures whose counterfactual
+was a success). Under the monotonicity assumption (τsi ≥0 for all units), the second term is zero. The
+monotonicity assumption is plausible in many circumstances, but is unnecessary for inferences regarding net
+treatment effects.
+Inference regarding the effect of treatment on the treated units involves speculation about the counterfactual
+(control) outcomes for these units. We do not need to speculate about the treated outcomes for these units,
+because we observe them. Thus, inference about A1 focuses on rC. Similarly, inference about A0 focuses on
+rT . We provide detailed derivations only for A1 to keep the discussion eﬀicient; parallel arguments apply to
+A0.
+A sharp null hypothesis specifies a pattern of treatment effects, {τsi}, and implies the counterfactual response
+for each unit. The data rule out many sharp nulls τ 0 before any formal test. If a treated unit has Rsi = 0,
+then rT si = 0 and so τsi̸ = 1. The general statement is
+τsi ∈{(2Zsi −1) · Rsi, (2Zsi −1) · (Rsi −1)}
+(2)
+for each unit. The set in (2) is observed, so we can immediately reject certain patterns of treatment effects as
+incompatible with the data. If (2) holds for the pattern asserted by a particular sharp null hypothesis, call
+it a compatible hypothesis. There are at most 22S compatible sharp null hypotheses.
+When testing hypotheses regarding A1, two compatible sharp null hypotheses specifying the same pattern
+of effects for the treated units but different patterns for the control units yield the same pattern of control
+potential outcomes. Any test based on rC yields the same inference for two such hypotheses. This reduces
+the number of distinct tests to 2S.
+McNemar’s test and equivalence classes.
+We use McNemar’s test for matched pairs with binary outcomes.
+Consider the pairs of control potential outcomes (rCs1, rCs2) (which includes the counterfactual outcomes for
+treated units, as implied by the null hypothesis). Some of these pairs consist of two successes or two failures;
+these are concordant pairs. Other pairs consist of one success and one failure, the discordant pairs. In an
+experiment (or a strongly ignorable observational study), the unit selected for treatment from a discordant
+pair is equally likely to have a success or failure as the control outcome. The number of treated units among
+3
+
+
+discordant pairs with a success as the control outcome thus has a Binom(S∗, 1
+2) distribution, where S∗is the
+number of discordant pairs. McNemar’s test rejects when the number of such units is too large or too small
+compared to this reference distribution.
+Categorize pairs by their pattern of observed outcomes. Let Sjk count pairs whose treated unit has R = j
+and whose control unit has R = k, for j, k ∈{0, 1}. Table 1 records, for each pattern, the value of τ 0
+si for
+the treated unit that would make the pair discordant according to the test statistic. For example, in a pair
+having a treated success and a control failure, if the null hypothesis asserts no treatment effect for the treated
+unit, its counterfactual outcome would still have been a success, and we would consider the pair discordant.
+Table 1 Hypothesized treatment effect on the treated unit that renders a pair concordant or discordant under the
+implied control outcomes.
+RsiT
+RsiC
+Concordant
+Discordant
+Pairs
+0
+0
+0
+−1
+S00
+0
+1
+−1
+0
+S01
+1
+0
+1
+0
+S10
+1
+1
+0
+1
+S11
+For a hypothesized τ 0, let mjk ∈{0, . . . , Sjk} count the pairs of category (j, k) the test statistic deems
+discordant. The total number of discordant pairs is S∗= ∑
+j,k mjk, and the number of those discordant
+pairs in which the treated unit is the success-under-control is m+0 := m00 +m10. Symmetrically, the number
+whose control unit is the success-under-control is m+1 := m01 + m11.
+McNemar’s statistic depends on τ 0 only through (m+0, m+1): under the null hypothesis,
+m+0 ∼Binom(m+0 + m+1, 1
+2).
+Two null hypotheses with the same (m+0, m+1) lead to the same inference. The number of effectively distinct
+inferences is therefore
+(S00 + S10 + 1) · (S01 + S11 + 1),
+(3)
+quadratic in S. The sharp null hypotheses thus fall into equivalence classes indexed by (m+0, m+1): two
+sharp nulls in the same equivalence class are either both rejected, or both retained.
+The role of monotonicity
+When the monotonicity assumption holds, it implies m00 = 0 and m01 = S01,
+which in turn implies there are only (S10 + 1) · (S11 + 1) distinct inferences.
+3
+Composite nulls and consistency constraints
+Often we are less interested in sharp null hypotheses than composite nulls regarding net treatment effects:
+• H0 : A1 ≤a0 vs H1 : A1 > a0
+• H′
+0 : A1 ≥a0 vs H′
+1 : A1 < a0
+• H†
+0 : A1 = a0 vs H†
+1 : A1̸ = a0
+The first two hypotheses are one-sided; the two-sided third hypothesis may be tested by performing the
+two one-sided tests at half the nominal level to adjust for multiple comparisons (Rosenbaum, 2015b, §2.2).
+Subsequent discussion will focus on H0 but the extension to other hypotheses is straightforward.
+Bounds on the inferential target.
+Let fT and sT denote the numbers of failures and successes among the
+treated units. We know a priori −fT ≤A1 ≤sT . The two extremes correspond to the scenario where
+every treated failure was caused by treatment and no successes were, and to the scenario where every treated
+success was caused by treatment and no failures were. This allows us to reject with logical certainty hypotheses
+H0 : A1 ≤a0 for a0 < −fT or H′
+0 : A1 ≥a0 for a0 > sT . Other hypotheses we know to be true a priori:
+4
+
+
+H0 : A1 ≤a0 for a0 ≥sT or H′
+0 : A1 ≥a0 for a0 ≤−fT . We restrict the range of nontrivial a0 to those in
+[−fT , sT ) for H0 and a0 ∈(−fT , sT ] for H′
+0.
+Consistency constraints.
+The realized A1 for a hypothesized τ 0 has the closed form
+A1 = S10 −m10 + m11 −m00 −S01 + m01
+= S10 −S01 + m+1 −m+0.
+A pattern (m0
++0, m0
++1) is consistent with H0 : A1 ≤a0 if and only if
+m0
++0 −m0
++1 ≥S10 −S01 −a0 =: δ0,
+subject to the box constraints 0 ≤m0
++0 ≤S00 + S10 and 0 ≤m0
++1 ≤S01 + S11. When monotonicity holds,
+the box constraints become 0 ≤m0
++0 ≤S10 and S01 ≤m0
++1 ≤S01 + S11. We reject a composite null only
+if we reject every sharp null compatible with it; this is the dictum of Rosenbaum (2019, pg. 290) that “to
+reject a composite hypothesis is to reject each and every way it may be true.” Rejecting H0 requires rejecting
+every consistent (m0
++0, m0
++1).
+For moderate S, it would be feasible to check each pattern (m+0, m+1) corresponding to the composite null.
+We reject the composite if and only if we reject each such pattern. In the next section, we identify a single
+pattern hardest to reject. If we reject this pattern, we know all other consistent patterns, and thus the
+composite hypothesis, are also rejected.
+Example
+Suppose we have a controlled experiment involving S = 1000 pairs, with one unit in each pair
+selected at random for treatment. In S00 = 800 of the pairs, neither unit experienced a successful outcome;
+in S11 = 100 of the pairs, both units did. In S10 = 70 of the pairs, the treated unit experienced a success
+while the control unit did not. In the remaining S01 = 30 pairs, the control unit experienced a success while
+the treated unit did not. We observe the Sjk counts.
+Suppose we wish to test H0 : A1 ≤0, with a0 = 0. Rejecting this null hypothesis would constitute evidence
+the net treatment effect was positive. Then δ0 = 70 −30 −0 = 40. A hypothesis τ 0 corresponds to a claim
+about how many of the Sjk pairs would be discordant if we observed the control outcomes for treated units.
+A particular τ 0 might correspond to m00 = 400, m11 = 50, m10 = 35, and m01 = 15; that is, half the pairs
+in each category would be discordant according to the control outcomes. Then m+0 = 435 and m+1 = 65.
+This pattern is consistent with H0, since the realized A1 = −330 ≤0 (equivalently, since 435 −65 ≥40) and
+so it is one of the patterns we must test if we hope to reject H0.
+Although 100 of the pairs are discordant according to the observed responses, McNemar uses the implied
+control outcomes as the basis for the test. In this example, the null hypothesis corresponds to S∗= 500
+discordant pairs, and the null hypothesis would have us believe 435 of these pairs have the treated unit as
+the success-under-control. Since Pr{Binom(500, 1
+2) ≥435} ≈1.52 × 10−68, McNemar’s test would reject this
+specific pattern. Yet there are many other patterns (m0
++0, m0
++1) consistent with H0 : A1 ≤0, so rejecting
+this particular pattern is just the first step. The full consistent set is the shaded trapezoid of Figure 1a.
+The role of monotonicity
+Under the monotonicity assumption, m00 = 0 and m01 = S01 (§2), so the consistent
+patterns are confined to m0
++0 ∈[0, S10] and m0
++1 ∈[S01, S01 + S11]. Therefore, m0
++0 −m0
++1 ≤S10 −S01. For
+the null H0 : A1 ≤0 (where δ0 = S10 −S01) the consistency constraint is m0
++0 −m0
++1 ≥S10 −S01, so the
+only possibility is (m0
++0, m0
++1) = (S10, S01) (Figure 1b). This is the textbook application of McNemar’s test,
+which typically considers only the sharp null hypothesis of no treatment effect for any unit (Lehmann, 1975).
+In general, the consistent region may include more than one pattern we must test, but the next section shows
+we can identify the single hardest pattern to reject.
+4
+The single hardest pattern
+For a consistent τ 0, the McNemar test statistic is m0
++0, and its null distribution under strongly ignorable
+treatment selection is Binom(m0
++0+m0
++1, 1
+2). Consistency forces m0
++0 above the binomial mean (when δ0 > 0),
+5
+
+
+m0
++0
+m0
++1
+870
+S00+S10
+130
+S01+S11
+40
+δ0
+(a) No monotonicity assumption
+m0
++0
+m0
++1
+70
+S10
+δ0
+30
+S01
+130
+(70, 30)
+consistency region
+collapses to the
+single point (70, 30)
+(b) Under monotonicity
+Figure 1 The set of patterns (m0
++0, m0
++1) consistent with the composite null H0 : A1 ≤0 in the example, where
+δ0 = S10 −S01 −a0 = 40.
+(a) Without the monotonicity assumption the consistent patterns form the shaded
+trapezoid, bounded to the left by the consistency line m0
++1 = m0
++0 −δ0 and on the other sides by the box constraints.
+We reject the composite null only if we reject every pattern in the region. (b) Under monotonicity the box shrinks to
+m0
++0 ∈[0, S10] and m0
++1 ∈[S01, S01 + S11], and the consistent region collapses to the single point (70, 30). §4 discusses
+the starred pattern.
+so the natural test is right-tailed:
+p>(a, b) := Pr{Binom(a + b, 1
+2) ≥a},
+a := m0
++0, b := m0
++1.
+(4)
+We reject H0 if and only if sup{p>(a, b) : (a, b) consistent} ≤α.
+The supremum admits a closed form. Two monotonicity properties of p> identify the pattern hardest to
+reject.
+Lemma 1 (Pointwise monotonicity in a). For each fixed b and a ≥0, p>(a + 1, b) < p>(a, b).
+The practical consequence of Lemma 1 is that the pattern hardest to reject lies on the left boundary of the
+consistent region as illustrated in Figure 1.
+Proof. Suppose B1 ∼Binom(a + b, 1
+2) and B2 ∼Bernoulli( 1
+2). Then B3 = B1 + B2 has a Binom(a + b + 1, 1
+2)
+distribution. By iterated expectations,
+p>(a + 1, b) = Pr{B3 ≥a + 1}
+= Pr{B1 + B2 ≥a + 1 | B2 = 0} · Pr{B2 = 0}
++ Pr{B1 + B2 ≥a + 1 | B2 = 1} · Pr{B2 = 1}
+= 1
+2 · Pr{B1 ≥a + 1} + 1
+2 · Pr{B1 ≥a}
+= 1
+2 · [Pr{B1 ≥a} −Pr{B1 = a}] + 1
+2 · Pr{B1 ≥a}
+= Pr{B1 ≥a} −1
+2 Pr{B1 = a}
+= p>(a, b) −1
+2 Pr{B1 = a}
+< p>(a, b),
+since the binomial point mass at a is strictly positive.
+Example, continued.
+Fix the m+1 = 65 slice. The example pattern sits at m+0 = 435, with p>(435, 65) ≈
+1.52 × 10−68. Stepping one unit to the right gives p>(436, 65) ≈8.73 × 10−69, just under half the previous
+value, in agreement with Lemma 1. The full slice runs over m+0 ∈[105, 870]: the lower endpoint is the
+6
+
+
+consistency floor m+1 +δ0 = 65+40; the upper endpoint is the box-constraint ceiling S00 +S10 = 870, above
+which the pattern is incompatible with the observed counts. Figure 2 plots p>(m+0, 65) over this range on
+a log scale.
+100
+10−50
+10−100
+10−150
+10−200
+105
+200
+400
+600
+870
+m+0 (with m+1 = 65)
+p>(m+0, 65)
+α = 0.05
+(105, 1.3×10−3)
+m+0 = 435 (example pattern)
+Figure 2 Lemma 1 in the running example: along the m+1 = 65 slice, p>(m+0, 65) is strictly decreasing in m+0. The
+supremum over consistent values is therefore attained at the leftmost endpoint m+0 = m+1 + δ0 = 105.
+Because p>(·, 65) is monotone decreasing, the supremum on this slice occurs at the smallest consistent value
+m+0 = 105, where p>(105, 65) ≈1.34 × 10−3. This single value is below conventional α, so we reject every
+pattern with m+1 = 65; we need not evaluate any of the other 765 points on this slice. By Lemma 1 the
+same holds for every m+1, and the supremum of p> over consistent (a, b) lies on the boundary a = b + δ0.
+We are left with a one-dimensional problem in b.
+Define p′
+>(b) := p>(b + δ0, b) = Pr{Binom(2b + δ0, 1
+2) ≥b + δ0}. Lemma 2 demonstrates that p′
+> is increasing
+in b when δ0 ≥2 and decreasing when δ0 = 0. When δ0 = 1, p′
+>(b) = 1
+2 for all 0 ≤b ≤S01 + S11. Since
+δ0 = S10 −S01 −a0 is known as soon as we specify a0, Lemma 2 allows us to identify which boundary value
+will yield the largest p-value. The case δ0 < 0 (which arises when a0 > S10 −S01) falls outside the lemma’s
+scope and is discussed in §5.
+Lemma 2 (Boundary monotonicity in b). For integer δ0 ≥0 and integer b ≥0,
+p′
+>(b + 1) = p′
+>(b) + 1
+4 · δ0 −1
+b + δ0
+· Pr{Binom(2b + δ0, 1
+2) = b + δ0 −1}.
+The boundary value is strictly increasing in b for δ0 ≥2, identically 1
+2 for δ0 = 1, and strictly decreasing for
+δ0 = 0.
+The practical consequence of Lemma 2 is the pattern hardest to reject lies at the upper boundary of the
+consistent region (when δ0 ≥2) as illustrated in Figure 1, and when combined with Lemma 1, uniquely
+identifies the single hardest to reject pattern. If we reject that pattern, we reject H0.
+Proof. Suppose B1 ∼Binom(2b + δ0, 1
+2) and B2 ∼Binom(2, 1
+2). Then B3 = B1 + B2 has a Binom(2(b + 1) +
+7
+
+
+δ0, 1
+2) distribution. By iterated expectations,
+p′
+>(b + 1) = Pr{B3 ≥b + 1 + δ0}
+= Pr{B1 ≥b + 1 + δ0} · Pr{B2 = 0}
++ Pr{B1 ≥b + δ0} · Pr{B2 = 1}
++ Pr{B1 ≥b −1 + δ0} · Pr{B2 = 2}
+= 1
+4 Pr{B1 ≥b + 1 + δ0} + 1
+2 Pr{B1 ≥b + δ0} + 1
+4 Pr{B1 ≥b −1 + δ0}
+= Pr{B1 ≥b + δ0} + 1
+4 [Pr{B1 = b −1 + δ0} −Pr{B1 = b + δ0}]
+= p′
+>(b) + 1
+4 ·
+(
+1 −b + 1
+b + δ0
+)
+Pr{B1 = b −1 + δ0}
+= p′
+>(b) + 1
+4 · δ0 −1
+b + δ0
+· Pr{B1 = b −1 + δ0}.
+The second-to-last line uses the Binomial probability mass function to write Pr{B1 = b+δ0} =
+b+1
+b+δ0 ·Pr{B1 =
+b −1 + δ0}.
+When δ0 ≥2, we have p′
+>(b + 1) > p′
+>(b), so p′
+> is increasing. When δ0 = 1, p′
+>(b + 1) = p′
+>(b), so p′
+> is a
+constant. Since p′
+>(b) = Pr{Binom(2b + 1, 1
+2) ≥b + 1}, and since Binom(2b + 1, 1
+2) is symmetric about b + 1
+2,
+p′
+>(b) = 1
+2 in this case.
+Proposition 1 (Worst-case pattern). For integer δ0 ≥2 (equivalently, for a0 ≤S10−S01−2), the supremum
+of p>(a, b) over patterns consistent with H0 : A1 ≤a0 occurs at the unique point
+b⋆= min
+(
+S01 + S11, S00 + S10 −δ0
+)
+,
+a⋆= min
+(
+S01 + S11 + δ0, S00 + S10
+)
+,
+(5)
+or, when we assume monotonic treatment effects,
+b⋆= min
+(
+S01 + S11, S10 −δ0
+)
+,
+a⋆= min
+(
+S01 + S11 + δ0, S10
+)
+.
+(6)
+For δ0 ∈{0, 1} (equivalently, for a0 ∈{S10 −S01, S10 −S01 −1}), the supremum equals 1 and 1
+2 respectively;
+the test cannot reject at conventional α.
+Proof. By Lemma 1, the supremum on each horizontal slice lies on the boundary a = b + δ0. By Lemma 2,
+the supremum on the boundary is attained at the largest b admitted by the box constraints, which is (5),
+or (6) when we assume monotonic treatment effects. The boundary cases follow from the explicit values in
+Lemma 2.
+The two cases reflected in the min formulae correspond to whether the diagonal line corresponding to the
+consistency constraint intersects the top or right boundary of the box, resp. In Figure 1, the line intersected
+the top of the box, so b⋆= S01 +S11 and a⋆= S01 +S11 +δ0 = S10 +S11 −a0. This will be the case whenever
+a0 ≥S11 −S00 (no monotonicity assumption) or when a0 ≥S11 (monotonic treatment effects). The practical
+consequence: testing H0 : A1 ≤a0 requires a single Binomial tail calculation, computed at the boundary
+corner (a⋆, b⋆).
+Example, continued.
+Along the consistency boundary m+1 = m+0 −40, the box constraints permit m+1 ∈
+[0, min(S01 + S11, S00 + S10 −40)] = [0, min(130, 830)] = [0, 130].
+Lemma 2 (with δ0 = 40 ≥2) says
+p>(m+1 + 40, m+1) is strictly increasing in m+1 along this range; Figure 3 plots the curve. By Proposition 1
+the worst pattern is (a⋆, b⋆) = (170, 130), with p>(a⋆, b⋆) ≈0.0121 < 0.05. We reject the composite null
+H0 : A1 ≤0 at α = 0.05, on the strength of this single Binomial tail calculation rather than the 871 × 131 =
+114,101 patterns enumerated by (3).
+8
+
+
+100
+10−3
+10−6
+10−9
+10−12
+0
+30
+65
+100
+130
+m+1 (boundary m+0 = m+1 + 40)
+p>(m+1 + 40, m+1)
+α = 0.05
+(b⋆, p⋆) = (130, 0.012)
+Figure 3 Lemma 2 in the running example: along the consistency boundary m+1 = m+0 −40, the worst-case p-value is
+strictly increasing in m+1. The supremum is attained at the right endpoint b⋆= min(130, 830) = 130, with a⋆= 170
+and p>(170, 130) ≈0.0121. Since this falls below α = 0.05 (orange dashed line), H0 : A1 ≤0 is rejected.
+A test for the upper bound.
+We handle the hypothesis H′
+0 : A1 ≥a0 symmetrically. For the upper-bound
+regime a0 ≥S10 −S01, consistency becomes m0
++1 −m0
++0 ≥−δ0: the consistency region lies above the diagonal
+line but subject to the same box constraints illustrated in Figure 1. For evaluating a particular pattern, the
+natural test is left-tailed, p<(a, b) := Pr{Binom(a + b, 1
+2) ≤a}. The analogue of Lemma 1 is that for fixed a,
+the supremum lies at the bottom of the consistency region, along the diagonal line. The analogue of Lemma 2
+demonstrates the supremum lies on the right side of this diagonal (when δ0 ≤−2). The worst-case pattern
+is given by the same formula as in (5) and (6).
+Inference for A0.
+The same approach works for the net effect among the controls, A0, with treatment and
+control exchanged.
+Inference about A1 rests on the control potential outcomes implied by a sharp null,
+r0
+Csi = Rsi −Zsi τ 0
+si, and runs McNemar’s test on the resulting control-based discordant pairs. Inference
+about A0 rests on the treated potential outcomes implied by the same sharp null, r0
+T si = Rsi + (1 −Zsi) τ 0
+si,
+and runs McNemar on the treatment-based discordant pairs.
+We still categorize the pairs by their observed outcomes (RsiT , RsiC), so the counts Sjk are unchanged. What
+differs is the hypothesized effect rendering a pair concordant or discordant, which now acts on the control
+unit. The analogue of Table 1 is obtained by negating its Discordant column: rows (0, 0) and (1, 1) flip
+sign, while the Concordant column is unchanged. The test statistic is still the number of discordant pairs in
+which the treated unit is the success-under-treatment, which now has formula m1+ := m10 + m11. Writing
+m0+ := m00 + m01, the realized net effect is A0 = S10 −S01 + m0+ −m1+, analogous to the identity for A1.
+The box constraints of §4 then become
+0 ≤m0+ ≤S00 + S01,
+0 ≤m1+ ≤S10 + S11,
+(7)
+with m1+ −m0+ ≥S10 −S01 −a0 =: δ0 completing the consistency region. The analogues of Lemmas 1
+and 2 set a = m1+ and b = m0+ then proceed verbatim. Table 2 summarizes the worst-case patterns for
+each scenario.
+5
+Prediction sets via binary search
+Inverting the tests gives prediction sets for A1. When a0 is at its lowest possible value, −fT , then δ0 =
+S00 + S10, b⋆= 0, and
+p′
+>(b⋆) = Pr{Binom(S00 + S10, 1
+2) ≥S00 + S10}
+= 2−(S00+S10) = 2−fC.
+9
+
+
+Table 2 Worst-case patterns (a⋆, b⋆) for the matched-pair tests, by estimand and monotonicity assumption; the worst-
+case pattern is the same for both test directions.
+When testing H0 : A0/1 ≤a0 vs. H1 : A0/1 > a0 (for a0 ≤
+S10 −S01 −2), the worst-case p-value is Pr{Binom(a⋆+ b⋆, 1
+2) ≥a⋆}; when testing H′
+0 : A0/1 ≥a0 vs. H′
+1 : A0/1 < a0
+(for a0 ≥S10 −S01 + 2), it is Pr{Binom(a⋆+ b⋆, 1
+2) ≤a⋆}. Within each min, the first argument corresponds to the
+consistency line meeting the top of the constraint box, the second to its right edge.
+Estimand
+Monotonic Treatment Effects?
+a⋆
+b⋆
+A1
+N
+min(S10 + S11 −a0, S00 + S10)
+min(S01 + S11, S00 + S01 + a0)
+A1
+Y
+min(S10 + S11 −a0, S10)
+min(S01 + S11, S01 + a0)
+A0
+N
+min(S00 + S10 −a0, S10 + S11)
+min(S00 + S01, S01 + S11 + a0)
+A0
+Y
+min(S00 + S10 −a0, S10)
+min(S00 + S01, S01 + a0)
+If there are at least 5 failures among the control units, we can reject H0 : a0 = −fT at the conventional
+α = 0.05 level.
+As a0 grows, δ0 shrinks, and the worst-case pattern moves first up and then left. Both lead to larger p-values
+by arguments similar to those underlying Lemmas 1 and 2. When a0 = S10 −S01 −1, δ0 = 1, p′
+>(b⋆) = 1
+2,
+and we cannot reject. The lower endpoint of the one-sided 1 −α prediction set,
+Lα := inf{a0 ∈Z | p>(a⋆(a0), b⋆(a0)) > α},
+may therefore be located by binary search over the integer range a0 ∈[−fT , S10−S01−1] in O(log S) Binomial
+tail calculations. The other one-sided test gives an upper endpoint Uα. A two-sided 1 −2α prediction set for
+A1 is [Lα, Uα].
+Example, continued.
+Sweeping a0 in the running example pins both endpoints. Throughout the relevant
+range, the worst b⋆stays at the box-constraint ceiling S01 + S11 = 130, and a⋆= 130 + δ0. For the lower
+endpoint with α = 0.05,
+p>(159, 130) ≈0.0497
+(a0 = 11, δ0 = 29),
+p>(158, 130) ≈0.0557
+(a0 = 12, δ0 = 28).
+The worst-case p-value crosses 0.05 between a0 = 11 and a0 = 12, so L0.05 = 12. The upper bound test gives
+p<(104, 130) ≈0.0510
+(a0 = 66, δ0 = −26),
+p<(103, 130) ≈0.0441
+(a0 = 67, δ0 = −27),
+so U0.05 = 66. The one-sided 95% prediction sets are {A1 ≥12} and {A1 ≤66} respectively; their intersection
+is the two-sided 90% prediction set A1 ∈[12, 66].
+The no-information band.
+The boundary cases of Proposition 1 are interpretable.
+When δ0 = 0 (i.e.,
+a0 = S10 −S01, the observed treated-success surplus), the consistent pattern (0, 0) corresponds to “no
+treatment effect on any treated unit,” yields an empty McNemar test, and has p-value 1. When δ0 = 1,
+every boundary pattern has p-value exactly 1
+2. When δ0 < 0 (i.e., a0 > S10 −S01), the consistency constraint
+m+0 ≥m+1 + δ0 is weaker than the natural non-negativity bound m+0, m+1 ≥0; the unconstrained worst-
+case sits at m+0 < m+1, where the right-tailed p-value Pr{Binom(m+0 + m+1, 1
+2) ≥m+0} approaches 1. In
+all three cases the test cannot reject at conventional α, so the lower endpoint of any one-sided prediction set
+for A1 lies in δ0 ≥2, i.e., the prediction set necessarily contains {a0 ≥S10 −S01 −1}.
+The Hodges-Lehmann point estimate.
+The same machinery yields a closed-form point estimate. The worst-
+case statistic a⋆(a0) has null mean 1
+2(a⋆+b⋆)(a0), so the estimating function S(a0) := a⋆(a0)−1
+2(a⋆+b⋆)(a0)
+has null expectation zero. Solving S(a0) = 0 for a0 defines the point estimator ˆA, an instance of the method-
+of-moments procedure analyzed by Maritz (1995, Lemma 1.2) and consistent under the regularity conditions
+stated there. This is the construction Hodges and Lehmann (1963) introduced for inverting a location-shift
+rank test; here we apply it to matched pairs with binary outcomes. Equating a⋆to its null mean forces
+10
+
+
+a⋆= b⋆, hence δ0 = 0 via Proposition 1 (with or without assuming monotonic treatment effects), and so the
+point estimate is
+ˆA = S10 −S01.
+(8)
+The worst-case pattern (a⋆, b⋆) is the same for H0 or H′
+0. They differ for inferences regarding A1 or A0,
+but for A0, too, the strategy leads to Equation (8) as the point estimate. Equation (8) is the difference
+in observed discordant-pair counts, which matches classic discussions based on sampling from a population.
+Our derivation shows the assignment mechanism (random in an experiment or strongly ignorable in an
+observational study) justifies the point estimate, without assuming the units are samples from a population.
+Example, continued.
+The Hodges-Lehmann point estimate for the net treatment effect among treated units
+is ˆA = S10 −S01 = 40. The prediction set above brackets the point estimate asymmetrically, with 28 units of
+room below and 26 above. The asymmetry reflects the larger Binomial variance (proportional to n = a⋆+b⋆)
+at the lower-bound crossing (n = 288) than at the upper (n = 234), so we need a slightly wider half-interval
+below the point estimate than above.
+Large-sample approximation.
+For large S the binary search admits a closed-form Gaussian approximation.
+Standardize the worst-case McNemar statistic against its Binom(a⋆+b⋆, 1
+2) null, with a continuity correction
+a⋆7→a⋆−1
+2 for the integer support so we approximate Pr{a⋆≥a} = Pr{a⋆> a −1} symmetrically,
+Z := a⋆−1
+2 −1
+2(a⋆+ b⋆)
+1
+2
+√
+a⋆+ b⋆
+=
+δ0 −1
+√2b⋆+ δ0
+.
+Setting Z = z1−α and squaring yields a quadratic in δ0, but b⋆= min(S01 +S11, S00 +S10 −δ0) itself depends
+on δ0, so the positive root takes one of two forms according to which face of the constraint box the consistency
+line meets (§4; Figure 1).
+Top face (b⋆= S01 + S11, when a0 ≥S11 −S00; equivalently, when δ0 ≤S00 + S10 −S01 −S11): δ2
+0 −(2 +
+z2
+1−α)δ0 + 1 −2(S01 + S11)z2
+1−α = 0, so
+δ⋆
+0 = 1 + 1
+2z2
+1−α +
+√
+2z2
+1−α(S01 + S11) + z2
+1−α + 1
+4z4
+1−α.
+(9)
+Right face (b⋆= S00 + S10 −δ0, hence a⋆= S00 + S10, when a0 ≤S11 −S00): here δ2
+0 −(2 −z2
+1−α)δ0 + 1 −
+2(S00 + S10)z2
+1−α = 0, so
+δ⋆
+0 = 1 −1
+2z2
+1−α +
+√
+2z2
+1−α(S00 + S10) −z2
+1−α + 1
+4z4
+1−α.
+(10)
+The lower endpoint is Lα = (S10 −S01) −⌊δ⋆
+0⌋, taking whichever root is self-consistent (meaning, the one
+whose implied a0 = (S10 −S01) −⌊δ⋆
+0⌋is on the corresponding side of S11 −S00). Since Z is continuous
+and strictly increasing in δ0, with only a change of slope where the faces meet (δ0 = S00 + S10 −S01 −S11),
+exactly one root is self-consistent; on the rare occasion that the flooring straddles the crossover, Lα is settled
+by evaluating Z directly on the few integers between the two candidates. The upper endpoint Uα follows
+from the left-tailed test, its root carrying −1
+2z2
+1−α in place of + 1
+2z2
+1−α; the leading +1 from the continuity
+correction is common to both endpoints.
+Factoring z1−α out of the square root in (9)–(10) gives, on each face, δ⋆
+0 = 1± 1
+2z2
+1−α+z1−α
+√
+2S• ± 1 + 1
+4z2
+1−α,
+where the ceiling S• is S01 + S11 with the upper signs (top face) and S00 + S10 with the lower (right face).
+In the typical regime a single face – the one with the smaller ceiling min(S00 + S10, S01 + S11) – binds both
+endpoints; dropping the ±1 inside the radical (negligible against 2S•), the prediction-set endpoints are
+Lα, Uα ≈(S10 −S01) −1
+2z2
+1−α ∓
+(
+1 + z1−α
+√
+2 min(S00 + S10, S01 + S11) + 1
+4z2
+1−α
+)
+.
+(11)
+The interval is nearly symmetric about the point estimate (8). The −1
+2z2
+1−α term shifts both endpoints
+slightly downward, so the lower half-width carries a slight excess over the upper, a closed-form expression of
+the asymmetry observed numerically above.
+11
+
+
+Table 3 Large-sample Gaussian approximations to the prediction-set endpoints, by estimand (A1 or A0), monotonicity
+assumption, endpoint (lower Lα or upper Uα), and which face of the constraint box the consistency line meets — the top
+(T) or right (R). Throughout, z := z1−α, and each expression is the continuity-corrected root of the standardization
+in §5. For a given estimand and monotonicity assumption, the applicable face is the one whose endpoint satisfies the
+criterion in the final column; the integer endpoints are then Lα = ⌈·⌉and Uα = ⌊·⌋of the tabulated value.
+Estimand
+Monotonic
+Treatment
+Effects?
+Formula
+Criterion
+A1
+N
+LT
+α = S10 −S01 −1 −1
+2z2 −z
+√
+2(S01 + S11) + 1 + 1
+4z2
+LT
+α ≥S11 −S00
+LR
+α = S10 −S01 −1 + 1
+2z2 −z
+√
+2(S00 + S10) −1 + 1
+4z2
+LR
+α ≤S11 −S00
+U T
+α = S10 −S01 + 1 −1
+2z2 + z
+√
+2(S01 + S11) −1 + 1
+4z2
+U T
+α ≥S11 −S00
+U R
+α = S10 −S01 + 1 + 1
+2z2 + z
+√
+2(S00 + S10) + 1 + 1
+4z2
+U R
+α ≤S11 −S00
+Y
+LT
+α = S10 −S01 −1 −1
+2z2 −z
+√
+2(S01 + S11) + 1 + 1
+4z2
+LT
+α ≥S11
+LR
+α = S10 −S01 −1 + 1
+2z2 −z
+√
+2S10 −1 + 1
+4z2
+LR
+α ≤S11
+U T
+α = S10 −S01 + 1 −1
+2z2 + z
+√
+2(S01 + S11) −1 + 1
+4z2
+U T
+α ≥S11
+U R
+α = S10 −S01 + 1 + 1
+2z2 + z
+√
+2S10 + 1 + 1
+4z2
+U R
+α ≤S11
+A0
+N
+LT
+α = S10 −S01 −1 −1
+2z2 −z
+√
+2(S00 + S01) + 1 + 1
+4z2
+LT
+α ≥S00 −S11
+LR
+α = S10 −S01 −1 + 1
+2z2 −z
+√
+2(S10 + S11) −1 + 1
+4z2
+LR
+α ≤S00 −S11
+U T
+α = S10 −S01 + 1 −1
+2z2 + z
+√
+2(S00 + S01) −1 + 1
+4z2
+U T
+α ≥S00 −S11
+U R
+α = S10 −S01 + 1 + 1
+2z2 + z
+√
+2(S10 + S11) + 1 + 1
+4z2
+U R
+α ≤S00 −S11
+Y
+LT
+α = S10 −S01 −1 −1
+2z2 −z
+√
+2(S00 + S01) + 1 + 1
+4z2
+LT
+α ≥S00
+LR
+α = S10 −S01 −1 + 1
+2z2 −z
+√
+2S10 −1 + 1
+4z2
+LR
+α ≤S00
+U T
+α = S10 −S01 + 1 −1
+2z2 + z
+√
+2(S00 + S01) −1 + 1
+4z2
+U T
+α ≥S00
+U R
+α = S10 −S01 + 1 + 1
+2z2 + z
+√
+2S10 + 1 + 1
+4z2
+U R
+α ≤S00
+For the running example the binding ceiling is min(S00+S10, S01+S11) = S01+S11 = 130. The lower root (9)
+is δ⋆
+0 ≈28.96, giving L0.05 = 40 −⌊28.96⌋= 12; the mirror root is ≈26.16, giving U0.05 = 40 + ⌊26.16⌋= 66.
+The Gaussian approximation lands on the binary-search values [12, 66]. The approximation requires δ0 ≫2
+and should not be applied inside the no-information band.
+Inference for A0.
+The topics of this section carry over to A0 unchanged. With the worst-case patterns
+already established in §4 (Table 2, under the swapped box constraints (7)), the binary-search inversion
+of the exact test, its large-sample Gaussian approximation, and the Hodges-Lehmann point estimate all
+apply verbatim, differing only in which marginal of the Sjk table supplies the box ceilings. For the running
+example, an exact two-sided 90% prediction set for A0 is [11, 72]. The Gaussian approximation leads to the
+same interval.
+Table 3 collects the resulting large-sample endpoints for both one-sided tests, for A1 and A0, with and without
+the monotonicity assumption, and for each of the two constraint-box faces the consistency line may meet.
+6
+Confidence sets for the ATE
+Section 5 produces prediction sets for both A1(Z, τ) and A0(Z, τ). Combining the two yields a confidence
+set for the ATE via the constraint (1).
+Proposition 1 of Rigdon and Hudgens (2015) governs the combination: if {L1, L1 + 1, . . . , U1} is a 1 −α/2
+12
+
+
+prediction set for A1 and {L0, L0 + 1, . . . , U0} is a 1 −α/2 prediction set for A0, then
+{L1 + L0
+2S
+, L1 + L0 + 1
+2S
+, . . . , U1 + U0
+2S
+}
+is a 1 −α confidence set for the ATE. The proof is a Bonferroni argument exploiting (1): the joint coverage
+of two 1 −α/2 prediction sets is at least 1 −α. The linear constraint pins the combined endpoints to the
+extremes of the two prediction sets.
+Combining two 1 −α prediction sets without the half-α correction does not guarantee 1 −α coverage, which
+is addressed by the Bonferroni adjustment. Rigdon and Hudgens exhibit a small finite-population example
+(m = 4 of n = 9 treated) in which the naive combination achieves only 92% coverage where 95% was nominally
+claimed.
+End-to-end procedure.
+1. Build the two-sided 1 −α/2 prediction set [L1, U1] for A1 by binary search at level α/4 on each side.
+2. Build the two-sided 1 −α/2 prediction set [L0, U0] for A0 by the mirror procedure at level α/4 on each
+side.
+3. Form the ATE confidence set
+[
+(L1 + L0)/(2S), (U1 + U0)/(2S)
+]
+.
+The total computational cost is four binary searches, i.e., O(log S) Binomial tail calculations.
+Example, continued.
+For a 1 −α = 0.90 confidence set on the ATE we need 1 −α/2 = 0.95 two-sided
+prediction sets for A1 and A0. These are the intersection of two one-sided intervals at level α/4 = 0.025,
+half the per-side level used in §5’s example. Applying that procedure at the stricter level (for A0, under the
+swapped box ceilings (7)) gives A1 ∈[6, 70] and A0 ∈[5, 79]. Combining,
+ATE ∈
+[L1 + L0
+2S
+, U1 + U0
+2S
+]
+=
+[ 11
+2000, 149
+2000
+]
+= [0.0055, 0.0745]
+is a 90% confidence set for the ATE. It brackets the randomization-based point estimate [
+ATE = (S10 −
+S01)/S = 0.040 symmetrically, with half-width 0.0345 on each side. The symmetry is structural: the A1
+prediction set [6, 70] leans low about its pivot (34 below, 30 above) and the A0 prediction set [5, 79] leans
+high (35 below, 39 above). The asymmetries cancel under the sum L1 + L0 versus U1 + U0, as the swapped
+boxes guarantee.
+Large-sample ATE confidence interval.
+Combining the Gaussian approximations of §5 (equation (11) and
+its A0 mirror) via the Bonferroni proposition above yields the closed-form ATE confidence interval
+[
+ATE ± z1−α/4
+2S
+(√
+2 min(S10 + S00, S01 + S11) + 1
+4z2
+1−α/4
++
+√
+2 min(S10 + S11, S01 + S00) + 1
+4z2
+1−α/4
+)
+,
+(12)
+where [
+ATE = (S10−S01)/S and z1−α/4 is the per-side critical value after the α →α/4 Bonferroni adjustment
+(one factor of two for two-sided, one for the A1/A0 combination). For the running example the binding ceilings
+are min(S10+S00, S01+S11) = 130 and min(S10+S11, S01+S00) = 170, and z0.975 = 1.96, giving a half-width
+of (1.96/2000)
+(√
+2 · 130 + 1
+4(1.96)2 +
+√
+2 · 170 + 1
+4(1.96)2)
+≈0.0339 at 1 −α = 0.90, in close agreement with
+the binary-search half-width 0.0345 above. The continuity corrections of §5 add an O(1/S) widening to each
+combined endpoint and are omitted here.
+Point estimate of the ATE.
+Since ATE = (A1 + A0)/(2S) by Equation (1), and since the point estimates
+for A1 and A0 are both S10 −S01, the point estimate for ATE is
+[
+ATE =
+ˆA
+S = S10 −S01
+S
+.
+(13)
+13
+
+
+Again, this is the standard estimator, but here motivated by random assignment rather than sampling from
+a population.
+Comparison with the textbook McNemar interval.
+The standard McNemar treatment, e.g. (Fleiss et al., 2013),
+models the four cell counts {Sjk} as a multinomial sample from a population of paired binary outcomes and
+targets the difference of marginal success probabilities ∆:= p1+−p+1. Its point estimate is ˆ∆= (S10−S01)/S,
+identical to [
+ATE of (13), and its 1 −α confidence interval is ˆ∆±
+z1−α/2
+S
+√
+S01 + S10 −(S10 −S01)2/S, with
+half-width scaling with the discordant-pair count. The two procedures share the point estimate but rest on
+different foundations:
+• Inferential target and coverage. McNemar targets the marginal probabilities of a population, real or
+imagined, with coverage valid in repeated multinomial sampling and contingent on the population
+model. The present procedure targets the finite-population ATE for the 2S units actually observed,
+with coverage valid in repeated within-pair coin flips and contingent only on the pair-level assignment
+being random.
+• Randomization inference analyzes potential outcomes. A sharp null fixes the unit-level effects τ 0
+si and
+so imputes the missing control outcomes for the treated units.
+When asserting a net effect of a0
+(and assuming monotonic treatment effects), the worst-case pattern posits a0 treated successes whose
+counterfactual was a failure. Each such imputation turns a would-be concordant pair discordant: the
+reference distribution is built on the null-implied discordant count S01 + S10 + a0. The population null
+instead constrains only the marginal parameter ∆, and because ∑
+jk pjk = 1 pins the discordant total
+to the observed concordant cells, it can rearrange discordant pairs but never create them; its variance
+stays near the observed S01 + S10 for every ∆0. The two coincide at a0 = 0 and diverge toward the
+endpoints. This is a design-based feature, not a choice of variance estimator.
+• The role of monotonicity. The count S01+S10+a0 above assumes monotonic treatment effects (τsi ≥0).
+Relaxing monotonicity lets a prevented success live in a concordant pair, so the worst-case denominator
+inflates further, to 2b⋆+ δ0. In our example, this roughly doubles the binding box ceiling (300 −a0
+versus 100 + a0).
+• Bonferroni adjustment. Combining the prediction sets for A1 and A0 requires using z1−α/4 instead of
+z1−α/2, inflating confidence widths by about 19% in this example. Yet using z1−α/2 in (12) sabotages
+the coverage of our interval.
+• Width. The three effects multiply. At a common 90% level, the null acting on potential outcomes
+inflates the half-width by about 20%, relaxing monotonicity by a further ≈46%, and the Bonferroni
+upgrade by another ≈19%, so our half-width (0.0339) is about 1.20 × 1.46 × 1.19 ≈2.1 times as wide
+as the textbook McNemar’s (1.645
+√
+98.4/1000 ≈0.0163).
+The trade-off is the standard design-based vs. model-based dichotomy: inference about causal effects vs.
+population parameters.
+7
+Sensitivity analysis
+The procedure extends to observational studies via the sensitivity model of Rosenbaum (1987). For each pair,
+let πs := Pr{Zs1 = 1 | Zs1 + Zs2 = 1} be the probability that, given one unit of the pair is treated, it is unit
+1. In the population before matching Pr{Zsi = 1} may not be anything close to 1
+2; but if the two units of
+a pair are equally likely to select treatment, then πs = 1
+2, recovering the within-pair coin flip (Rosenbaum,
+2020, §3.2). Under unmeasured confounding bounded by Γ ≥1, the standard matched-pair sensitivity model
+assumes
+1
+Γ + 1 ≤πs ≤
+Γ
+Γ + 1
+for all s.
+(14)
+Under (14) the McNemar statistic is no longer a binomial under the null hypothesis, but rather a sum of
+independent Bernoulli variables whose success probabilities πs are unknown but assumed to lie within the
+interval (14).
+14
+
+
+While the test statistic has an unknown distribution under the null hypothesis, it is stochastically bounded
+by Binomial distributions with probabilities of success corresponding to the bounds in (14).
+For exam-
+ple, when testing a pattern (m0
++0, m0
++1) consistent with H0 : A1 ≤a0, the p-value is bounded above by
+Pr
+{
+Binom
+(
+m0
++0 + m0
++1,
+Γ
+Γ+1
+)
+≥m0
++0
+}
+. If the supremum of this quantity (over all consistent patterns) is
+less than the significance threshold, we know the supremum of the (unknown) p-values is also less than the
+threshold, and we reject H0 despite not knowing the actual p-value.
+Lemmas 1 and 2 generalize and lead to the same worst-case pattern (a⋆, b⋆) as summarized in Table 2. (The
+1
+4 · δ0−1
+b+δ0 in Lemma 2 becomes
+Γ
+(Γ+1)2 · Γδ0+(Γ−1)b−1
+b+δ0
+, which is still positive when δ0 ≥2 for all Γ ≥1.)
+When testing H0 : A0/1 ≤a0, a bound on the worst-case p-value is Pr
+{
+Binom
+(
+a⋆+ b⋆,
+Γ
+Γ+1
+)
+≥a⋆}
+. When
+testing H′
+0 : A0/1 ≥a0, a bound on the worst-case p-value is Pr
+{
+Binom
+(
+a⋆+ b⋆,
+1
+Γ+1
+)
+≤a⋆}
+. Doubling
+the smaller of these bounds gives a bound on the two-sided p-value. Expanded prediction sets consist of the
+points this procedure does not reject. We may combine these prediction sets to form an expanded confidence
+interval on the ATE. The practical consequence: we may compute a Γ-sensitivity confidence interval for the
+ATE in O(log S) Binomial tail calculations.
+Hodges-Lehmann point estimate under sensitivity.
+The Hodges-Lehmann strategy singles out the point
+equating the test statistic to its null expectation, but under (14), the test statistic has an unknown null
+expectation bounded between (1/(Γ + 1))(a⋆+ b⋆) and (Γ/(Γ + 1))(a⋆+ b⋆). The unknown Hodges-Lehmann
+point estimate is therefore bounded between the roots of a⋆= (1/(Γ+1))(a⋆+b⋆) and a⋆= (Γ/(Γ+1))(a⋆+b⋆).
+Consider first a⋆= (1/(Γ + 1))(a⋆+ b⋆), and suppose Γ ≤(S01 + S11)/(S00 + S10). We will show a0 =
+ΓS10 −S01 + (Γ −1)S00 is such a root. First we show a⋆= min(S00 + S10, S10 + S11 −a0) = S00 + S10. We
+have
+S10 + S11 −a0 = S11 + S01 −(Γ −1)(S00 + S10)
+≥S00 + S10,
+with the second line following from the bound on Γ. Next we show b⋆= min(S01 + S11, S00 + S01 + a0) =
+S00 + S01 + a0. We have S00 + S01 + a0 = Γ(S00 + S10) ≤S01 + S11. Finally,
+1
+Γ + 1(a⋆+ b⋆) =
+1
+Γ + 1(S00 + S10 + S00 + S01 + a0)
+=
+1
+Γ + 1[(Γ + 1)(S00 + S10)]
+= S00 + S10
+= a⋆.
+Now suppose Γ ≥(S01 + S11)/(S00 + S10). We will show a0 = S10 −(1/Γ)S01 + ((Γ −1)/Γ)S11 is the
+corresponding root. The argument parallels the previous. We have:
+S10 + S11 −a0 = (S01 + S11)/Γ
+≤S00 + S10,
+so a⋆= S10 + S11 −a0. We have
+S00 + S01 + a0 = S00 + S10 + Γ −1
+Γ
+(S01 + S11)
+≥S00 + S10 +
+(
+1 −S00 + S10
+S01 + S11
+)
+(S01 + S11)
+= S01 + S11,
+15
+
+
+so b⋆= S01 + S11. Finally,
+1
+Γ + 1(a⋆+ b⋆) =
+1
+Γ + 1
+( 1
+Γ(S01 + S11) + S01 + S11
+)
+=
+1
+Γ + 1 · Γ + 1
+Γ
+(S01 + S11)
+= 1
+Γ(S01 + S11)
+= a⋆.
+Thus, one bound (the upper as we’ll see) on the Hodges-Lehmann point estimate is:
+ub1 =
+{
+ΓS10 −S01 + (Γ −1)S00
+Γ ≤S01+S11
+S00+S10
+S10 −1
+ΓS01 + Γ−1
+Γ S11
+Γ ≥S01+S11
+S00+S10 .
+As Γ →∞, ub1 →S10 + S11, the number of treated successes and the a priori upper bound on the net effect.
+Turning now to the other bound, we seek the root of a⋆= (Γ/(Γ+1))(a⋆+b⋆). Suppose Γ ≤(S00+S10)/(S01+
+S11). We will show a0 = S10 −ΓS01 −(Γ −1)S11 is such a root. First we show a⋆= min(S00 + S10, S10 +
+S11 −a0) = S10 + S11 −a0. We have
+S10 + S11 −a0 = Γ(S01 + S11)
+≤S00 + S10,
+with the second line following from the bound on Γ. Next we show b⋆= min(S01 + S11, S00 + S01 + a0) =
+S01 + S11. We have
+S00 + S01 + a0 = S00 + S10 −(Γ −1)(S01 + S11)
+≥S01 + S11,
+again from the bound on Γ. Finally,
+Γ
+Γ + 1(a⋆+ b⋆) =
+Γ
+Γ + 1(Γ(S01 + S11) + S01 + S11)
+=
+Γ
+Γ + 1(Γ + 1)(S01 + S11)
+= Γ(S01 + S11)
+= a⋆.
+Now suppose Γ ≥(S00 + S10)/(S01 + S11). We will show a0 = (1/Γ)S10 −S01 −((Γ −1)/Γ)S00 is the
+corresponding root. The argument parallels the previous. First we show a⋆= min(S00+S10, S10+S11−a0) =
+S00 + S10. We have
+S10 + S11 −a0 = (S01 + S11) + Γ −1
+Γ
+(S00 + S10)
+≥S00 + S10,
+with the second line following from the bound on Γ. Next we show b⋆= min(S01 + S11, S00 + S01 + a0) =
+S00 + S01 + a0. We have S00 + S01 + a0 = 1
+Γ(S00 + S10) ≤S01 + S11. Finally,
+Γ
+Γ + 1(a⋆+ b⋆) =
+Γ
+Γ + 1
+(
+S00 + S10 + 1
+Γ(S00 + S10)
+)
+=
+Γ
+Γ + 1 · Γ + 1
+Γ
+(S00 + S10)
+= S00 + S10
+= a⋆.
+16
+
+
+Thus, the lower bound on the Hodges-Lehmann point estimate is:
+lb1 =
+{
+S10 −ΓS01 −(Γ −1)S11
+Γ ≤S00+S10
+S01+S11
+1
+ΓS10 −S01 −Γ−1
+Γ S00
+Γ ≥S00+S10
+S01+S11 ,
+which goes to −(S00 + S01) as Γ →∞, the negative of the number of treated failures and the a priori lower
+bound on the net effect.
+The corresponding bounds for A0 follow from the A1 derivation by exchanging the roles of S00 and S11
+throughout, leaving ˆA = S10−S01 unchanged. Under the monotonicity assumption the same root calculations
+go through with the reduced box ceilings of §4 (for A1, the right-face ceiling S00 + S10 becomes S10; for A0,
+S10 + S11 becomes S10), with one new feature. Monotonicity forces m+1 = S01 + m11 ≥S01, so the worst-
+case b⋆cannot fall below S01. The upper bounds are unaffected (they still saturate at the a priori maxima
+sT = S10 + S11 and fC = S00 + S10) but the lower bounds, driven toward small b⋆as Γ grows, meet this
+floor: each saturates exactly at the a priori minimum 0 once Γ ≥S10/S01, rather than continuing to the
+non-monotonic limits −fT and −sC. Table 4 collects all four estimand/assumption combinations, writing
+fT , sT (fC, sC) for the numbers of treated (control) failures and successes.
+Combining the non-monotonic A1 and A0 bounds of Table 4 through the sum constraint (1), the ATE point
+estimate under sensitivity lies in
+[lb1 + lb0
+2S
+, ub1 + ub0
+2S
+]
+,
+which widens monotonically with Γ and saturates as Γ →∞at
+[−(S00 + 2S01 + S11), S00 + 2S10 + S11]
+2S
+.
+We may write these endpoints as
+ˆ
+A
+2S ± 1
+2. This is the partial identification interval of Manski (2003). The
+Γ-model thus interpolates continuously between the randomization interval at Γ = 1 and the assumption-free
+Manski region as Γ →∞.
+Large-sample sensitivity intervals.
+The Gaussian approximation of §5 extends to the sensitivity model with
+a single change. The worst-case corner (a⋆, b⋆) is exactly that of §4: only the reference distribution moves,
+from Binom(a⋆+ b⋆, 1
+2) to Binom(a⋆+ b⋆, π) with π = Γ/(Γ + 1) for the right-tailed (lower-endpoint) test
+and π = 1/(Γ + 1) for the left-tailed. Standardizing the worst-case statistic against its shifted null mean πn
+and variance π(1 −π)n, where n := a⋆+ b⋆, with the continuity correction a⋆7→a⋆−1
+2 (right tail),
+Z = a⋆−1
+2 −πn
+√
+π(1 −π) n
+= (Γ + 1)(δ0 −1) −(Γ −1) n
+2
+√
+Γ n
+,
+(15)
+which recovers the standardization of §5, (δ0 −1)/√2b⋆+ δ0, at Γ = 1.
+Setting Z = z1−α and substituting the face-dependent count (n = 2(S01 + S11) + δ0 where the consistency
+line meets the top face, n = 2(S00 + S10) −δ0 where it meets the right face) gives in each case a quadratic
+in √n whose positive root is elementary. Writing z := z1−α and collecting terms, every endpoint is ˆA plus
+or minus one of two kernels,
+M(C) := (Γ −1)C + Γ + 1
+2
++ Γ
+2 z2 + z
+√
+Γ(Γ + 1)
+(
+C + 1
+2
+)
++ 1
+4Γ2z2,
+(16)
+R(C) := Γ −1
+Γ
+C + Γ + 1
+2Γ
+−z2
+2Γ + z
+Γ
+√
+(Γ + 1)
+(
+C −1
+2
+)
++ 1
+4z2,
+(17)
+evaluated at the relevant box ceiling C. The lower endpoint is Lα = ˆA −M(c) when the consistency line
+meets the top face and ˆA −R(d) when it meets the right face; the upper endpoint is Uα = ˆA + R(c) (top
+face) or ˆA + M(d) (right face). Here c and d are the top- and right-face ceilings of §4: c = S01 + S11 and
+d = S00 + S10 for A1, the S00 ↔S11 swap for A0, and the reduced right ceiling d = S10 under monotonicity.
+17
+
+
+Table 5 collects all sixteen endpoints; as in §5 the applicable face is the one whose endpoint satisfies the
+stated criterion, and the integer endpoints are Lα = ⌈·⌉and Uα = ⌊·⌋.
+At Γ = 1 the two kernels coincide with the continuity-corrected roots of §5, and Table 5 reduces to Table 3.
+Dropping the continuity correction and setting z = 0 makes Z = 0, which is the fixed point a⋆= π(a⋆+ b⋆)
+solved above, so the interval collapses to the Hodges-Lehmann sensitivity bounds of Table 4. The continuity
+correction now scales as (Γ + 1)/2 rather than a fixed unit, widening the interval by more than one count
+at each end as Γ grows. And because the top- and right-face kernels carry factors of Γ and 1/Γ respectively,
+the interval is no longer symmetric about ˆA: sensitivity drifts its center along the point-estimate range of
+Table 4 while the z-terms supply the sampling half-width, so there is no clean ˆA± half-width form like (11).
+Under monotonicity the lower endpoints additionally saturate at the a-priori minimum 0 once Γ ≥S10/S01,
+exactly as the point-estimate bounds do (Table 4).
+Combining the A1 and A0 endpoints at per-side level α/4 yields the large-sample Γ-sensitivity confidence
+interval for the ATE,
+[L1 + L0
+2S
+, U1 + U0
+2S
+]
+.
+Read (L1, U1) and (L0, U0) from Table 5 for A1 and A0 at z = z1−α/4. For the running example at Γ = 1
+this reproduces the exact interval of §6, [0.0055, 0.0745]; at Γ = 1.25 it widens and drifts to [−0.029, 0.111],
+the asymmetry reflecting the sensitivity-induced shift of the center.
+The sensitivity value.
+While the amount of hidden bias is typically unknown, we may calculate the point at
+which we begin to question a study’s conclusions. This occurs at the smallest Γ at which the study fails to
+reject the null of no positive net effect at level α. Call this threshold Γ• the sensitivity value (Zhao, 2019).
+Debates over study conclusions can then focus on whether the amount of hidden bias is below or above
+this threshold, how we might detect such biases, and how we might design studies to have correspondingly
+larger thresholds. A finding with Γ• well above 1 is robust to substantial unmeasured confounding; Γ• close
+to 1 would be cause for concern in an observational study, because rarely could we be so confident in our
+adjustment strategy.
+For the running example, testing H0 : ATE ≤0 at α = 0.10, the sensitivity value is Γ• ≈1.03.
+The
+positive net effect is thus sensitive to small hidden biases: an unmeasured confounder shifting the within-pair
+odds of treatment by as little as 3–4% could explain the effect. Figure 4 traces the two intervals of this
+section as Γ grows: the sensitivity interval quantifying uncertainty from hidden biases, nested within the
+expanded confidence interval that also carries stochastic assignment uncertainty. Both intervals straddle the
+Hodges-Lehmann point estimate [
+ATE = 0.04, with the expanded interval crossing zero at Γ•.
+Design sensitivity.
+The value Γ• mixes two ingredients: sensitivity to bias and ordinary stochastic noise
+from the probabilistic assignment mechanism. A simple argument finds a value of Γ preventing us from
+rejecting the hypothesis of 0 net effect at any sample size.
+Recall a⋆∼Binom(a⋆+ b⋆, Γ/(Γ + 1)) under H0. Suppose Γ is such that a⋆equalled its null expectation:
+a⋆=
+Γ
+Γ + 1(a⋆+ b⋆)
+⇒Γ = a⋆
+b⋆
+= S01 + S11 + δ0
+S01 + S11
+= S10 + S11
+S01 + S11
+= p1+
+p+1
+= 1 +
+τ
+p+1
+=: ˜Γ,
+where the third line substitutes Equation (5), without assuming monotonicity and assuming the diagonal
+consistency line intersects the top of the box. (As discussed in §4, this is the case whenever S11 ≤S00 with
+18
+
+
+Table 4 Bounds on the Hodges-Lehmann point estimate under the Γ-sensitivity model, by estimand and monotonicity
+assumption. Each cell gives the bound as a function of Γ (a two-case closed form) together with its Γ →∞limit.
+The A0 bounds follow from the A1 derivation by exchanging S00 and S11. The monotonic bounds use the reduced
+box ceilings of §4.
+Here fT = S00 + S01 and sT = S10 + S11 are the numbers of treated failures and successes,
+fC = S00 + S10 and sC = S01 + S11 the control counts. Under monotonicity the lower bounds saturate exactly at the
+a priori minimum 0 once Γ ≥S10/S01.
+Estimand
+Monotonic
+Treatment
+Effects?
+Lower Bound
+Upper Bound
+A1
+N
+
+
+
+S10 −ΓS01 −(Γ −1)S11
+Γ ≤S00+S10
+S01+S11
+1
+Γ S10 −S01 −Γ−1
+Γ S00
+Γ ≥S00+S10
+S01+S11
+→−fT
+
+
+
+ΓS10 −S01 + (Γ −1)S00
+Γ ≤S01+S11
+S00+S10
+S10 −1
+Γ S01 + Γ−1
+Γ S11
+Γ ≥S01+S11
+S00+S10
+→sT
+Y
+
+
+
+
+
+
+
+S10 −ΓS01 −(Γ −1)S11
+Γ ≤
+S10
+S01+S11
+1
+Γ S10 −S01
+S10
+S01+S11 ≤Γ ≤S10
+S01
+0
+Γ ≥S10
+S01
+
+
+
+ΓS10 −S01
+Γ ≤S01+S11
+S10
+S10 −1
+Γ S01 + Γ−1
+Γ S11
+Γ ≥S01+S11
+S10
+→sT
+A0
+N
+
+
+
+S10 −ΓS01 −(Γ −1)S00
+Γ ≤S10+S11
+S00+S01
+1
+Γ S10 −S01 −Γ−1
+Γ S11
+Γ ≥S10+S11
+S00+S01
+→−sC
+
+
+
+ΓS10 −S01 + (Γ −1)S11
+Γ ≤S00+S01
+S10+S11
+S10 −1
+Γ S01 + Γ−1
+Γ S00
+Γ ≥S00+S01
+S10+S11
+→fC
+Y
+
+
+
+
+
+
+
+S10 −ΓS01 −(Γ −1)S00
+Γ ≤
+S10
+S00+S01
+1
+Γ S10 −S01
+S10
+S00+S01 ≤Γ ≤S10
+S01
+0
+Γ ≥S10
+S01
+
+
+
+ΓS10 −S01
+Γ ≤S00+S01
+S10
+S10 −1
+Γ S01 + Γ−1
+Γ S00
+Γ ≥S00+S01
+S10
+→fC
+Table 5 Large-sample Gaussian approximations to the prediction-set endpoints under the Γ-sensitivity model, by
+estimand, monotonicity assumption, endpoint (lower Lα or upper Uα), and which face of the constraint box the
+consistency line meets: top (T) or right (R). Each entry uses the kernels M(·) and R(·) of (16)–(17) with z := z1−α;
+the applicable face is the one whose endpoint satisfies the criterion in the final column, and the integer endpoints are
+Lα = ⌈·⌉, Uα = ⌊·⌋. Setting Γ = 1 recovers Table 3. Under monotonicity the lower endpoints saturate at the a-priori
+minimum 0 once Γ ≥S10/S01.
+Estimand
+Monotonic
+Treatment
+Effects?
+Formula
+Criterion
+A1
+N
+LT
+α = ˆ
+A −M(S01 + S11)
+LT
+α ≥S11 −S00
+LR
+α = ˆ
+A −R(S00 + S10)
+LR
+α < S11 −S00
+UT
+α = ˆ
+A + R(S01 + S11)
+UT
+α ≥S11 −S00
+UR
+α = ˆ
+A + M(S00 + S10)
+UR
+α < S11 −S00
+Y
+LT
+α = ˆ
+A −M(S01 + S11)
+LT
+α ≥S11
+LR
+α = ˆ
+A −R(S10)
+LR
+α < S11
+UT
+α = ˆ
+A + R(S01 + S11)
+UT
+α ≥S11
+UR
+α = ˆ
+A + M(S10)
+UR
+α < S11
+A0
+N
+LT
+α = ˆ
+A −M(S00 + S01)
+LT
+α ≥S00 −S11
+LR
+α = ˆ
+A −R(S10 + S11)
+LR
+α < S00 −S11
+UT
+α = ˆ
+A + R(S00 + S01)
+UT
+α ≥S00 −S11
+UR
+α = ˆ
+A + M(S10 + S11)
+UR
+α < S00 −S11
+Y
+LT
+α = ˆ
+A −M(S00 + S01)
+LT
+α ≥S00
+LR
+α = ˆ
+A −R(S10)
+LR
+α < S00
+UT
+α = ˆ
+A + R(S00 + S01)
+UT
+α ≥S00
+UR
+α = ˆ
+A + M(S10)
+UR
+α < S00
+19
+
+
+1.0
+1.2
+1.4
+1.6
+1.8
+2.0
+Gamma
+0.10
+0.05
+0.00
+0.05
+0.10
+0.15
+0.20
+ATE
+= 1.03
+Point Estimate
+90% Confidence Interval
+Sensitivity Interval
+Expanded Confidence Interval
+Figure 4 Sensitivity of the ATE for the running example (S00 = 800, S01 = 30, S10 = 70, S11 = 100). As the hidden-
+bias odds ratio Γ grows from 1 (randomization), two intervals widen around the Hodges-Lehmann point estimate
+[
+ATE = 0.04 (solid black): the confounding-only sensitivity interval (blue), and the expanded confidence interval
+(orange) that also carries stochastic uncertainty at coverage 1 −α = 90%. Dashed lines mark the Γ = 1 confidence
+interval [0.0055, 0.0745]; the dotted vertical line marks the sensitivity value Γ• ≈1.03, where the expanded interval
+first reaches the null ATE = 0.
+a0 = 0, that is, when failures are more common than successes.) The last line expresses the threshold as
+the ratio of the treated success rate to the control success rate, and as 1 plus the relative treatment effect
+compared to the baseline success rate, τ/p+1, where τ = p1+ −p+1.
+If the unknown Γ does exceed that threshold, we would not be able to reject the null hypothesis of 0 net
+effect at any sample size. Thus, the design sensitivity ˜Γ offers a valuable yardstick for assessing our hope of
+detecting an effect. In an experiment, it is recommended to perform power analysis as part of the design.
+Power analysis requires we reflect on the success rates we expect, often based on previous analyses, and the
+effect size we hope to detect, telling us the sample size we need. Design sensitivity serves a similar role in
+observational studies, telling us how thorough our adjustment strategy needs to be.
+Based on a relative effect size we hope to detect, we must apply our domain expertise and ensure we measure
+the most important confounders. If we lack such ability, there is little hope of success. We may employ
+quasi-experimental devices to rule out the possibility of large hidden biases (Rosenbaum, 1989, 2015a).
+This discussion demonstrates the hopelessness of measuring small relative effect sizes in an observational
+study. No matter our domain expertise, rarely could we be confident the remaining “hidden” biases were
+minuscule. Thus there is no hope of measuring minuscule relative treatment effects with confidence in an
+observational study.
+In the running example, the observed p+1 = 0.13, and the observed treatment effect is +0.04 for a post-hoc
+design sensitivity of 1.31. The study performed in this section did not yield an impressive sensitivity value,
+but repeating it with a larger sample size would not help much. Design sensitivity is most useful before we
+have performed a study; warnings analogous to those against post-hoc power analysis apply.
+When we assume monotonic treatment effects, ˜Γ = S10/S01 = 1+ ˆA/S01 = 1+τ/p01. The smaller denominator
+of the monotonic case (compared to the non-monotonic case, p+1 = p01 + p11) aids the design sensitivity, but
+the formula lacks the clean interpretation of the non-monotonic case.
+20
+
+
+8
+Discussion
+Textbook discussions of paired studies with binary outcomes often take a population sampling approach
+(Fleiss et al., 2013). When inference is instead rooted in random assignment, it is often limited to testing the
+null hypothesis of no treatment effect for any unit (Lehmann, 1975). This note has demonstrated how the
+randomized treatment assignment provides the “reasoned basis for inference” for effect sizes. This leads to
+different formulae than sampling-based derivations and is more defensible when units are not samples from
+a population, when interest lies in the effect of treatment on the units in the study, or in an observational
+study where hidden biases from unobserved factors may be present.
+Previous work assumed monotonicity (Rosenbaum, 2002) or relied on an integer program solver (Rigdon
+and Hudgens, 2015). The present note provides analytical formulae for point estimates, p-values (against
+arbitrary null hypotheses), and large-sample approximations for confidence bounds (exact confidence bounds
+in O(log S)) based on inverting tests. It also provides formulae for the interval summarizing sensitivity of
+point estimates to hidden biases and expanded confidence intervals for observational studies.
+When we know treatment effects are monotonic, incorporating this assumption achieves greater statistical
+power and narrower confidence intervals. In many applications, this assumption is not defensible, and our
+discussion shows it is unnecessary for inference.
+References
+Peter M Aronow, Haoge Chang, and Patrick Lopatto. Fast computation of exact confidence intervals for randomized
+experiments with binary outcomes. Journal of Econometrics, 251:106056, 2025.
+Joseph L Fleiss, Bruce Levin, and Myunghee Cho Paik. Statistical methods for rates and proportions. John Wiley &
+Sons, 2013.
+J. L. Hodges and E. L. Lehmann. Estimates of location based on rank tests. The Annals of Mathematical Statistics,
+34(2):598–611, 1963. ISSN 00034851. http://www.jstor.org/stable/2238406.
+Erich L. Lehmann. Nonparametrics: Statistical Methods Based on Ranks. Holden-Day, 1975.
+Jiaxun Li, Jacob Spertus, and Philip B Stark. Exact and conservative inference for the average treatment effect in
+stratified experiments with binary outcomes. arXiv preprint arXiv:2508.03834, 2025.
+Charles F. Manski. Partial Identification of Probability Distributions. Springer Series in Statistics, 2003.
+J. S. Maritz. Distribution-Free Statistical Methods. Number 17 in Monographs on Statistics and Applied Probability.
+Chapman & Hall, 2nd edition, 1995.
+Joseph Rigdon and Michael G Hudgens. Randomization inference for treatment effects on a binary outcome. Stat.
+Med., 34(6):924–935, March 2015.
+Paul R. Rosenbaum.
+Sensitivity analysis for certain permutation inferences in matched observational studies.
+Biometrika, 74(1):13–26, 1987. ISSN 00063444. http://www.jstor.org/stable/2336017.
+Paul R Rosenbaum. The role of known effects in observational studies. Biometrics, pages 557–569, 1989.
+Paul R. Rosenbaum. Hodges-Lehmann point estimates of treatment effect in observational studies. Journal of the
+American Statistical Association, 88(424):1250–1253, 1993.
+Paul R. Rosenbaum. Effects attributable to treatment: Inference in experiments and observational studies with a
+discrete pivot. Biometrika, 88(1):219–231, 2001. ISSN 00063444. http://www.jstor.org/stable/2673680.
+Paul R. Rosenbaum. Attributing effects to treatment in matched observational studies. Journal of the American
+Statistical Association, 97(457):183–192, 2002. ISSN 01621459. http://www.jstor.org/stable/3085773.
+Paul R Rosenbaum. How to see more in observational studies: Some new quasi-experimental devices. Annual Review
+of Statistics and Its Application, 2(1):21–48, 2015a.
+Paul R. Rosenbaum. Two R packages for sensitivity analysis in observational studies. Observational Studies, 1:1–17,
+01 2015b. doi: 10.1353/obs.2015.0000.
+21
+
+
+Paul R. Rosenbaum. Observation & Experiment: An Introduction to Causal Inference. Harvard University Press,
+2019.
+Paul R. Rosenbaum. Design of Observational Studies. Springer Series in Statistics, 2nd edition, 2020.
+Donald B Rubin. Randomization analysis of experimental data: The Fisher randomization test comment. Journal
+of the American Statistical Association, 75(371):591–593, 1980. ISSN 01621459. http://www.jstor.org/stable/
+2287653.
+Peng Zhang. Fast algorithms for exact confidence intervals in randomized experiments with binary outcomes. arXiv
+preprint arXiv:2602.20498, 2026.
+Qingyuan Zhao.
+On sensitivity value of pair-matched observational studies.
+Journal of the American Statistical
+Association, 2019.
+22

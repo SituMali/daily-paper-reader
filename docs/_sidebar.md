@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-08 <!--dpr-date:20260908-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/08/2609.03227v1-randomization-inference-for-matched-pairs-with-binary-outcomes" data-sidebar-item="{&quot;title&quot;: &quot;Randomization Inference for Matched Pairs with Binary Outcomes&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.03227v1-randomization-inference-for-matched-pairs-with-binary-outcomes&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;dep-support&quot;}], &quot;evidence&quot;: &quot;提供匹配对二值结局的精确随机化推断方法，可评估社会支持干预对抑郁的保护效果，未涉及老年人群&quot;}">Randomization Inference for Matched Pairs with Binary Outcomes</a>
   * 2026-09-07 <!--dpr-date:20260907-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/07/2609.02606v1-predictors-of-loneliness-in-older-adults-using-multimodal-analysis-of-speech-and-language" data-sidebar-item="{&quot;title&quot;: &quot;Predictors of Loneliness in Older Adults Using Multimodal Analysis of Speech and Language&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.02606v1-predictors-of-loneliness-in-older-adults-using-multimodal-analysis-of-speech-and-language&quot;, &quot;score&quot;: &quot;7.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;dep-support&quot;}], &quot;evidence&quot;: &quot;研究老年人孤独感的语音与语言多模态预测标记；孤独感与抑郁及社会支持不足密切相关，贴近主题。&quot;}">Predictors of Loneliness in Older Adults Using Multimodal Analysis of Speech and Language</a>

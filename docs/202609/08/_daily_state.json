@@ -1,0 +1,25 @@
+{
+  "date": "20260908",
+  "date_label": "",
+  "generated_at": "2026-09-08 19:23:55 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.03227v1",
+      "route": "202609/08/2609.03227v1-randomization-inference-for-matched-pairs-with-binary-outcomes",
+      "title": "Randomization Inference for Matched Pairs with Binary Outcomes",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "提供匹配对二值结局的精确随机化推断方法，可评估社会支持干预对抑郁的保护效果，未涉及老年人群",
+      "first_seen_at": "2026-09-08 19:23:55 UTC",
+      "updated_at": "2026-09-08 19:23:55 UTC"
+    }
+  ]
+}
