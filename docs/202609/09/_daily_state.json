@@ -1,0 +1,41 @@
+{
+  "date": "20260909",
+  "date_label": "",
+  "generated_at": "2026-09-09 19:20:38 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.04504v1",
+      "route": "202609/09/2609.04504v1-biosync-transformer-based-cross-modal-fusion-for-a-multimodal-physiological-digital-biomarker",
+      "title": "BioSync: Transformer-Based Cross-Modal Fusion for a Multimodal Physiological Digital Biomarker",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "在认知衰退队列上验证的多模态生理融合，可迁移至老年抑郁非典型症状监测",
+      "first_seen_at": "2026-09-09 19:20:38 UTC",
+      "updated_at": "2026-09-09 19:20:38 UTC"
+    },
+    {
+      "paper_id": "2609.08097v1",
+      "route": "202609/09/2609.08097v1-nonparametric-heterogeneous-causal-mediation-with-orthogonal-machine-learning",
+      "title": "Nonparametric heterogeneous causal mediation with orthogonal machine learning",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "异质性因果中介框架可量化社会支持通过中介变量对老年抑郁的保护路径及其个体差异",
+      "first_seen_at": "2026-09-09 19:20:38 UTC",
+      "updated_at": "2026-09-09 19:20:38 UTC"
+    }
+  ]
+}

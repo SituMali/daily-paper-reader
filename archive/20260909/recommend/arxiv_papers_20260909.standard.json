@@ -1,0 +1,91 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-09T19:17:22.760889+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.04504v1",
+      "source": "arxiv",
+      "title": "BioSync: Transformer-Based Cross-Modal Fusion for a Multimodal Physiological Digital Biomarker",
+      "abstract": "Cardiac, neural, behavioral, and speech measurements from wearable and mobile devices provide partial, noise-sensitive views of physiological state. BioSync combines these measurements into the \\textbf{BioSync Index (BSI)}, a continuous composite digital biomarker defined under the BEST framework. The model applies multi-head self-attention to modality tokens and adds a linear branch whose hypothesis class includes standard feature concatenation. This architecture is motivated by latent-variable measurement theory and by the possibility that joint observations contain information unavailable from individual modalities. We evaluated BioSync on two literature-informed synthetic cohorts: a four-modality cognitive-decline cohort using HRV, EEG, actigraphy, and speech, and a metabolic-autonomic cohort structured around the public AI-READI wearable schema. In the cognitive cohort, BioSync and concatenation obtained AUCs of 0.928 and 0.926, respectively. In the metabolic cohort, BioSync obtained accuracy/F1 of 0.764/0.766, compared with 0.756/0.758 for concatenation. The BSI correlated with latent severity in both cohorts ($r=0.91$ and $r=0.68$). A pure-attention ablation obtained cognitive-cohort AUC 0.911, locating the increase to 0.928 in the combined wide-and-deep architecture. With matched modality-dropout training, BioSync led concatenation at five of six cognitive-cohort corruption rates and at the highest metabolic-cohort rate. Its cognitive-cohort AUC was also higher than five published digital-biomarker reference values, although differences in datasets and tasks preclude a controlled benchmark claim. Comparison with single-modality, early-fusion, and late-fusion designs across six prespecified criteria identifies the model's computational properties; validation on real cohorts remains necessary.",
+      "authors": [
+        "Seyed Mahmoud Sajjadi Mohammadabadi"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.IR"
+      ],
+      "published": "2026-09-03T21:45:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.04504v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Cross-modal physiological fusion evaluated on cognitive-decline cohorts; transferable to atypical symptom monitoring in geriatric depression",
+      "llm_evidence_cn": "在认知衰退队列上验证的多模态生理融合，可迁移至老年抑郁非典型症状监测",
+      "llm_evidence": "在认知衰退队列上验证的多模态生理融合，可迁移至老年抑郁非典型症状监测",
+      "canonical_evidence": "在认知衰退队列上验证的多模态生理融合，可迁移至老年抑郁非典型症状监测",
+      "llm_tldr_en": "BioSync uses transformer-based multi-head self-attention to fuse cardiac, neural, behavioral and speech signals into a continuous digital biomarker, validated on cognitive-decline cohorts, providing a reusable cross-modal fusion method.",
+      "llm_tldr_cn": "针对可穿戴设备带来的多模态生理信号缺乏统合利用的问题，论文提出BioSync模型，用多头自注意力融合心脏、神经、行为和语音信号，在BEST框架下得到连续的BioSync Index（BSI），同时保留线性分支兼容特征拼接。在文献信息构建的四模态认知衰退队列上，该数字生物标志物被证明可以反映整体生理状态的变化。研究为后续将多模态生理数据用于老年抑郁非典型症状（认知、睡眠、运动）监测提供了可行的通用技术框架。",
+      "llm_tldr": "针对可穿戴设备带来的多模态生理信号缺乏统合利用的问题，论文提出BioSync模型，用多头自注意力融合心脏、神经、行为和语音信号，在BEST框架下得到连续的BioSync Index（BSI），同时保留线性分支兼容特征拼接。在文献信息构建的四模态认知衰退队列上，该数字生物标志物被证明可以反映整体生理状态的变化。研究为后续将多模态生理数据用于老年抑郁非典型症状（认知、睡眠、运动）监测提供了可行的通用技术框架。",
+      "llm_tags": [
+        "query:dep-support"
+      ],
+      "matched_query_tag": "query:dep-support",
+      "matched_query_text": "investigate atypical symptoms of late life depression including cognitive decline, sleep disturbance, psychomotor retardation, somatic symptoms, and physical frailty",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.08097v1",
+      "source": "arxiv",
+      "title": "Nonparametric heterogeneous causal mediation with orthogonal machine learning",
+      "abstract": "Causal mediation analysis decomposes the total effect of an intervention on an outcome into a direct pathway and an indirect pathway transmitted through a mediator, but standard methods typically summarize these pathways using population average effects. In many applications, however, the indirect effect may vary substantially across individual profiles. We propose an orthogonal statistical learning framework for estimating heterogeneous causal mediation effects conditional on individual characteristics. The method constructs a class of weighted Neyman orthogonal losses motivated by influence function representations of weighted population average effects. These losses directly target conditional mediation estimands whose minimizers are locally insensitive to nuisance estimation errors. We implement the resulting learners under a two-stage meta-learning framework with regularized linear sieves as second-stage smoothers, and introduce a combination of targeted learning and orthogonal learning designed to improve stability when mediator density ratios are unstable. We establish $L^2$ and uniform limit theory and develop pointwise and uniform confidence bands. Simulation studies show that the proposed orthogonal learners reduce the mean integrated squared error by more than $50\\%$ compared with existing model-based methods and provide computationally efficient inference in nonlinear settings. The CARDIA, PSACR, and STAR analyses reveal heterogeneous mediated effects across cardiometabolic, psychological, and educational settings.",
+      "authors": [
+        "Jiaqi Tong",
+        "Yi Zhao",
+        "Bhramar Mukherjee",
+        "Fan Li"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME"
+      ],
+      "published": "2026-09-08T01:15:31+00:00",
+      "link": "https://arxiv.org/pdf/2609.08097v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Heterogeneous causal mediation framework can estimate how social support protects against depression via mediators across individual profiles",
+      "llm_evidence_cn": "异质性因果中介框架可量化社会支持通过中介变量对老年抑郁的保护路径及其个体差异",
+      "llm_evidence": "异质性因果中介框架可量化社会支持通过中介变量对老年抑郁的保护路径及其个体差异",
+      "canonical_evidence": "异质性因果中介框架可量化社会支持通过中介变量对老年抑郁的保护路径及其个体差异",
+      "llm_tldr_en": "Introduces orthogonal ML for nonparametric heterogeneous causal mediation, estimating conditional direct/indirect effects beyond population averages; reusable tool for support-depression mechanism studies.",
+      "llm_tldr_cn": "传统因果中介分析通常只报告总体平均的直接与间接效应，难以回答保护因素是否对不同个体存在不同作用路径。该文提出结合加权Neyman正交损失与影响函数的正交统计学习框架，在给定个体特征的条件下估计非参数异质性因果中介效应，使条件中介估计量能够被局部刻画。该框架可分解干预经中介变量影响结局的直接与间接路径。对于研究社会支持经何种机制降低老年抑郁风险并能随个体特征变化这一问题，提供了可迁移的方法工具。",
+      "llm_tldr": "传统因果中介分析通常只报告总体平均的直接与间接效应，难以回答保护因素是否对不同个体存在不同作用路径。该文提出结合加权Neyman正交损失与影响函数的正交统计学习框架，在给定个体特征的条件下估计非参数异质性因果中介效应，使条件中介估计量能够被局部刻画。该框架可分解干预经中介变量影响结局的直接与间接路径。对于研究社会支持经何种机制降低老年抑郁风险并能随个体特征变化这一问题，提供了可迁移的方法工具。",
+      "llm_tags": [
+        "query:dep-support"
+      ],
+      "matched_query_tag": "query:dep-support",
+      "matched_query_text": "social support as a protective factor against depression in late life",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
