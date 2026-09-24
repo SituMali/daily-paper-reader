@@ -1,0 +1,57 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-24T19:08:48.132321+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.22935v1",
+      "source": "arxiv",
+      "title": "Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems",
+      "abstract": "Psychological dynamics unfold across multiple timescales: symptoms and other psychological states can change rapidly, whereas social, environmental, biological, and developmental conditions often evolve more slowly. We formulate this structure as a stochastic slow-fast system in which binary symptom states form a fast interacting network embedded within a slow contextual field. Pairwise symptom coupling governs interactions within the fast layer, while the contextual field shifts symptom-specific activation tendencies and can itself receive feedback from sustained symptom activation. Simulations show that changes in the slow field can shift the macroscopic activation state of the symptom system even when the underlying interaction matrix remains fixed. Perturbations to the field generate transient increases in symptom activation followed by recovery, while feedback between the fast and slow layers delays recovery and, when sufficiently strong, produces dependence on initial conditions. We further show that when between-person variation in the contextual field is omitted from network estimation, the inferred system exhibits stronger total coupling and nonzero couplings between symptom pairs that are uncoupled in the data-generating model. Thus, slowly varying context can alter both the dynamics and the apparent interaction structure of a fast psychological system. The framework connects psychological network models with slow-fast dynamical systems and provides a formal basis for distinguishing changes in activation from changes in coupling.",
+      "authors": [
+        "Kyuri Park",
+        "Denny Borsboom",
+        "Mike H. Lees",
+        "Lourens J. Waldorp",
+        "Johan Bollen",
+        "Vítor V. Vasconcelos"
+      ],
+      "primary_category": "physics.soc-ph",
+      "categories": [
+        "physics.soc-ph"
+      ],
+      "published": "2026-09-19T10:24:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.22935v1",
+      "tags": [
+        "keyword:dep-support",
+        "query:dep-support"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "symptom network coupling embedded within a slow social and contextual field",
+      "llm_evidence_cn": "症状网络耦合嵌套于缓慢变化的社会情境场中",
+      "llm_evidence": "症状网络耦合嵌套于缓慢变化的社会情境场中",
+      "canonical_evidence": "症状网络耦合嵌套于缓慢变化的社会情境场中",
+      "llm_tldr_en": "The paper formulates psychological dynamics as a stochastic slow-fast system where a fast binary symptom network is embedded in a slow contextual field, showing context shifts can move the system's macroscopic activation state without changing pairwise couplings.",
+      "llm_tldr_cn": "针对症状快速变化而社会、环境等条件缓慢演变这一多尺度特征，本文把心理动力学刻画为慢—快随机系统：由二元症状构成的快速交互网络嵌套于缓慢变化的情境场中，情境场调节各症状的激活倾向并可接受反馈。模拟显示，即使症状间的成对耦合保持不变，慢变量的改变也足以推动整个症状系统宏观激活状态的转变。该框架为理解社会支持等情境因素如何影响抑郁症状网络提供了理论建模工具。",
+      "llm_tldr": "针对症状快速变化而社会、环境等条件缓慢演变这一多尺度特征，本文把心理动力学刻画为慢—快随机系统：由二元症状构成的快速交互网络嵌套于缓慢变化的情境场中，情境场调节各症状的激活倾向并可接受反馈。模拟显示，即使症状间的成对耦合保持不变，慢变量的改变也足以推动整个症状系统宏观激活状态的转变。该框架为理解社会支持等情境因素如何影响抑郁症状网络提供了理论建模工具。",
+      "llm_tags": [
+        "query:dep-support:composite"
+      ],
+      "matched_query_tag": "query:dep-support:composite",
+      "matched_query_text": "Papers central to 请帮我查找并持续追踪有关老年抑郁非典型症状（认知衰退、睡眠障碍、运动迟缓、躯体症状、躯体衰弱等）相关文献、老年人社会支持相关研究文献以及社会支持与老年抑郁非典型症状间关联的相关文献，如果有网络分析的研究更好, especially work that connects or combines: depressive disorder in older adults with atypical features; non-typical depressive manifestations including cognitive, sleep, motor, somatic, and frailty signs; cognitive impairment or decline associated with geriatric depression; physical pain and somatic complaints in older adults with depression; social support as a protective factor against depression in late life; investigate atypical symptoms of late life depression including cognitive decline, sleep disturbance, psychomotor retardation, somatic symptoms, and physical frailty; explore the association between social support and depressive symptoms in elderly populations.",
+      "matched_requirement_id": "req-composite-dep-support",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

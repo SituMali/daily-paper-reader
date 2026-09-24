@@ -1,0 +1,25 @@
+{
+  "date": "20260924",
+  "date_label": "",
+  "generated_at": "2026-09-24 19:10:49 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.22935v1",
+      "route": "202609/24/2609.22935v1-slow-context-fast-symptoms-multiscale-temporal-dynamics-and-context-induced-coupling-in-psychological-systems",
+      "title": "Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "dep-support"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "症状网络耦合嵌套于缓慢变化的社会情境场中",
+      "first_seen_at": "2026-09-24 19:10:49 UTC",
+      "updated_at": "2026-09-24 19:10:49 UTC"
+    }
+  ]
+}

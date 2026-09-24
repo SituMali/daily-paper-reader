@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-24 <!--dpr-date:20260924-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/24/2609.22935v1-slow-context-fast-symptoms-multiscale-temporal-dynamics-and-context-induced-coupling-in-psychological-systems" data-sidebar-item="{&quot;title&quot;: &quot;Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.22935v1-slow-context-fast-symptoms-multiscale-temporal-dynamics-and-context-induced-coupling-in-psychological-systems&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;dep-support&quot;}], &quot;evidence&quot;: &quot;症状网络耦合嵌套于缓慢变化的社会情境场中&quot;}">Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems</a>
   * 2026-09-09 <!--dpr-date:20260909-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/09/2609.04504v1-biosync-transformer-based-cross-modal-fusion-for-a-multimodal-physiological-digital-biomarker" data-sidebar-item="{&quot;title&quot;: &quot;BioSync: Transformer-Based Cross-Modal Fusion for a Multimodal Physiological Digital Biomarker&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.04504v1-biosync-transformer-based-cross-modal-fusion-for-a-multimodal-physiological-digital-biomarker&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;dep-support&quot;}], &quot;evidence&quot;: &quot;在认知衰退队列上验证的多模态生理融合，可迁移至老年抑郁非典型症状监测&quot;}">BioSync: Transformer-Based Cross-Modal Fusion for a Multimodal Physiological Digital Biomarker</a>
