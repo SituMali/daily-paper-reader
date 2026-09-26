@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-26",
+  "date": "2026-09-26",
+  "generated_at": "2026-09-26T19:39:59",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/26/2609.21919v1-depressive-symptoms-are-reflected-differently-across-digital-contexts",
+      "section": "quick",
+      "title_en": "Depressive symptoms are reflected differently across digital contexts",
+      "authors": "Yajing Wang, Emilia Marchese, Talayeh Aledavood, Juhi Kulshrestha",
+      "date": "2026-09-18",
+      "pdf": "https://arxiv.org/pdf/2609.21919v1",
+      "score": "6.0",
+      "evidence": "考察一般性、认知情感性与躯体性抑郁症状维度",
+      "tldr": "数字行为有望反映抑郁症状，但既往研究因自我报告、单设备与总屏幕时间而结果不一。本研究结合1146名德国成人六个月每月抑郁评估与被动记录的移动和桌面网页轨迹，分析不同设备与活动情境下症状的反映。结果发现移动端症状更重与夜间活动、社交媒体、消息和娱乐使用及更少但更长会话相关，桌面端关联较少且主要减少新闻、购物和成人内容参与；移动端关联以一般和认知情感症状为主，桌面端集中于躯体症状。这表明需关注在线做什么与在哪做，而非仅屏幕使用量。",
+      "tags": "query:dep-support",
+      "abstract_en": "As more of everyday life takes place online, digital behavior may provide a potential window into how depressive symptoms are reflected in daily life. Yet digital mental health studies have produced mixed findings. These inconsistencies may partly reflect how digital behavior is measured: self reported use, single device studies, and aggregate screen time can obscure differences across devices, activities, and patterns of engagement. We combined monthly assessments of depressive symptoms with passively recorded mobile and desktop web traces from 1,146 adults in Germany over six months. We examined how general, cognitive-affective, and somatic depressive symptoms are reflected across digital contexts defined by device and activity type. Associations varied markedly across these contexts. On mobile, more severe symptoms were associated with more nighttime activity, greater use of social media, messaging, and entertainment, and fewer but longer sessions. On desktop, associations were fewer and largely involved reduced engagement with news, shopping, and adult content. Mobile associations primarily arose for general and cognitive-affective symptoms, whereas desktop associations were concentrated in somatic symptoms. Our findings suggest that characterizing how depressive symptoms are reflected in digital behavior requires attending to what people do online and where, not only how much screens are used.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -48,7 +48,7 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-25</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-26</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
     <strong class="dpr-home-dashboard-count">共 1 篇</strong>
@@ -58,7 +58,7 @@
     <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
     <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>1</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-25 18:52:32 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-26 19:39:56 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今天精读挂零，只速读了一篇 7.0 分的《Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems》。</p>
-<p>最值得看的方向是它把&quot;慢变的背景&quot;与&quot;快变的症状&quot;放进多尺度时间框架，讨论情境如何诱发两者耦合——提示我们别只盯当下的情绪波动，也要看长期处境的变化。</p>
-<p>普通读者不妨同时记录&quot;慢变量&quot;（作息、环境、人际关系）和&quot;快反应&quot;（情绪、身体症状），观察它们何时同步起伏。</p>
+<p>今日速读1篇、精读0篇，唯一入选的是6.0分的《Depressive symptoms are reflected differently across digital contexts》。</p>
+<p>这篇值得关注的方向是：抑郁症状在不同数字情境下的表现并不一致，说明单一平台上的情绪信号可能不足以说明全貌。</p>
+<p>普通读者不妨留意自己在不同平台上的表达差异，若某处持续出现低落迹象，别只看单一场景，可结合线下状态或寻求专业评估。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -96,7 +96,7 @@
     <strong class="dpr-home-dashboard-count">1 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems">Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Depressive symptoms are reflected differently across digital contexts">Depressive symptoms are reflected differently across digital contexts</span></li></ul>
   </div>
   <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">dep-support <strong>1</strong></span></div>
 </section>
