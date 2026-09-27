@@ -1,0 +1,543 @@
+Title: Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems
+
+URL Source: https://arxiv.org/pdf/2609.22935v1
+
+Published Time: Tue, 22 Sep 2026 01:02:25 GMT
+
+Number of Pages: 48
+
+Markdown Content:
+SLOW–FAST PSYCHOLOGICAL DYNAMICS 1
+
+Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems 
+
+Kyuri Park *1 , Denny Borsboom 3, Mike Lees 1,2 , Lourens Waldorp 3, Johan Bollen 1, and Vítor V. Vasconcelos 1,2 1 University of Amsterdam, Informatics Institute, Computational Science Lab  
+
+> 2
+
+University of Amsterdam, Institute for Advanced Study  
+
+> 3
+
+University of Amsterdam, Department of Psychology 
+
+Author Note Author contact information. Kyuri Park (k.park@uva.nl); Vítor V. Vasconcelos (v.v.vasconcelos@uva.nl); Mike Lees (m.h.lees@uva.nl); Denny Borsboom (d.borsboom@uva.nl); Lourens Waldorp (l.j.waldorp@uva.nl); Johan Bollen (j.l.t.m.bollen@uva.nl). 
+
+Correspondence. *Correspondence concerning this article should be addressed to Kyuri Park. arXiv:2609.22935v1 [physics.soc-ph] 19 Sep 2026 SLOW–FAST PSYCHOLOGICAL DYNAMICS 2
+
+Abstract 
+
+Changes in psychological states can occur over short timescales, while the context that shapes those changes often evolves more slowly. Symptoms, affect, and attention can shift quickly, whereas stress exposure, social isolation, financial strain, biological vulnerability, and environmental context may persist over longer periods. This difference in timescale matters because slow context can change how easily short-term states become active, how long they persist, and how easily they recover. We develop this argument through the case of psychopathology symptom networks. Network models often focus on symptom–symptom coupling, but symptoms also unfold within slow context. Context can be understood as changing symptom activation tendencies, but the feedback between the two is less often made explicit. Slow context can shape fast symptom activation, and sustained symptom activation can, in turn, feed back into slow context. We formalize this coupling in a computational slow–fast model. Simulations show that contextual input can shift symptom activation without changing symptom–symptom coupling. Perturbations to context can produce temporary symptom increases followed by recovery. Symptom-to-context feedback can slow recovery and, when stronger, produce initial-state dependence. When between-person contextual variation is omitted from an estimated symptom network, estimated coupling also increases, and additional coupling appears among symptom pairs that are uncoupled in the data-generating model. The resulting framework connects fast psychological states with the slower conditions in which they unfold. Although developed through symptom networks, it applies more generally to psychological systems in which processes operating at different timescales interact and shape one another. 
+
+Keywords: slow–fast dynamics; psychological systems; symptom networks; contextual dynamics; computational modeling SLOW–FAST PSYCHOLOGICAL DYNAMICS 3
+
+Slow Context, Fast Symptoms: Multiscale Temporal Dynamics and Context-Induced Coupling in Psychological Systems 
+
+Changes in psychological states can occur over short timescales, while the context that shapes those changes often evolves more slowly. Symptoms, affect, and attention can shift over short timescales, while stress exposure, social isolation, financial strain, biological vulnerability, and environmental context often change more slowly. Slow context does not simply sit outside psychological dynamics. It can change how easily faster states become active, how long they persist, and how easily they recover. Psychopathology symptom networks offer a useful case for studying this slow–fast relation. Network approaches start from the idea that symptoms may do more than co-occur: they may also influence one another. Insomnia may contribute to fatigue, fatigue may reduce concentration, and concentration problems may worsen feelings of failure. In this view, symptoms are not only indicators of an underlying disorder. They are parts of a system whose dynamics can become self-sustaining (Borsboom, 2017; Borsboom & Cramer, 2013; Fried & Robinaugh, 2020; Robinaugh et al., 2020). Network theories have also used ideas from dynamical-systems theory to describe how symptom activation may persist after an initial trigger has disappeared, and how symptom systems may sometimes show abrupt changes, hysteresis-like dynamics, or early warning signals (Cramer et al., 2016; Dablander et al., 2023; Helmich et al., 2021; Scheffer et al., 2009; van de Leemput et al., 2014). At the same time, symptoms do not unfold outside the context of a person’s life. Stressful events, social isolation, financial insecurity, sleep disruption, inflammation, and other contextual or biological processes can make symptoms easier or harder to activate. This idea is consistent with broader vulnerability–stress and resilience perspectives, in which relatively stable or slowly changing context shapes how people respond to later events (Ingram & Luxton, 2005; Lunansky et al., 2020; Masten et al., 2021; McEwen, 1998). In network terms, slow context can be understood as part of the external input (often called the field) of the symptom system. Here, external means external to the modeled symptom network, not necessarily external to the person SLOW–FAST PSYCHOLOGICAL DYNAMICS 4or the body. We use slow context specifically for processes that change more slowly than the symptom states of interest and modulate their propensity for activation. These may include social and economic conditions, such as poverty or isolation, as well as biological or developmental processes. This distinction matters because the same symptom network may behave differently depending on the slow context in which it is embedded. A perturbation may fade when symptoms are difficult to activate but persist when slow context makes activation easier or recovery slower. Studies that repeatedly measure people in daily life have made short-term psychological fluctuations increasingly visible, especially by showing how symptoms, affect, and behaviour change together within individuals over time (Bringmann et al., 2013; Epskamp et al., 2018; Myin-Germeys et al., 2009; Neubauer & Schmiedek, 2020; Wichers, 2014). This paper asks what happens when these short-term dynamics are embedded in a slower contextual process. We do not assume that slow context necessarily affects symptoms, or that symptom activation necessarily feeds back into context. Rather, the model allows these influences to vary in strength or to be absent. The issue arises first at the level of individual dynamics. If an unmeasured slow process influences several symptoms at once, changes in that process can induce covariation among symptoms even when their underlying symptom–symptom coupling has not changed. An estimated symptom network may then partly reflect shared contextual input rather than interactions among symptoms themselves. Between-group comparisons introduce an additional version of the same problem. If groups systematically differ in their slow contextual conditions, separately estimated networks may differ even when the underlying symptom–symptom coupling is identical. This concern is particularly relevant for observationally defined groups that differ in illness course, treatment stage, exposure history, or related characteristics (e.g., Beard et al., 2016; Peel et al., 2021; van Borkulo et al., 2015). Such studies may compare global strength, edge weights, centrality, or moderated network parameters (J. M. Haslbeck, 2022; Van Borkulo et al., 2023). Differences in these quantities may then be interpreted as evidence for differences in the organization or strength of symptom–symptom relations. SLOW–FAST PSYCHOLOGICAL DYNAMICS 5But this interpretation is not forced by the data. Throughout this paper, we use symptom–symptom coupling in the theoretical sense: activation of one symptom changes the activation tendency of another symptom in the data-generating process. Estimated edges or interaction parameters are statistical quantities. They may be interpreted as evidence for such coupling only under additional assumptions about the data-generating process. A difference in estimated connectivity may therefore reflect true differences in symptom–symptom coupling, but it may also reflect differences in slow context. This ambiguity is related to existing equivalence results in network psychometrics. Associations among binary symptoms can often be represented in more than one way: as direct symptom–symptom interactions, as dependence induced by shared latent or common causes, or as item-response structure (Kruis & Maris, 2016; Marsman et al., 2018; van Bork et al., 2021). These results imply that observed symptom associations do not uniquely identify symptom–symptom coupling. A related perspective is that some apparent network differences may reflect changes in activation tendencies or contextual input rather than changes in symptom–symptom coupling itself (Park et al., 2026). The contribution of the present paper is therefore not the claim that external fields can affect symptom activation. That idea is already native to network theory and to Ising-type formulations of binary symptom data (Marsman et al., 2018; Van Borkulo et al., 2014). Our focus is what changes when contextual processes and symptom dynamics evolve on different, but coupled, timescales. Slow context can gradually shift the activation landscape of the faster symptom system, while sustained symptom activation can, in turn, feed back into that context. This time-scale separation can produce delayed recovery, persistence and history dependence even when the underlying symptom–symptom coupling remains unchanged. It also creates an inferential problem: observed symptom relations can depend on where and when the system is observed within the slower contextual process. Related methodological work makes a similar point from a statistical direction: estimated pairwise relations do not always recover direct interactions in the data-generating process. For Ising models and related binary graphical models, nodewise regularized logistic regression SLOW–FAST PSYCHOLOGICAL DYNAMICS 6provides one foundation for estimating graph structure under appropriate conditions (Ravikumar et al., 2010). More recent work extends pseudo-likelihood approaches to models that include both pairwise interactions and covariate-dependent external fields (Mukherjee et al., 2024). Work on reconstructability in dynamical networks likewise shows that pairwise statistical dependence need not recover direct interactions when common-cause, relay, or topological effects contribute to observed associations, even though weak-coupling regimes can improve reconstructability (Lünsmann et al., 2017). These lines of work are methodologically adjacent to the present paper. Here, we use a known data-generating system to ask what happens when slow context is part of the process but not directly observed in the estimated symptom network. The present paper develops a computational slow–fast model of symptom dynamics. The model builds directly on earlier slow–fast thinking in psychopathology, especially work linking slower personality and resilience processes to faster symptom networks (Lunansky et al., 2020). The model embeds a fast 0 /1 symptom network within a slow contextual field. The fast layer represents symptom activation and symptom–symptom coupling. The slow layer represents context that can shift symptom activation, recover slowly, fluctuate, be perturbed, or be changed by sustained symptom activation. We use simulation as a theory-construction tool (J. Haslbeck et al., 2022): the aim is to make clear what follows from this slow–fast structure, and what does not, under a known data-generating process. We use the model in four ways. First, we vary the slow contextual field while holding symptom–symptom coupling fixed to examine how context changes overall symptom activation. We then perturb the slow contextual field and examine how symptom activation increases and recovers. Next, we introduce symptom-to-context feedback to study whether it alters recovery and allows earlier symptom activation to shape later dynamics through changes in context. Finally, we test how well the underlying symptom–symptom coupling is recovered when the slow contextual process is present in the data-generating system but omitted from the estimated network. Across all four analyses, the same slow–fast model is used to examine different consequences of context acting on symptom dynamics. The final analysis also points to a SLOW–FAST PSYCHOLOGICAL DYNAMICS 7practical implication: when slower contextual processes are plausible, measuring them alongside symptoms may help distinguish symptom–symptom coupling from associations induced by shared contextual input. The approach provides a computational framework for studying psychological dynamics across timescales without treating fast symptom dynamics and slow context as isolated parts of the system. 
+
+A slow–fast model of symptom dynamics 
+
+We introduce the model in stages. We begin with fast probabilistic dynamics for binary symptom states. We then add a slow contextual field Pt , which shifts symptom activation without changing symptom–symptom coupling. Finally, we allow Pt to evolve over time, be perturbed, and receive feedback from sustained symptom activation. Figure 1 gives the basic structure of the model before we define each equation. A summary of the main model components is given at the end of this section in Table 1. 
+
+Fast symptom network 
+
+We first define the fast layer as a probabilistic network model (PNM) for binary symptom states. In the binary case, this formulation is closely related to Ising models used in network psychometrics (Marsman et al., 2018; Van Borkulo et al., 2014). Let Si ∈ { 0, 1} denote whether symptom i is inactive or active. We write the local input to symptom i as 
+
+ηi = τi + ∑ 
+
+> j̸=i
+
+ωi j S j, (1) so that its activation probability is Pr (Snew  
+
+> i
+
+= 1 | S−i) = logit −1(ηi). (2) At the level of this local update, the formulation has the same form as a logistic generalized linear model: τi acts as the symptom-specific intercept, while the states of the other symptoms enter as predictors with coefficients ωi j . Here, ωi j represents the pairwise coupling between symptoms i and j. Thus, τi gives the activation tendency of symptom i when it receives SLOW–FAST PSYCHOLOGICAL DYNAMICS 8
+
+Figure 1 
+
+Conceptual schematic of the slow–fast symptom model. The fast layer consists of binary symptom states S i,t ∈ { 0, 1} that activate and deactivate on a short timescale. As in standard Ising symptom-network models, symptoms interact through the coupling matrix ω. The extension introduced here is that this fast symptom system is embedded in a slower contextual process P t ,which evolves more gradually and shifts symptom activation through the additive input γiPt . The green contextual layer is drawn schematically as structured contextual conditions, but these conditions are summarized in the present model by the scalar field P t , not by an explicitly modeled second network. The local activation rule combines a symptom-specific baseline tendency τi,symptom–symptom input ∑ j̸ =i ωi j S j,t , and slow contextual input γiPt into ηi,t , which determines the probability that symptom i becomes active. The model also allows feedback from the fast layer to the slow layer: sustained mean symptom activation, summarized by ¯mt , enters the slow-field update through b ( ¯mt − m⋆). When recent symptom activation is above m ⋆, this term pushes the slow field upward; when it is below m ⋆, it pushes the slow field downward. Acute perturbations enter the slow field through ξt .SLOW–FAST PSYCHOLOGICAL DYNAMICS 9no input from the rest of the network, while active symptoms with nonzero couplings shift this tendency through the summed interaction term. In the simulations, one fast step consists of a random-order sweep through the symptoms, updating each symptom once conditional on the current states of the others. We write Snew  
+
+> i
+
+to emphasize that the update is local to symptom i, rather than a synchronous update of all symptoms at once. 
+
+Adding slow context 
+
+The slow–fast extension adds a contextual state Pt that evolves more slowly than symptom activation. Rather than changing the symptom–symptom couplings, slow context enters as an additional term in the local input: 
+
+ηi,t = τi + ∑ 
+
+> j̸=i
+
+ωi j S j,t + γiPt . (3) The corresponding activation probability is Pr (Snew  
+
+> i
+
+= 1 | S−i,t , Pt ) = logit −1(ηi,t ). (4) Here, γi determines how strongly the slow contextual state shifts the activation tendency of symptom i. When γi = 0, symptom i is unaffected by Pt ; larger positive values make its activation increasingly sensitive to changes in slow context. We use the ηi,t notation in Figure 1 to summarize the local activation rule visually. The contextual state Pt summarizes conditions outside the modeled symptom network that evolve on a slower timescale and can change how easily symptoms become active. Here, contextual means external to the symptom network, not necessarily outside the person or the body. It may represent social or environmental conditions, such as financial strain or housing insecurity, as well as slower biological or developmental processes. Figure 1 depicts these conditions schematically as a structured contextual layer. In the present simulations, however, this layer is not modeled as a second network but is summarized by the single scalar state Pt .SLOW–FAST PSYCHOLOGICAL DYNAMICS 10 
+
+Slow contextual dynamics 
+
+The previous subsection introduced Pt as an input to the symptom network. We now specify how this slow contextual field changes over time. The two directions of coupling are shown in Figure 1. The green slow-to-fast pathway shows how Pt shifts symptom activation through γiPt . The blue fast-to-slow pathway shows how sustained symptom activation, summarized by ¯ mt , can feed back into Pt . Acute perturbations enter the same slow field through the jump term ξt .The slow-field update is 
+
+Pt+dt = Pt + [ −κ(Pt − Pbase ) + b( ¯mt − m⋆)] dt + σP
+
+√dt εt + ξt , εt ∼ N (0, 1). (5) Each term corresponds to a part of Figure 1. The first term, Pt , is the current level of the slow contextual field. The term −κ(Pt − Pbase )dt pulls the slow field back toward its baseline 
+
+Pbase . The parameter κ controls how quickly this return occurs. The noise term σP
+
+√dt εt
+
+represents small background fluctuations in the slow field, where εt is standard normal noise. The jump term ξt represents occasional larger perturbations to the slow field. Conceptually, these are identifiable events with specific timing and magnitude, such as conflict, loss, financial setback, health problems, relationship change, birth, or death (Cohen et al., 2019; Dohrenwend, 2006). This is why ξt is added directly to Pt : when a perturbation occurs, it produces a discrete shift in the contextual state. In the recovery simulations reported here, we use a single deterministic perturbation, ξt = 1 at perturbation onset and ξt = 0 otherwise; Appendix A also describes a more general stochastic event formulation. The feedback term, 
+
+b( ¯mt − m⋆)dt ,
+
+corresponds to the fast-to-slow pathway in Figure 1. It allows sustained symptom activation to feed back into the slow field. Here, SLOW–FAST PSYCHOLOGICAL DYNAMICS 11 
+
+mt = 1
+
+N
+
+> N
+
+# ∑
+
+> i=1
+
+Si,t , (6) is the instantaneous mean symptom activation. The quantity ¯ mt is a smoothed version of 
+
+mt : it summarizes recent symptom activation rather than only the current moment. This smoothing is what gives the feedback pathway its slow timescale: the slow field responds to sustained activation, not to every momentary symptom fluctuation. This matters because the slow field is meant to summarize slower contextual conditions. A single bad moment should not immediately change these conditions, but symptom activation that persists over time may affect work, relationships, sleep, stress exposure, or recovery. The smoothing process used to compute ¯mt is described in Appendix A. The reference level m⋆ determines the level of recent symptom activation around which feedback changes direction, and b controls the strength of this feedback. When ¯ mt > m⋆,sustained symptom activation pushes the slow field upward. When ¯ mt < m⋆, the feedback term pushes the slow field downward. This captures a feedback relation between symptoms and slow context, consistent with stress-generation ideas: symptoms may not only respond to stressful conditions, but also increase later exposure to stressors or make existing conditions harder to recover from (Hammen, 2006; Liu & Alloy, 2010; Rnic et al., 2023). In the simulations below, we isolate different parts of the model by setting some terms to zero. Setting b = 0 removes symptom-to-context feedback, whereas setting ξt = 0 removes acute perturbations. This lets us distinguish the slow-to-fast pathway, where slow context shapes symptom activation, from the fast-to-slow pathway, where sustained symptom activation feeds back into the slow field. Table 1 summarizes the main components of the model. The table is meant as a reference for the equations above: the fast layer contains symptom states, symptom-specific activation tendencies, and symptom–symptom coupling; the slow layer contains the contextual field, its baseline dynamics, perturbations, and feedback from sustained symptom activation. SLOW–FAST PSYCHOLOGICAL DYNAMICS 12 
+
+Table 1 
+
+Main components of the slow–fast model. 
+
+Fast symptom layer 
+
+Component Symbol Interpretation 
+
+Symptom state Si,t Whether symptom i is inactive or active at time t.Baseline activation τi Baseline log-odds of activation when symptom i receives no input from the rest of the network. Symptom coupling ωi j Pairwise coupling between symptoms i and j; an active symptom j
+
+contributes ωi j to symptom i’s local input. Local input ηi,t Total input determining symptom i’s activation probability. Slow-context loading γi Sensitivity of symptom i’s activation tendency to the slow contextual state Pt .Mean symptom activation mt Proportion of symptoms active at time t.Recent symptom activation ¯mt Smoothed recent mean symptom activation used in the feedback term. Smoothing rate λm Weight given to current mean symptom activation when updating ¯ mt ;smaller values imply longer memory. 
+
+Slow contextual process 
+
+Component Symbol Interpretation 
+
+Contextual state Pt Slow contextual state that evolves over time and shifts symptom acti-vation. Contextual baseline Pbase Level toward which Pt tends to return. Return-to-baseline rate κ Speed with which Pt returns toward Pbase .Background fluctuation σP
+
+√dt εt Small stochastic fluctuation in the slow contextual state. Perturbation ξt Occasional larger jump in the slow state, such as an acute stressor. Feedback reference m⋆ Reference level around which symptom-to-context feedback changes direction. Feedback strength b Strength of symptom-to-context feedback. Step size dt Time step used for the slow contextual process update. 
+
+Note. The table summarizes the components used in the model equations. The green contextual layer in Figure 1 is schematic; in the simulations, slow context is represented by the scalar contextual state Pt .SLOW–FAST PSYCHOLOGICAL DYNAMICS 13 
+
+Simulation overview 
+
+The simulations use the model as a controlled theoretical tool. They are not intended to calibrate a specific clinical population. Instead, they ask what kinds of patterns can arise when fast symptom dynamics are embedded in a slower contextual field. Across simulations, the symptom–symptom coupling matrix is held fixed, while the role of slow context is varied. We begin with differences in the level of the slow contextual field, then add an acute perturbation, then allow sustained symptom activation to feed back into the slow field, and finally ask how the same slow–fast process appears when the slow field is omitted from an estimated symptom network. 
+
+Simulation 1: Slow-context level 
+
+Simulation 1 provides a reference case for the slow-to-fast pathway. It asks how a fixed contextual level changes symptom activation when the fast symptom network itself is unchanged. Because P enters each symptom’s local input through γiP, a shift in activation is expected from the model definition. The purpose of this first simulation is therefore to establish the baseline slow-to-fast effect against which the dynamic simulations that follow can be interpreted. 
+
+Design. The fast layer contained N = 9 binary symptoms, corresponding to the nine symptom items of the PHQ-9 (Kroenke et al., 2001). To isolate the effect of slow context on symptom activation, we held the symptom-specific baseline parameters τi, symptom–symptom couplings ωi j , and slow-context loadings γi fixed across conditions and varied only the contextual state: 
+
+P ∈ {− 0.6, 0, 0.6}.
+
+The symptom-specific parameters and contextual levels were specified for theoretical illustration rather than estimated from empirical data. The three values of P represent low, reference, and high slow-context conditions on the simulation scale. All slow-context loadings were positive and symptom-specific, ranging from 0 .60 to 1 .00, so increasing P raises the activation tendency of each symptom, although by different amounts. The selected values of P produce graded changes SLOW–FAST PSYCHOLOGICAL DYNAMICS 14 in activation rather than floor or ceiling saturation. Within each condition, P remained fixed throughout the simulation. Symptom states were updated according to Eqs. (3)–(4), with all other model parameters held identical across conditions. We simulated 200 independent chains per condition, with each symptom initialized independently from a Bernoulli distribution with probability 0 .5. Each chain ran for 400 sweeps. The first 200 sweeps were discarded as burn-in, and the remaining 200 sweeps were used to summarize symptom activation. A post-burn-in stability check showed negligible remaining drift relative to the difference between contextual conditions (Appendix A). We summarized each condition by the distribution and mean number of active symptoms and by the proportion of post-burn-in states with at least five active symptoms. Table 2 summarizes the simulation design. The exact symptom-specific parameter values are reported in Appendix A. 
+
+Table 2 
+
+Simulation 1 design.                            
+
+> Parameter Meaning Value in Simulation 1
+> NNumber of symptoms 9
+> PFixed contextual state −0.6,0,0.6
+> τiBaseline log-odds of activation Symptom-specific; −2.70 to −0.60 (Ta-ble A1)
+> ωi j Symptom coupling 10 positive nonzero couplings; 0.20–0 .45 (Table A2)
+> γiSlow-context loading Symptom-specific; 0 .60–1 .00 (Table A1) Initial state Initial symptom activation Bernoulli (0.5), independently by symptom Chains Independent chains per condition 200 Total sweeps per chain Full simulated trajectory length 400 Burn-in Initial discarded sweeps First 200 sweeps
+
+Results. Figure 2 shows the expected shift in symptom activation as the contextual state 
+
+P increases while symptom–symptom coupling remains fixed. Panel A shows the distribution of the number of active symptoms across post-burn-in states. The distribution moves progressively toward higher activation from P = −0.6 to P = 0 to P = 0.6. Panel B summarizes the same pattern. The average number of active symptoms was 1.64 in the low-context condition (P = −0.6), 2.49 in the reference condition ( P = 0), and 3.56 in the high-context condition (P = 0.6). The upper tail of the distribution shifted similarly: the proportion of post-burn-in states SLOW–FAST PSYCHOLOGICAL DYNAMICS 15 with five or more active symptoms increased from 0 .017 to 0 .084 and 0 .268, respectively. This graded shift is the expected consequence of the slow-to-fast term γiP. Because all γi
+
+are positive, sufficiently large positive values of P would eventually dominate the local input and drive the system toward ceiling activation. The contextual levels used here remain well below that regime and instead produce a graded shift in symptom activation. Simulation 1 therefore serves primarily as a reference case: it shows how a common contextual input can change the state occupied by an otherwise unchanged symptom network. The slow–fast dynamics become consequential in the simulations that follow, where Pt evolves on its own timescale, recovers after perturbation, and can receive feedback from sustained symptom activation. Low context Middle context High context 0% 10% 20% 30% 0 1 2 3 4 5 6 7 8 9Number of active symptoms Proportion        
+
+> (A) Context level shifts symptom activation 3.56 1.64 2.49 >=5 active: 27% >=5 active: 2% >=5 active: 8%
+> Mean (95% CI) Proportion >=5 active
+> High context Middle context Low context 01234Mean number of active symptoms
+> (B) Mean activation by context
+
+Figure 2 
+
+Slow contextual level shifts overall symptom activation under fixed symptom coupling. (A) The distribution of the number of active symptoms shifts toward higher activation as the slow contextual level P increases. (B) The mean number of active symptoms and the proportion of post-burn-in states with five or more active symptoms both increase across slow-context conditions. 
+
+Simulation 2: Perturbing slow context 
+
+Simulation 2 asks how symptom activation changes when the contextual state Pt is temporarily pushed upward and then allowed to recover. Unlike Simulation 1, Pt now evolves over time, making the separation between the fast symptom dynamics and the slower contextual SLOW–FAST PSYCHOLOGICAL DYNAMICS 16 process explicit. The perturbation is applied to Pt , not directly to the symptoms; symptoms respond only through the slow-to-fast input γiPt .
+
+Design. Simulation 2 used the same symptom-specific baselines τi, symptom–symptom couplings ωi j , and slow-context loadings γi as Simulation 1. The symptom-specific loadings therefore remained between 0 .60 and 1 .00. We allowed Pt to evolve according to Eq. (5), but set 
+
+b = 0 so that symptoms did not feed back into the contextual process. This isolates the slow-to-fast pathway. We set Pbase = 0. After 200 pre-perturbation steps, we introduced a single positive perturbation of size ξt = 1. We then simulated the system for an additional 750 steps. The simulation uses model time units rather than calibrated real-world time: dt and the number of steps specify the relative separation between the fast symptom dynamics and the slower contextual process, not a direct mapping onto hours, days, or months. At each step, the fast symptom network was updated conditional on the current value of Pt . Table 3 summarizes the simulation design. 
+
+Table 3 
+
+Simulation 2 design.                                 
+
+> Parameter Meaning Value in Simulation 2
+> NNumber of symptoms 9Fast-layer parameters τi,ωi j , and γiSame as Simulation 1
+> Pbase Slow-context baseline 0
+> κReturn-to-baseline rate 0.20
+> σPSlow-field fluctuation scale 0.04
+> dt Slow-field time step 0.02
+> εtStandard normal noise N(0,1)
+> ξtAcute perturbation 1.00 at perturbation onset; 0 otherwise
+> bSymptom-to-context feedback 0Pre-perturbation steps Initial period before perturbation 200 Post-perturbation steps Recovery period after perturbation 750 Total steps per chain Full simulated trajectory length 950 Chains Independent trajectories 200
+
+Results. Figure 3 shows the response to a one-time perturbation of the slow contextual state. Before the perturbation, Pt fluctuated near its baseline ( Pt ≈ 0.00), and the symptom SLOW–FAST PSYCHOLOGICAL DYNAMICS 17 0.0 0.3 0.6 0.9 Slow field (P)       
+
+> (A) Slow context rises and recovers 01234567890200 400 600 Steps since perturbation Number of active symptoms Proportion of chains
+> 10% 20%
+> (B) Symptom activation shifts upward and recovers
+
+Figure 3 
+
+Recovery after a perturbation to the slow contextual field. (A) The slow contextual field P t
+
+increases at perturbation onset and then returns toward baseline. Faint lines show a sample of individual trajectories; the bold line shows the mean across 200 chains. (B) Symptom activation shifts upward after the perturbation and then returns toward pre-perturbation levels. Panel B shows a time-varying distribution: at each time point, color intensity indicates the proportion of chains with a given number of active symptoms. Darker colors indicate that more chains had that symptom count at that time. The bold line shows the mean number of active symptoms. Feedback from symptoms to the slow field is turned off (b = 0), isolating the slow-to-fast pathway. SLOW–FAST PSYCHOLOGICAL DYNAMICS 18 network averaged 2.48 active symptoms. At perturbation onset, Pt increased to approximately 1.00. Symptom activation rose over the following model steps, reaching a peak of about 4.73 active symptoms. As Pt returned toward baseline, the symptom-count distribution shifted back toward pre-perturbation levels. By the end of the recovery window, Pt had returned close to baseline (Pt ≈ 0.06), and the network averaged 2.58 active symptoms. Thus, a temporary perturbation to slow context produced a temporary increase in symptom activation, even though the symptom–symptom coupling matrix was unchanged. A supplementary sensitivity analysis varied the overall strength of symptom–symptom coupling while preserving the network topology. The qualitative recovery pattern was similar across weaker and reference coupling levels, although recovery was somewhat slower under the strongest coupling condition examined (Appendix A). 
+
+Simulation 3: Feedback from symptoms to slow context 
+
+Simulation 3 adds the reverse pathway from symptoms back to slow context. In Simulation 2, the contextual state Pt affected symptom activation, but symptoms did not affect Pt
+
+because feedback was turned off ( b = 0). Here, sustained symptom activation can also change the contextual state. This creates a possible feedback loop. After a perturbation, a higher value of Pt makes symptoms easier to activate. If symptoms remain active, they can then keep Pt elevated. Recovery is therefore no longer only a matter of the contextual state returning to baseline. It also depends on whether symptom activation helps maintain the context that made symptoms likely in the first place. Simulation 3 asks two questions. First, does symptom-to-context feedback slow recovery after a perturbation? Second, when feedback is stronger, can the system become more dependent on its initial state? That is, if trajectories are run under the same parameters but start from contrasting states of the coupled system, do they eventually return to the same late state, or do they remain separated? SLOW–FAST PSYCHOLOGICAL DYNAMICS 19 
+
+Design. Simulation 3 used the same model parameters and perturbation mechanism as Simulation 2, but added symptom-to-context feedback. Feedback entered through the term 
+
+b( ¯mt − m⋆)dt in Eq. (5). For Simulation 3, m⋆ was set to the mean symptom activation in the P = 0 condition from Simulation 1. Recent symptom activation ¯ mt was computed using the exponentially weighted moving average described in Appendix A, with smoothing rate λm = 0.05. We first examined recovery after the same perturbation across different feedback strengths. The feedback-off condition ( b = 0) provides the reference case in which symptoms do not feed back into the contextual process. We then extended this comparison across a broader range of feedback strengths while holding all other parameters fixed, including the fast symptom network, perturbation size, return-to-baseline rate, background fluctuation scale, and time step. The feedback values and simulation settings for the two recovery analyses are summarized in Table 4. We then ran a separate initial-state check. The perturbation-recovery sweep shows how the system responds when the same perturbation is applied across feedback-strength conditions, but it does not show whether the coupled system can retain a dependence on its earlier state. To examine this, we simulated trajectories without an acute perturbation from two contrasting initial conditions. In the low initial state, all symptoms were inactive, P0 = 0, and ¯ m0 = 0; in the high initial state, all symptoms were active, P0 = 1, and ¯ m0 = 1. All model parameters were otherwise identical. We then compared mean symptom activation over the final 250 steps between trajectories started from the two initial conditions. A difference near zero indicates reconvergence to the same late level, whereas a persistent difference indicates that the later state still depends on the system’s initial condition. Table 4 summarizes the Simulation 3 settings. 
+
+Results. Figure 4 summarizes how recovery changes as symptom-to-context feedback increases and how stronger feedback relates to initial-state dependence. Before the perturbation, the feedback-off and moderate-feedback conditions were both close to baseline. With feedback off, the mean slow field during the last 50 pre-perturbation steps was approximately Pt = −0.003, and the symptom network averaged 2.50 active symptoms. With moderate feedback ( b = 0.50), SLOW–FAST PSYCHOLOGICAL DYNAMICS 20 
+
+Table 4 
+
+Simulation 3 design. 
+
+Parameter Meaning Value in Simulation 3 
+
+Fast-layer parameters τi, ωi j , and γi Same as Simulations 1–2 Perturbation size Acute perturbation to Pt Same as Simulation 2 
+
+κ Return-to-baseline rate 0.20 
+
+σP Contextual fluctuation scale 0.04 
+
+dt Slow-process time step 0.02 ¯mt Smoothed recent symptom activation Exponentially weighted moving average 
+
+λm Smoothing rate 0.05 
+
+m⋆ Feedback reference level 0.277, corresponding to 2.49 active symp-toms in the P = 0 condition from Simula-tion 1 Main recovery comparison Moderate-feedback comparison b = 0 versus b = 0.50; 750 post-perturbation steps; 1,000 chains per con-dition Feedback-strength sweep Broader recovery analysis b ∈ { 0, 0.50 , 0.75 , 0.90 , 1.00 , 1.10 , 1.25 , 1.30 , 1.50 };2,500 post-perturbation steps; 300 chains per condition 
+
+b, initial-state check Feedback strengths used to assess initial-state dependence 0 to 1 .5 in increments of 0 .1Initial-state check Contrasting initial conditions and simula-tion length Low: Si,0 = 0, P0 = 0, ¯ m0 = 0; high: Si,0 =
+
+1, P0 = 1, ¯ m0 = 1; 1,500 steps; 200 chains per initial condition and b; final 250 steps compared 
+
+the corresponding values were Pt = −0.002 and 2.49 active symptoms. The immediate response to the perturbation was similar across conditions. In the first 20 post-perturbation steps, peak activation was 4.34 active symptoms with feedback off and 4.38 with moderate feedback. The difference emerged during recovery. By the end of the recovery window, the slow field had nearly returned to baseline when feedback was off ( Pt = 0.05), but remained higher with moderate feedback ( Pt = 0.23). Symptom activation showed the same pattern: the network averaged 2.57 active symptoms with feedback off, compared with 2.88 active symptoms with moderate feedback. Panel A shows that this pattern became stronger as feedback increased. At the moderate value used in the main comparison ( b = 0.50), the system still recovered toward its pre-perturbation level. At stronger feedback values, especially around and above b = 0.90, symptom activation did not return to its pre-perturbation level over the simulated recovery period. SLOW–FAST PSYCHOLOGICAL DYNAMICS 21 At the highest value shown ( b = 1.30), symptom activation continued to rise after the perturbation rather than returning toward baseline. Panel B shows a transition from reconvergence to initial-state dependence as feedback increased. Around b ≈ 0.90, trajectories starting from the contrasting low and high initial conditions no longer reconverged to the same late level of symptom activation. In this regime, later symptom activation depended on where the system started. The moderate-feedback value used in the main recovery comparison ( b = 0.50) remained below this regime, indicating that initial-state dependence is a behavior the model can exhibit under stronger feedback, not an assumption built into the main recovery result. 
+
+Simulation 4: What estimated networks recover 
+
+The final simulation turns from the data-generating process to the estimation problem. The previous simulations used the slow–fast model to generate symptom trajectories. Here, we ask how data generated by the same model are represented when analyzed with an estimated symptom network. If the slow contextual field affects symptom activation but is not included in the estimated model, some of its influence may be represented as stronger symptom–symptom relations. Simulation 4 tests this possibility by comparing estimated networks when the slow context is held fixed, when it varies but is left out of the estimator, and when the same varying context is included in the estimation. 
+
+Design. We generated cross-sectional symptom profiles from the fast symptom model conditional on person-level contextual values Pi. Each simulated person contributed one symptom profile and one fixed contextual value; there was no within-person evolution of Pt in this simulation. The symptom-specific parameters τi, ωi j , and γi were the same as in Simulations 1–3, so the data-generating coupling matrix ω was fixed and known. We compared three estimation conditions. In the fixed-P condition, every simulated person had the same contextual value, Pi = 0. In the two varying-P conditions, each person was SLOW–FAST PSYCHOLOGICAL DYNAMICS 22 b = 0 b = 0.50 b = 0.75 b = 0.90 b = 1.00 b = 1.30 2.5 5.0 7.5 0 1000 2000 Steps since perturbation Mean number of active symptoms Feedback off (b = 0) b = 0.50 b = 0.75 b = 0.90 b = 1.00 b = 1.30       
+
+> (A) Feedback strength changes whether the system recovers main simulation value 0.0 0.2 0.4 0.6 0.0 0.5 1.0 1.5 Feedback strength (b) Difference in late mean symptom activation reconvergent initial−state−dependent
+> (B) Initial−state dependence emerges at higher feedback
+
+Figure 4 
+
+Symptom-to-context feedback slows recovery and can create initial-state dependence. (A) Recovery after the same perturbation across feedback strengths. Six representative feedback strengths from the nine-value sweep are shown. With feedback off (b = 0), symptom activation returns toward its pre-perturbation level. With moderate feedback (b = 0.50 ), recovery is slower but still reconvergent. At stronger feedback values, especially around and above b = 0.90 ,symptom activation remains elevated within the simulated recovery window. At the highest value shown (b = 1.30 ), symptom activation continues to increase after the perturbation. (B) Initial-state check. For each feedback strength, trajectories were initiated from contrasting low and high states of the coupled system, using the same parameter settings and without an acute perturbation. The low initial condition had all symptoms inactive, P 0 = 0, and ¯m0 = 0; the high initial condition had all symptoms active, P 0 = 1, and ¯m0 = 1. Values near zero mean that the two sets of trajectories reconverged to the same late level of symptom activation. Larger values mean that late symptom activation still depended on the initial condition. The moderate-feedback value used in the main recovery comparison (b = 0.50 ) remains in the reconvergent range. SLOW–FAST PSYCHOLOGICAL DYNAMICS 23 assigned one fixed contextual value, 
+
+Pi ∼ Uniform (−0.6, 0.6),
+
+and one symptom profile was generated conditional on that value. Contextual variation therefore occurred between people rather than within people over time. The distribution of Pi was centered at zero so that the varying-P conditions had the same average contextual level as the fixed-P
+
+condition while introducing between-person contextual heterogeneity. The P-omitted and P-included conditions used exactly the same simulated people, symptom profiles, and person-level values of Pi. In the P-omitted condition, each symptom was estimated from the other symptom variables only. In the P-included condition, Pi was additionally included as a covariate in each nodewise logistic regression. The two conditions therefore differed only in whether person-level context was represented in the estimation model. Networks were estimated using nodewise logistic regressions and symmetrized to obtain one estimated coupling per symptom pair. We repeated the full procedure across 30 independent replicates, with 10,000 simulated people per condition in each replicate. We used two primary summaries. Estimated total coupling was defined as the signed sum of the estimated pairwise couplings, 
+
+# ∑ 
+
+> i<j
+
+ˆωi j .
+
+Because all nonzero data-generating couplings were positive, the corresponding data-generating value was 3 .05. Using the signed sum avoids the systematic upward contribution that arises when sampling variation around truly zero edges is converted to positive values by taking absolute values. We separately quantified spurious coupling among truly uncoupled symptom pairs as 
+
+# ∑
+
+> ωi j =0
+
+| ˆωi j |.
+
+Table 5 summarizes the design. SLOW–FAST PSYCHOLOGICAL DYNAMICS 24 
+
+Table 5 
+
+Simulation 4 design.                                            
+
+> Parameter Meaning Value in Simulation 4
+> Fast-layer parameters τi,ωi j , and γiSame as Simulations 1–3 Data type Observation structure One symptom profile and one fixed Piper simulated person Fixed-Pcondition Person-level contextual value Pi=0 for every simulated person
+> P-omitted condition Context varies between people but is omit-ted from estimation
+> Pi∼Uniform (−0.6,0.6)
+> P-included condition Same simulated data, with person-level context included in estimation
+> Pi∼Uniform (−0.6,0.6)
+> Network estimator Estimation method Nodewise logistic regressions, sym-metrized across symptom pairs Replicates Independent simulation replicates 30 Profiles per condition Simulated people per condition per repli-cate 10,000 Estimated total coupling Signed sum of estimated pairwise couplings ∑i<jˆωi j
+> Spurious coupling Absolute estimated coupling among truly uncoupled pairs
+> ∑ωi j =0|ˆωi j |
+
+Results. Figure 5 compares the data-generating coupling matrix with networks estimated under the three conditions. Panel A shows the true symptom–symptom couplings. Panels B–D show representative network estimates when Pi was fixed, varied across people but omitted from estimation, or varied and was included in estimation, respectively. The visual difference is clearest when Pi varied across people but was omitted. In Panel C, several symptom pairs with zero data-generating coupling received nonzero estimated couplings. Orange edges in Panels B–D indicate estimated couplings exceeding the plotting threshold of 0.15 for symptom pairs whose data-generating coupling was zero. Panels E and F quantify this pattern across 30 independent replicates. Panel E shows estimated total coupling, defined as the signed sum of estimated pairwise couplings. The data-generating value was 3 .05. Estimated total coupling was 3 .01 ( SE = 0.07) in the fixed-P
+
+condition and 3 .12 ( SE = 0.06) when Pi was included, but increased to 5 .46 ( SE = 0.06) when Pi
+
+varied across people and was omitted from the estimation model. Panel F isolates estimated coupling among symptom pairs that were uncoupled in the data-generating model. The summed absolute coupling across these true-zero pairs was 1 .29 SLOW–FAST PSYCHOLOGICAL DYNAMICS 25 (SE = 0.04) in the fixed-P condition, 1 .28 ( SE = 0.04) when Pi was included, and 2 .02 (SE = 0.04) when Pi was omitted. Within the paired varying-P replicates, omitting Pi increased estimated total coupling by 2 .33 ( SE = 0.03) and spurious coupling on true-zero pairs by 0 .74 (SE = 0.03); both differences were positive in all 30 replicates. Thus, between-person contextual variation produced additional estimated symptom–symptom coupling when it was omitted from the estimation model. Including Pi
+
+brought estimated total coupling close to the data-generating value and reduced spurious coupling on truly uncoupled symptom pairs to approximately the level observed when context did not vary across people. 
+
+Discussion 
+
+The central implication of this paper is interpretive. Estimated symptom networks are often read as if most of the relevant action lies among symptoms. The model developed here suggests a wider reading. The symptom layer is one part of a coupled process. Symptom–symptom coupling still matters, but what it produces also depends on the slower contextual process in which the symptom system is embedded. This matters for how we read activation, recovery, and persistence. A higher number of active symptoms may reflect stronger symptom–symptom coupling, but it may also mean that several symptoms have become easier to activate at once. Recovery is similar. It is not only about whether symptoms stop reinforcing one another. It also depends on whether the conditions that made symptoms easier to activate begin to change. If sustained symptoms help keep those conditions in place, the system can start to resemble a vicious cycle. Symptoms are shaped by context, but they can also help shape the context in which later symptoms unfold. This is the reason for modeling feedback explicitly. Without feedback, slow context can still affect symptom activation, but recovery is largely a question of whether the contextual state returns toward baseline. With feedback, symptoms can become part of the process that keeps later activation likely. Persistence therefore does not have to be located entirely inside the symptom network. It can also arise from the loop between symptom activation and the slower conditions SLOW–FAST PSYCHOLOGICAL DYNAMICS 26 ANH DEP SLP ENE APP GLT CON MOT SUI (A) True coupling ANH DEP SLP ENE APP GLT CON MOT SUI (B) Estimated network, fixed P ANH DEP SLP ENE APP GLT CON MOT SUI (C) Estimated network, P omitted ANH DEP SLP ENE APP GLT CON MOT SUI (D) Estimated network, P included ANH = anhedonia; DEP = depressed; SLP = sleep; ENE = energy; APP = appetite; GLT = guilt; CON = concentration; MOT = psychomotor; SUI = suicidal Data−generating value 3.01 5.46 3.12 345Fixed P P omitted P included Total coupling ( Σω ^ ij )(E) Estimated total coupling 1.29 2.02 1.28 1.4 1.6 1.8 2.0 Fixed P P omitted P included Spurious coupling ( Σ|ω ^ ij |) (F) Spurious coupling among uncoupled pairs 
+
+Figure 5 
+
+Omitting slow context increases estimated symptom coupling. (A) Data-generating symptom–symptom coupling matrix. (B) Network estimated when every simulated person had the same contextual value, P i = 0. (C) Network estimated from pooled symptom profiles when person-level contextual values varied across people but were omitted from the estimation model. (D) Network estimated from the same pooled data when P i was included in the estimation model. In Panels B–D, orange edges indicate estimated couplings exceeding the plotting threshold of 
+
+0.15 for symptom pairs whose data-generating coupling was zero. Panels B–D show one representative n = 10 ,000 realization. (E) Estimated total coupling, defined as the signed sum of estimated pairwise couplings; the dashed line marks the data-generating value of 3.05 . (F) Spurious absolute coupling summed across symptom pairs with zero data-generating coupling. Points and error bars in Panels E–F show means and standard errors across 30 independent replicates. SLOW–FAST PSYCHOLOGICAL DYNAMICS 27 that support later activation. The same logic carries over to estimation. If a slower contextual process affects several symptoms but is not represented in the model, some of that shared input can appear as additional symptom–symptom coupling. This does not mean that estimated edges should be dismissed. Rather, estimated associations may combine direct symptom coupling with variation induced by shared contextual input. The implication arises first at the level of individual dynamics. The same symptom system can show different levels of activation, recovery, and persistence as its slower contextual conditions change, even when symptom–symptom coupling remains fixed. Interpreting an individual’s symptom dynamics therefore requires attention not only to relations among symptoms, but also to slower processes that may shift their activation tendencies over time. A related issue arises in between-group comparisons when groups differ systematically in these contextual conditions. This is particularly relevant for observationally defined groups, or more generally when the design does not control the contextual processes that differ between the groups being compared. In such cases, a more strongly connected estimated network may reflect stronger direct symptom coupling, but it may also partly reflect differences in contextual input or in how observations are distributed across contextual conditions. Under successful randomization or control of the relevant contextual differences, this particular source of between-group distortion should be reduced. Network comparisons are therefore most informative when the design makes clear which contextual processes are controlled and when activation tendencies and relevant contextual variables are considered alongside estimated edges. At the same time, the present model is only a first step toward that kind of interpretation. Its strength is that it makes the slow–fast mechanism visible under controlled conditions, but this also means that many parts of real psychological systems are simplified. In particular, the division into one fast symptom layer and one slow contextual process should not be read as a literal binary classification of psychological variables. Symptoms themselves may differ in their characteristic timescales, and social, biological, and psychological processes may operate across several SLOW–FAST PSYCHOLOGICAL DYNAMICS 28 overlapping timescales. What matters in the present model is the relative separation between a faster process and another process that changes sufficiently slowly to shape its dynamics. The contextual process is also one-dimensional, symptom states are binary, and the parameter values are illustrative rather than fitted to empirical data. Real psychological systems are likely to involve multiple slower processes, symptom-specific rates of change, symptom-specific context loadings, heterogeneous positive and negative couplings, and measurement processes that differ across people and settings. The simulations should therefore be read as theory-building examples rather than calibrated clinical predictions. The perturbation used in the recovery simulations is also simplified. It is a probe of recovery, not a full model of stressful life events. A richer event model could distinguish gradual drift in slow context from discrete events that move the system suddenly, or could represent stress generation as a symptom-linked event process (Cohen et al., 2019; Dohrenwend, 2006; Hammen, 2006). The P-included estimator illustrates one simple methodological implication of the model: when a known source of contextual variation is represented in the estimation model, recovery of the underlying symptom coupling improves. In real data, however, contextual variables will often be incomplete, noisy, or only partially observed, so ordinary covariate adjustment will not generally be enough to identify direct symptom–symptom effects. A broader direction is to model contextual or intervention variables jointly with the system itself. Related approaches such as Joint Causal Inference formalize this idea by using variation across observational or interventional contexts to help identify causal structure (Mooij et al., 2020). These limitations mark the next step. Future work can allow multiple interacting timescales, symptom-specific update rates, empirically measured contextual variables, multiple slower processes, symptom-specific context loadings, heterogeneous coupling structures, and observation models matched to ecological momentary assessment (EMA) or clinical panel data. An important methodological extension is to study how slow–fast processes can be identified from repeated within-person data, where symptoms and contextual processes are both observed SLOW–FAST PSYCHOLOGICAL DYNAMICS 29 over time rather than reduced to a single cross-sectional profile. Such extensions would make it possible to ask how much of an observed pattern is attributable to direct symptom coupling, how much to slow context, and how much to feedback between the two. More broadly, the slow–fast framework changes the modeling question. The issue is not only whether symptoms influence one another, or whether context predicts symptoms. It is how processes with different speeds become tied together. Slow context can set the conditions of the system, change over time, recover after perturbation, or be changed by sustained symptom activation. These cases can produce similar symptom patterns, but they describe different systems. Making those alternatives explicit is the value of the model. This paper developed the framework through the case of psychopathology symptom networks, but the problem is broader than symptom networks. Much of psychology deals with systems in which some things change from moment to moment, while other conditions accumulate slowly and set the terms for what can happen next. The central idea is that these parts should not be studied only in isolation. A fast state may pass quickly, but repeated or sustained states can change the slower conditions that make similar states more likely later. This is the basic slow–fast problem. It is not just that context affects psychological states, or that states interact with one another. It is that fast and slow parts of the system can keep changing what each other can do. We hope this framework helps researchers study those links more directly. In the symptom-network case, it helps clarify how symptom activation, recovery, feedback, and estimated connectivity can belong to the same process. More generally, it offers a way to think about psychological systems in which different parts move at different speeds, influence one another across timescales, and sometimes make change or recovery easier or harder. 
+
+Open Practices and Data Availability 
+
+All simulations are based on synthetic data generated from the model described in the manuscript. Simulation code, parameter settings, and figure-generation scripts are available at https://github.com/KyuriP/slow-fast-coupled-dynamics-model. SLOW–FAST PSYCHOLOGICAL DYNAMICS 30 
+
+References 
+
+Beard, C., Millner, A. J., Forgeard, M. J., Fried, E. I., Hsu, K. J., Treadway, M. T., Leonard, C. V., Kertz, S., & Björgvinsson, T. (2016). Network analysis of depression and anxiety symptom relationships in a psychiatric sample. Psychological Medicine , 46 (16), 3359–3369. Borsboom, D. (2017). A network theory of mental disorders. World Psychiatry , 16 (1), 5–13. https://doi.org/10.1002/wps.20375 Borsboom, D., & Cramer, A. O. (2013). Network analysis: An integrative approach to the structure of psychopathology. Annual Review of Clinical Psychology , 9(1), 91–121. Bringmann, L. F., Vissers, N., Wichers, M., Geschwind, N., Kuppens, P., Peeters, F., Borsboom, D., & Tuerlinckx, F. (2013). A network approach to psychopathology: New insights into clinical longitudinal data. PLoS ONE , 8(4), e60188. Cohen, S., Murphy, M. L., & Prather, A. A. (2019). Ten surprising facts about stressful life events and disease risk. Annual Review of Psychology , 70 (1), 577–597. Cramer, A. O., Van Borkulo, C. D., Giltay, E. J., Van Der Maas, H. L., Kendler, K. S., Scheffer, M., & Borsboom, D. (2016). Major depression as a complex dynamic system. 
+
+PLoS ONE , 11 (12), e0167490. Dablander, F., Pichler, A., Cika, A., & Bacilieri, A. (2023). Anticipating critical transitions in psychological systems using early warning signals: Theoretical and practical considerations. Psychological Methods , 28 (4), 765–790. https://doi.org/10.1037/met0000450 Dohrenwend, B. P. (2006). Inventorying stressful life events as risk factors for psychopathology: Toward resolution of the problem of intracategory variability. Psychological Bulletin ,
+
+132 (3), 477. Epskamp, S., van Borkulo, C. D., van der Veen, D. C., Servaas, M. N., Isvoranu, A.-M., Riese, H., & Cramer, A. O. J. (2018). Personalized network modeling in psychopathology: The SLOW–FAST PSYCHOLOGICAL DYNAMICS 31 importance of contemporaneous and temporal connections. Clinical Psychological Science , 6(3), 416–427. https://doi.org/10.1177/2167702617744325 Fried, E. I., & Robinaugh, D. J. (2020). Systems all the way down: Embracing complexity in mental health research. BMC Medicine , 18 (1), 205. Hammen, C. (2006). Stress generation in depression: Reflections on origins, research, and future directions. Journal of Clinical Psychology , 62 (9), 1065–1082. Haslbeck, J., Ryan, O., Robinaugh, D. J., Waldorp, L. J., & Borsboom, D. (2022). Modeling psychopathology: From data models to formal theories. Psychological Methods , 27 (6), 930. Haslbeck, J. M. (2022). Estimating group differences in network models using moderation analysis. Behavior Research Methods , 54 (1), 522–540. Helmich, M. A., Olthof, M., Oldehinkel, A. J., Wichers, M., Bringmann, L. F., & Smit, A. C. (2021). Early warning signals and critical transitions in psychopathology: Challenges and recommendations. Current Opinion in Psychology , 41 , 51–58. Ingram, R. E., & Luxton, D. D. (2005). Vulnerability-stress models. Development of psychopathology: A vulnerability-stress perspective , 46 (2), 32–46. Kroenke, K., Spitzer, R. L., & Williams, J. B. (2001). The phq-9: Validity of a brief depression severity measure. Journal of General Internal Medicine , 16 (9), 606–613. Kruis, J., & Maris, G. (2016). Three representations of the ising model. Scientific Reports , 6(1), 34175. Liu, R. T., & Alloy, L. B. (2010). Stress generation in depression: A systematic review of the empirical literature and recommendations for future study. Clinical Psychology Review ,
+
+30 (5), 582–593. Lunansky, G., Van Borkulo, C., & Borsboom, D. (2020). Personality, resilience, and psychopathology: A model for the interaction between slow and fast network processes in the context of mental health. European Journal of Personality , 34 (6), 969–987. SLOW–FAST PSYCHOLOGICAL DYNAMICS 32 Lünsmann, B. J., Kirst, C., & Timme, M. (2017). Transition to reconstructibility in weakly coupled networks. PLOS ONE , 12 (10), e0186624. https://doi.org/10.1371/journal.pone.0186624 Marsman, M., Borsboom, D., Kruis, J., Epskamp, S., van Bork, R. v., Waldorp, L. J., Maas, H. v. d., & Maris, G. (2018). An introduction to network psychometrics: Relating ising network models to item response theory models. Multivariate Behavioral Research ,
+
+53 (1), 15–35. Masten, A. S., Lucke, C. M., Nelson, K. M., & Stallworthy, I. C. (2021). Resilience in development and psychopathology: Multisystem perspectives. Annual Review of Clinical Psychology , 17 (1), 521–549. McEwen, B. S. (1998). Protective and damaging effects of stress mediators. New England Journal of Medicine , 338 (3), 171–179. https://doi.org/10.1056/NEJM199801153380307 Mooij, J. M., Magliacane, S., & Claassen, T. (2020). Joint causal inference from multiple contexts. Journal of Machine Learning Research , 21 (99), 1–108. Mukherjee, S., Niu, Z., Halder, S., Bhattacharya, B. B., & Michailidis, G. (2024). High dimensional logistic regression under network dependence. Journal of Machine Learning Research , 25 (185), 1–62. Myin-Germeys, I., Oorschot, M., Collip, D., Lataster, J., Delespaul, P., & Van Os, J. (2009). Experience sampling research in psychopathology: Opening the black box of daily life. 
+
+Psychological Medicine , 39 (9), 1533–1547. Neubauer, A. B., & Schmiedek, F. (2020). Studying within-person variation and within-person couplings in intensive longitudinal data: Lessons learned and to be learned. Gerontology ,
+
+66 (4), 332–339. Park, K., Borsboom, D., Lees, M., Elsenburg, L., Lunansky, G., Stronks, K., Bollen, J., Nicolaou, M., & Vasconcelos, V. V. (2026). Rethinking group differences in psychopathology networks: A slow–fast perspective on context and symptom activation [Preprint]. https://osf.io/preprints/psyarxiv/u8wf5_v1 SLOW–FAST PSYCHOLOGICAL DYNAMICS 33 Peel, A. J., Armour, C., Buckman, J. E., Coleman, J. R., Curzons, S. C., Davies, M. R., Hübel, C., Jones, I., Kalsi, G., McAtarsney-Kovacs, M., et al. (2021). Comparison of depression and anxiety symptom networks in reporters and non-reporters of lifetime trauma in two samples of differing severity. Journal of Affective Disorders Reports , 6, 100201. Ravikumar, P., Wainwright, M. J., & Lafferty, J. D. (2010). High-dimensional Ising model selection using ℓ1-regularized logistic regression. The Annals of Statistics , 38 (3), 1287–1319. Rnic, K., Santee, A. C., Hoffmeister, J.-A., Liu, H., Chang, K. K., Chen, R. X., Neufeld, R. W., Machado, D. A., Starr, L. R., Dozois, D. J., et al. (2023). The vicious cycle of psychopathology and stressful life events: A meta-analytic review testing the stress generation model. Psychological Bulletin , 149 (5-6), 330. Robinaugh, D. J., Hoekstra, R. H., Toner, E. R., & Borsboom, D. (2020). The network approach to psychopathology: A review of the literature 2008–2018 and an agenda for future research. Psychological Medicine , 50 (3), 353–366. Scheffer, M., Bascompte, J., Brock, W. A., Brovkin, V., Carpenter, S. R., Dakos, V., Held, H., Van Nes, E. H., Rietkerk, M., & Sugihara, G. (2009). Early-warning signals for critical transitions. Nature , 461 (7260), 53–59. van Bork, R., Rhemtulla, M., Waldorp, L. J., Kruis, J., Rezvanifar, S., & Borsboom, D. (2021). Latent variable models and networks: Statistical equivalence and testability. Multivariate Behavioral Research , 56 (2), 175–198. van Borkulo, C., Boschloo, L., Borsboom, D., Penninx, B. W., Waldorp, L. J., & Schoevers, R. A. (2015). Association of symptom network structure with the course of depression. JAMA Psychiatry , 72 (12), 1219–1226. Van Borkulo, C. D., Borsboom, D., Epskamp, S., Blanken, T. F., Boschloo, L., Schoevers, R. A., & Waldorp, L. J. (2014). A new method for constructing networks from binary data. 
+
+Scientific Reports , 4(1), 5918. SLOW–FAST PSYCHOLOGICAL DYNAMICS 34 Van Borkulo, C. D., van Bork, R., Boschloo, L., Kossakowski, J. J., Tio, P., Schoevers, R. A., Borsboom, D., & Waldorp, L. J. (2023). Comparing network structures on three aspects: A permutation test. Psychological Methods , 28 (6), 1273. van de Leemput, I. A., Wichers, M., Cramer, A. O., Borsboom, D., Tuerlinckx, F., Kuppens, P., Van Nes, E. H., Viechtbauer, W., Giltay, E. J., Aggen, S. H., et al. (2014). Critical slowing down as early warning for the onset and termination of depression. Proceedings of the National Academy of Sciences , 111 (1), 87–92. Wichers, M. (2014). The dynamic nature of depression: A new micro-level perspective of mental disorder that meets current challenges. Psychological Medicine , 44 (7), 1349–1360. SLOW–FAST PSYCHOLOGICAL DYNAMICS 35 
+
+Appendix A Technical details of the slow–fast model 
+
+This appendix provides technical details that complement the streamlined model description in the main text. The main text focuses on the conceptual structure of the slow–fast system and the key equations needed to interpret the simulations. Here we collect implementation details for the fast-layer update, the smoothed symptom signal, the slow-field update, and the acute perturbation used in the recovery simulations. 
+
+Fast-layer update dynamics 
+
+At each slow time step t, the slow contextual field Pt is held fixed while the fast symptom layer is updated. The fast layer consists of N binary symptom states, 
+
+Si,t ∈ { 0, 1},
+
+where Si,t = 0 denotes an inactive symptom and Si,t = 1 denotes an active symptom. Given the current states of the other symptoms and the current slow field, the local input to symptom i is 
+
+ηi,t = τi + ∑ 
+
+> j̸=i
+
+ωi j S j,t + γiPt .
+
+The updated state of symptom i is then drawn from 
+
+Snew  
+
+> i
+
+∼ Bernoulli  logit −1(ηi,t ) .
+
+Each symptom update is stochastic and conditional on the current state of the rest of the symptom network. In the simulations, one fast sweep consists of updating all N symptoms once in random order. The slow field Pt is held fixed during this sweep. After a symptom is updated, its new value is used in subsequent symptom updates within the same sweep. This gives an asynchronous local-update process rather than a synchronous update in which all symptoms are changed at the SLOW–FAST PSYCHOLOGICAL DYNAMICS 36 same time. The asynchronous scheme avoids imposing artificial simultaneity and more closely approximates a continuous-time process in which state changes occur sequentially, although the present implementation itself remains discrete-time. When several fast sweeps are used within one slow time step, the symptom layer has more opportunity to adjust to the current value of Pt before the slow field changes again. This implements the intended timescale separation: symptom activation can fluctuate rapidly, while the contextual field changes more gradually. 
+
+Mean and smoothed symptom activation 
+
+The instantaneous mean symptom activation is 
+
+mt = 1
+
+N
+
+> N
+
+# ∑
+
+> i=1
+
+Si,t .
+
+This quantity is the proportion of symptoms that are active at time t. The slow contextual process does not respond directly to every instantaneous value of mt . Instead, symptom-to-context feedback uses a smoothed symptom signal, ¯ mt , which summarizes recent symptom activation. We compute this smoothed signal using an exponentially weighted moving average: ¯mt+dt = ( 1 − λm) ¯mt + λmmt , 0 < λm < 1.
+
+The smoothing parameter λm controls how quickly the smoothed symptom signal responds to the current symptom state. Larger values make ¯ mt track momentary symptom activation more closely, whereas smaller values make ¯ mt depend more strongly on recent history. This is what gives the feedback pathway its slow timescale: the slow contextual process responds to sustained symptom activation, not to every momentary fluctuation in mt . In Simulation 3, we set λm = 0.05. Equivalently, ¯mt+dt = ¯mt + λm(mt − ¯mt ).
+
+Thus, ¯ mt moves only partway toward the current value of mt at each slow time step. SLOW–FAST PSYCHOLOGICAL DYNAMICS 37 Iterating the recursion shows that past symptom activation receives geometrically decaying weights: ¯mt = λmt−1
+
+# ∑
+
+> k=0
+
+(1 − λm)kmt−1−k + ( 1 − λm)t ¯m0.
+
+Values of mt from the recent past receive the largest weight, while older values receive progressively smaller weights. Smaller values of λm therefore imply longer memory and stronger separation between fast symptom fluctuation and slow contextual change. This smoothing is important for the interpretation of symptom-to-context feedback. A single brief symptom spike should not immediately change a slow contextual condition. Sustained symptom activation, however, may affect work, relationships, sleep, stress exposure, or recovery. The smoothed signal ¯ mt is meant to capture this distinction. 
+
+Slow-field update 
+
+The slow contextual field is updated according to 
+
+Pt+dt = Pt + [ −κ(Pt − Pbase ) + b( ¯mt − m⋆)] dt + σP
+
+√dt εt + ξt , εt ∼ N (0, 1).
+
+The first term, Pt , is the current level of the slow contextual field. The term 
+
+−κ(Pt − Pbase )dt 
+
+pulls the slow field back toward its baseline Pbase . The parameter κ controls how quickly this return occurs. The term 
+
+σP
+
+√dt εt
+
+represents small background fluctuations in the slow field. Here, εt is standard normal noise and 
+
+σP controls the scale of the fluctuation. The factor √dt is used because this term represents a diffusion-like fluctuation over a time step of length dt .SLOW–FAST PSYCHOLOGICAL DYNAMICS 38 The feedback term 
+
+b( ¯mt − m⋆)dt 
+
+allows sustained symptom activation to affect the slow field. The parameter m⋆ is the reference level of recent symptom activation. When ¯ mt > m⋆, feedback pushes the slow field upward. When ¯mt < m⋆, feedback pushes the slow field downward. The parameter b controls the strength of this feedback. Finally, ξt represents occasional larger perturbations to the slow field. Unlike the diffusion term, ξt is not multiplied by dt . It represents a discrete jump in the slow field when an acute event occurs. 
+
+General stochastic jump process for acute perturbations 
+
+In the recovery simulations reported in the main text, the jump term ξt is implemented as a single deterministic perturbation: ξt = 1 at perturbation onset and ξt = 0 otherwise. More generally, the same jump term can represent stochastic acute events with their own timing and magnitude. We describe one such extension here. Rare acute events are represented as additive jump increments ξt in the slow-field update. Conceptually, the jump term is meant to capture discrete, identifiable events with their own timing and effect size, such as conflict, loss, financial setback, health problems, relationship change, birth, or death (Cohen et al., 2019; Dohrenwend, 2006). This differs from the Gaussian fluctuation term, which represents the accumulation of many smaller, unidentified background influences whose individual timing and magnitude are not distinguished. In this generalized formulation, acute events occur according to a rare-event process. The total event rate is 
+
+λtot (t) = λ0 + λ1[ ¯mt − mcrit ]+, [x]+ ≡ max (0, x), λ1 ≥ 0.
+
+Here, λ0 is the baseline event rate. The second term allows event risk to increase when recent symptom activation exceeds a critical level mcrit . This captures the idea that symptoms may not SLOW–FAST PSYCHOLOGICAL DYNAMICS 39 only respond to stressful conditions, but may also increase later exposure to stressors, consistent with stress-generation accounts (Hammen, 2006; Liu & Alloy, 2010; Rnic et al., 2023). To simulate this process on a time grid of size dt , we convert the continuous-time event rate into the probability that at least one event occurs during the next time step: 
+
+ptot (t) = 1 − exp [−λtot (t)dt ], It ∼ Bernoulli (ptot (t)) .
+
+We interpret It = 1 as an event occurring during the interval [t,t + dt ), and It = 0 as no event. For sufficiently small dt , this approximation allows at most one event per step while keeping the probability of multiple events within a single step negligible. This construction also clarifies why ξt is added directly to the slow field rather than multiplied by dt . The probability of an event occurring during a step scales with dt , through 
+
+ptot (t), but the jump size itself does not. Thus, as the time grid is refined, diffusion increments become smaller per step, whereas a realized acute perturbation remains a finite displacement of the slow field. Conditional on It = 1, we label the event as baseline versus symptom-linked in proportion to their contributions to the total rate: Pr (symptom-linked | It = 1) = λ1[ ¯mt − mcrit ]+
+
+λtot (t) ,
+
+and Pr (baseline | It = 1) = λ0
+
+λtot (t).
+
+We then draw an event-type-specific magnitude and set the jump increment for that step: 
+
+ξt =
+
+
+
+Abase ,t , baseline event ,
+
+Asymp ,t , symptom-linked event ,
+
+0, It = 0,SLOW–FAST PSYCHOLOGICAL DYNAMICS 40 with 
+
+Abase ,t ∼ N (μbase , σ 2base ), Asymp ,t ∼ N (μsymp , σ 2symp ).
+
+Within this generalized formulation, setting ξt = 0 removes acute perturbations. Setting 
+
+λ1 = 0 removes symptom-linked event generation, so that stochastic jumps can occur only through the baseline event rate λ0.This stochastic event process provides a more general implementation of the jump term but is not used in Simulations 1–4. Those simulations use either ξt = 0 or the single deterministic perturbation described above. The stochastic formulation shows how acute-event timing and symptom-linked event generation could be incorporated within the same slow–fast framework. 
+
+Parameter values used in the main simulations 
+
+The symptom-specific parameters used in the main simulations were specified for theoretical illustration rather than estimated from empirical data. The same values of τi, γi, and 
+
+ωi j were used throughout Simulations 1–4 unless otherwise stated. 
+
+Table A1 
+
+Symptom-specific baseline and slow-context loading parameters.                     
+
+> Symptom τiγi
+> Anhedonia -1.10 0.90 Depressed mood -1.00 1.00 Sleep -0.70 0.70 Energy -0.60 0.80 Appetite -1.20 0.70 Guilt -1.50 1.00 Concentration -1.00 0.80 Psychomotor -1.70 0.70 Suicidal ideation -2.70 0.60
+
+Simulation 1 post-burn-in stability check 
+
+We checked whether the 200-sweep burn-in used in Simulation 1 left systematic drift in symptom activation. First, we inspected full trajectories from 10 example chains in each contextual condition. As shown in Figure A1, the trajectories showed no visible transient or systematic trend approaching the end of the burn-in period. SLOW–FAST PSYCHOLOGICAL DYNAMICS 41 
+
+Table A2 
+
+Nonzero symptom–symptom couplings used in the main simulations.                
+
+> Symptom pair ωi j
+> Anhedonia – depressed mood 0.45 Depressed mood – guilt 0.35 Depressed mood – suicidal ideation 0.30 Sleep – energy 0.40 Energy – concentration 0.35 Concentration – psychomotor 0.25 Appetite – energy 0.25 Guilt – suicidal ideation 0.25 Anhedonia – energy 0.25 Anhedonia – concentration 0.20
+> Note. All symptom pairs not listed in the table have ωi j =0.
+
+We also compared mean symptom activation during the first and second halves of the retained 200-sweep window. The differences were 0 .0286, 0 .0160, and 0 .0019 active symptoms in the low-, reference-, and high-context conditions, respectively. For comparison, the difference in overall mean activation between the low- and high-context conditions was approximately 1 .92 active symptoms. Residual drift after burn-in was therefore small relative to the contextual difference examined in Simulation 1. 
+
+Sensitivity of recovery to symptom-coupling strength 
+
+Simulation 2 holds the symptom–symptom coupling matrix fixed in order to isolate recovery following a perturbation to the contextual process. As a sensitivity check, we repeated the same perturbation-and-recovery simulation while varying the overall strength of symptom–symptom coupling. We preserved the topology and relative edge weights of the original coupling matrix and rescaled all nonzero couplings by a common factor, 
+
+ω(c) = cω.
+
+The full sensitivity grid used 
+
+c ∈ { 0.3, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0},SLOW–FAST PSYCHOLOGICAL DYNAMICS 42 Burn−in (excluded) 
+
+high middle low 0 100 200 300 400 0.0 2.5 5.0 7.5 0.0 2.5 5.0 7.5 0.0 2.5 5.0 7.5 Sweep Symptom activation (M) Shaded region = burn−in, excluded from analysis. Simulation 1: burn−in trace (10 example chains per condition, bold = mean) 
+
+Figure A1 
+
+Burn-in traces for Simulation 1. Ten example chains are shown for each contextual condition. The dashed vertical line marks the end of the 200-sweep burn-in period. The trajectories fluctuate around condition-specific levels without an evident systematic transient approaching or following the end of burn-in. SLOW–FAST PSYCHOLOGICAL DYNAMICS 43 
+
+Table A3 
+
+Post-burn-in stability check for Simulation 1.                   
+
+> Condition First 100 sweeps Second 100 sweeps Difference
+> Low context ( P=−0.6) 1.6256 1.6542 0.0286 Reference ( P=0) 2.4818 2.4978 0.0160 High context ( P=0.6) 3.5559 3.5577 0.0019
+
+with c = 1 corresponding to the coupling matrix used in the main simulations. All other parameters, including τi, γi, the slow-context dynamics, and the perturbation magnitude, were held fixed. Feedback from symptoms to context remained off ( b = 0), as in Simulation 2. We simulated 1,000 independent trajectories for each coupling condition. Because changing coupling strength also changes the baseline level of symptom activation, recovery was evaluated relative to each condition’s own pre-perturbation level. We defined normalized excess activation as 
+
+R(t) = ¯M(t) − ¯Mpre 
+
+¯Mpeak − ¯Mpre 
+
+,
+
+where ¯Mpre is the mean symptom activation during the final 50 pre-perturbation steps and ¯Mpeak is the maximum mean activation during the first 20 post-perturbation steps. Thus, R(t) = 1corresponds to the initial perturbation response and R(t) = 0 to return to the condition-specific pre-perturbation level. Figure A2 shows three representative coupling levels from the broader grid. Recovery was very similar under weaker coupling ( c = 0.3) and the reference coupling ( c = 1), whereas the strongest condition shown ( c = 3) retained somewhat more excess activation during recovery. The trajectories nevertheless moved back toward their own pre-perturbation levels over the simulated recovery window. This check indicates that the qualitative recovery pattern in Simulation 2 is not specific to the exact coupling magnitude used in the reference model, while also showing that sufficiently strong symptom coupling can modestly prolong the response to the same contextual perturbation. SLOW–FAST PSYCHOLOGICAL DYNAMICS 44 0.0 0.5 1.0 0 200 400 600 Steps since shock R(t) (normalized excess activation) c = 0.3 c = 1 (reference) c = 3   
+
+> ω(c) =c⋅ ω , topology fixed −− thin lines are individual chains (smoothed), bold = mean of 1000
+
+Sensitivity of recovery to symptom−coupling strength 
+
+Figure A2 
+
+Sensitivity of recovery to symptom–symptom coupling strength. The data-generating coupling matrix was rescaled as ω(c) = cω while its topology and relative edge weights were held fixed. Curves show recovery relative to each coupling condition’s own pre-perturbation activation level. Thin lines show 15 smoothed example trajectories per condition; bold lines show the mean across 1,000 independent trajectories. The dashed vertical line marks perturbation onset. SLOW–FAST PSYCHOLOGICAL DYNAMICS 45 
+
+Appendix B Supplementary NCT check under threshold differences only 
+
+This supplementary check is not intended to match the N = 9 PHQ-style simulation design used in the main text. It uses N = 12 symptoms to examine a more general methodological question: whether standard network-comparison procedures can flag network differences when two groups differ only in thresholds and share the same data-generating coupling matrix. The check should therefore be read as a standalone robustness analysis about network comparison under threshold differences, not as a direct extension of Simulations 1–4. To examine whether standard network comparison procedures absorb threshold differences into threshold parameters rather than into edge estimates, we conducted a supplementary Monte Carlo analysis. In each condition, we simulated two groups from Ising models with the same coupling matrix but different threshold vectors, estimated the networks separately with IsingFit , and compared them using the weighted Network Comparison Test (NCT). Thus, the two groups were generated from the same underlying symptom network and differed only in their baseline tendency for symptoms to become active. The true network topology was varied across three cases: dense, modular, and ring. These are not participant groups, but three different coupling structures used to generate the data. Within each condition, both groups shared the same coupling matrix and differed only in thresholds. Table B1 summarizes the supplementary NCT design. We summarized the results in three ways. First, we recorded how often NCT rejected the structure invariance test, that is, how often it concluded that the estimated edge-weight configuration differed between the two groups. Second, we recorded how often NCT rejected the global strength test. Third, because we requested edge-wise tests, we computed the average proportion of individual edges falsely flagged as significant at p < . 05. Under the null hypothesis of identical coupling, all three quantities would ideally remain close to the nominal 5% level. The results were mixed. The structure invariance test remained broadly close to the nominal 5% level, and edge-level false-positive rates were low overall. By contrast, the global SLOW–FAST PSYCHOLOGICAL DYNAMICS 46 
+
+Table B1 
+
+Design of the supplementary NCT simulation. 
+
+Category Setting 
+
+Symptoms N = 12 binary symptoms. Groups Two groups per replicate. The groups had identical coupling and differed only in thresholds. Dense topology Fully connected 12-node network: all off-diagonal edge weights set to 0.25, diag-onal entries set to 0. Modular topology Two 6-node modules: all within-module off-diagonal edge weights set to 0.25, all between-module edge weights set to 0.05, diagonal entries set to 0. Ring topology 12-node ring: each node connected only to its two immediate neighbors with edge weight 0.25; all other off-diagonal entries set to 0. Low-threshold group All 12 thresholds set to −2.0. High-threshold group All 12 thresholds set to −2.0 + ∆, where ∆ ∈ { 0.4, 0.8, 1.2}. Thus the second group used thresholds −1.6, −1.2, or −0.8. Meaning of threshold difference Less negative thresholds imply a higher baseline probability that symptoms are active. Sample size per group n ∈ { 200 , 500 , 1000 }.Monte Carlo replicates 100 replicates per condition. Data generation IsingSampler , binary responses {0, 1}, Metropolis–Hastings sampler. Network estimation IsingFit with family = "binomial" .Network comparison Weighted NCT. Permutations per NCT run 250. 
+
+strength test showed stronger inflation in dense networks, especially at the largest sample size. Thus, this supplementary analysis suggests that threshold differences do not necessarily create broad false evidence of different network structure, but they can still generate misleading differences in estimated global strength. Figures B1 and B2 summarize the rejection rates and edge-level false-positive rates. SLOW–FAST PSYCHOLOGICAL DYNAMICS 47 dense modular ring 200 500 1000 200 500 1000 200 500 1000 0.000 0.025 0.050 0.075 0.100 Sample size per group Rejection rate Threshold gap 0.4 0.8 1.2 Groups differ only in threshold; dashed = nominal 5% NCT structure invariance rejection rate (weighted) dense modular ring 200 500 1000 200 500 1000 200 500 1000 0.00 0.25 0.50 0.75 1.00 Sample size per group Rejection rate Threshold gap 0.4 0.8 1.2 Groups differ only in threshold; dashed = nominal 5% NCT global strength rejection rate (weighted) 
+
+Figure B1 
+
+Supplementary Monte Carlo check of NCT under threshold differences only. Two groups were simulated with identical coupling but different thresholds and compared using weighted NCT. The dashed horizontal line marks the nominal 5% level under the null hypothesis that the two groups have the same coupling. Shown here are rejection rates for the structure invariance test and the global strength test. SLOW–FAST PSYCHOLOGICAL DYNAMICS 48 dense modular ring 200 500 1000 200 500 1000 200 500 1000 0.00 0.01 0.02 0.03 0.04 0.05 Sample size per group False−positive rate Threshold gap 0.4 0.8 1.2 Proportion of edges flagged at p < .05; dashed = nominal 5% Edge−level false−positive rate (weighted) 
+
+Figure B2 
+
+Supplementary Monte Carlo check of NCT under threshold differences only: edge-level tests. 
+
+Edge-level false-positive rates from the same simulation. The dashed horizontal line marks the nominal 5% level. False-positive rates remained low overall.
