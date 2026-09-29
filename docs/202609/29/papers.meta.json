@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-29",
+  "date": "2026-09-29",
+  "generated_at": "2026-09-29T19:18:16",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/29/2609.31058v1-automatic-sub-bundle-tractometry-reveals-localized-microstructural-variations-in-complex-white-matter-topographies",
+      "section": "quick",
+      "title_en": "Automatic sub-bundle tractometry reveals localized microstructural variations in complex white matter topographies",
+      "authors": "Nathan Decaux, Jean-Charles Roy, Thomas Desmidt, Marie-Laure Paillère Martinot, Gabriel Robert, Julie Coloigner",
+      "date": "2026-09-25",
+      "pdf": "https://arxiv.org/pdf/2609.31058v1",
+      "score": "7.0",
+      "evidence": "晚发抑郁队列与白质微结构",
+      "tldr": "针对传统纤维束测量将白质微结构平均为单一剖面、掩盖束内异质性并稀释局部改变的问题，本文提出基于Fréchet距离层次聚类的自动亚束测量框架，将纤维束分解为几何连贯的亚束并投影FA、IFW等多室指标。在140名早发与晚发抑郁患者及年龄匹配健康对照中评估，结果显示亚束层面存在被整体平均掩盖的局部微结构变异，为晚发抑郁的白质研究提供更精细的分析工具。",
+      "tags": "query:dep-support",
+      "abstract_en": "Conventional tractometry averages white matter microstructure into a single profile, masking intra-bundle spatial heterogeneity and diluting localized alterations. We propose an automatic sub-bundle tractometry framework using Fr{é}chet-based hierarchical clustering to decompose bundles into geometrically coherent sub-bundles, resolving complex fanning configurations without empirical thresholds. Multi-compartment metrics (fractional anisotropy, FA; isotropic free-water fraction, IFW) are projected onto these clusters. We evaluated this framework in 140 participants across early-life (ELD) and late-life (LLD) depression cohorts, alongside age-matched healthy controls. We assessed performance based on microstructural homogeneity, sensitivity to age, and clinical group differences. Proposed sub-bundle metrics were significantly more homogeneous than classical full bundle profiles (p < 0.001). Our approach showed enhanced sensitivity, detecting more age-correlated bundles in elderly controls (11 vs. 5) and more clinical group differences in LLD (FA: 6 vs. 4; IFW: 23 vs. 17) with larger effect sizes. In ELD, it improved the detection of subtle FA differences between remitted and resistant individuals (2.9% vs. 1.8%). Gains were particularly pronounced in LLD, reflecting the framework's ability to resolve fanning tracts susceptible to brain aging. By preserving spatial heterogeneity, this automatic decomposition provides a robust foundation for large-scale clinical tractometry.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

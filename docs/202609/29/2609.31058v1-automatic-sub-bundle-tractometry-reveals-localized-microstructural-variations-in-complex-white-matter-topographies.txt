@@ -1,0 +1,3256 @@
+Automatic sub-bundle tractometry reveals localized
+microstructural variations in complex white matter
+topographies
+Nathan Decaux1, Jean-Charles Roy2,5, Thomas Desmidt3,4,
+Marie-Laure Paillere Martinot6,7, Gabriel Robert1,2, Julie Coloigner1∗
+1Univ Rennes, INRIA, CNRS, INSERM, IRISA UMR 6074, Empenn ERL U 1228, 35000 Rennes, France.
+2Adult University Psychiatry Department, Guillaume Régnier Hospital, Rennes, France.
+3Université de Tours, INSERM, Imaging Brain & Neuropsychiatry iBraiN U1253, 37032, Tours, France.
+4CHU de Tours, INSERM, CIC1415, 37000 Tours, France
+5Centre for Population Neuroscience and Stratified Medicine, Charité Universitätsmedizin Berlin, Berlin, Germany
+6INSERM U1299 "Developmental Trajectories & Psychiatry", Centre Borelli, UMR9010 ;
+Dept mathematics, ENS Paris-Saclay, Univ Paris Saclay, Paris, France.
+7AP-HP Sorbonne Université, Department of Child and Adolescent Psychiatry, Pitié-Salpêtrière Hospital, Paris.
+∗Correspondence: julie.coloigner@irisa.fr
+September 28, 2026
+Abstract:
+Conventional tractometry averages white matter microstructure into a single profile, masking
+intra-bundle spatial heterogeneity and diluting localized alterations. We propose an automatic
+sub-bundle tractometry framework using Fréchet-based hierarchical clustering to decompose
+bundles into geometrically coherent sub-bundles, resolving complex fanning configurations
+without empirical thresholds. Multi-compartment metrics (fractional anisotropy, FA; isotropic
+free-water fraction, IFW) are projected onto these clusters.
+We evaluated this framework in 140 participants across early-life (ELD) and late-life (LLD)
+1
+arXiv:2609.31058v1  [eess.SP]  25 Sep 2026
+
+
+2
+1
+INTRODUCTION
+depression cohorts, alongside age-matched healthy controls. We assessed performance based
+on microstructural homogeneity, sensitivity to age, and clinical group differences.
+Proposed sub-bundle metrics were significantly more homogeneous than classical full bun-
+dle profiles (p < 0.001). Our approach showed enhanced sensitivity, detecting more age-
+correlated bundles in elderly controls (11 vs. 5) and more clinical group differences in LLD
+(FA: 6 vs. 4; IFW: 23 vs. 17) with larger effect sizes. In ELD, it improved the detection of
+subtle FA differences between remitted and resistant individuals (2.9% vs. 1.8%). Gains were
+particularly pronounced in LLD, reflecting the framework’s ability to resolve fanning tracts
+susceptible to brain aging. By preserving spatial heterogeneity, this automatic decomposition
+provides a robust foundation for large-scale clinical tractometry.
+1
+Introduction
+The characterization of white matter microstructure is crucial for advancing our understanding of brain
+connectivity and the mechanisms underlying neurological disorders (Koshiyama et al., 2019). Diffusion
+MRI (dMRI) provides non-invasive access to white matter tissue properties. Fractional anisotropy (FA)
+metric derived from diffusion tensor model (DTI), is widely used as a proxy for microstructural integrity (Le
+Bihan et al., 2001; Wijtenburg et al., 2012).
+More recently, multi-compartment models (MCMs) have been developed to provide biologically specific
+microstructural markers by decomposing the diffusion signal into multiple tissue compartments (Pana-
+giotaki et al., 2012). These models provide specific markers of neuroinflammation such as the isotropic
+free-water fraction (IFW) (Chang et al., 2025; Hédouin et al., 2024), and can disentangle multiple
+fiber populations with different directions within a single voxel, enabling fiber-specific FA estimates in
+crossing-fiber regions (Mishra et al., 2015; Witt et al., 2025). Exploiting the full specificity of these met-
+rics, however, requires accurate spatial localization of the underlying fiber pathways, which tractography
+supplies. Through the reconstruction of white matter pathways, fibers can be grouped into anatomically
+defined bundles (Wasserthal et al., 2018).
+Tractometry consists in the analysis of the microstructural properties along these white matter bun-
+dles. In the conventional tractometry framework, each white matter bundle is represented by a single
+streamline, commonly a centroid streamline.
+This trajectory provides a simplified description of the
+bundle’s microstructure by aggregating microstructural measurements from the nearest points along the
+tract (Chandio et al., 2023; Corouge et al., 2004; Cousineau et al., 2017; Tones et al., 2005). The result-
+ing representation, called a bundle profile, consists of a discrete set of points that capture microstructural
+
+
+3
+values at specific locations along the pathway. These individual bundle profiles can then be compared
+between subjects, allowing for the identification and characterization of population-level differences in
+white matter microstructure through statistical analyses performed at the corresponding profile points
+(Joo et al., 2025; Yeatman et al., 2012; Zheng et al., 2026).
+A key advantage of reducing a bundle to a single bundle profile is its ability to reduce the influence of
+measurements associated with aberrant streamlines, which may result from tractography reconstruction
+errors or inaccuracies in bundle segmentation (Chamberland et al., 2019). However, reducing a bundle to
+a single bundle profile implicitly assumes uniform microstructural properties across its cross-section. This
+assumption is violated in many anatomically complex bundles with crossing fibers or fanning (Kruper et
+al., 2021), and as a result, group differences localised to a subset of streamlines may be diluted or entirely
+missed. In this regard, Chandio et al. (2023) suggested to group bundle streamlines into multiple clusters
+and perform separate tractometry profiles onto these sub-bundles. However, the proposed clustering,
+based on the distance between streamlines, requires a fine-tuning of distance thresholds for each individual
+bundle. Moreover, the benefit compared to an analysis of the full bundle profile has not been assessed.
+An alternative yet complementary approach consists of clustering streamlines across subjects based on a
+whole-brain atlas (Zhang et al., 2018; Zheng et al., 2026) clustered with spectral embedding distances.
+By enabling sub-bundle profiling, this framework has been shown to improve the detection of localized
+microstructural abnormalities. Nevertheless, its effectiveness is highly contingent on the quality of the
+atlas, since the clustering process is conducted at the whole-brain level rather than within individual
+bundles.
+To address the aforementioned limitations, we introduce a framework based on automatic clustering
+directly within a pre-existing anatomical bundle atlas, using strategies specifically designed to discriminate
+geometric variability such as crossing or fanning patterns.
+A robust tractometry framework is particularly consequential in psychiatric research, where white matter
+alterations are typically subtle, spatially heterogeneous, and distributed across multiple pathways. Mi-
+crostructural abnormalities have been frequently reported in fronto-limbic and association tracts (Liao
+et al., 2012; Mesbah et al., 2023) that shows large fanning at their cortical terminations. Large-scale
+meta-analyses have confirmed subtle but widespread white matter alterations in major depressive disor-
+ders (Schmaal et al., 2020), yet the observed effects appear to be largely driven by medication status
+and comorbidities (Jiang et al., 2017; Xu et al., 2023). While these analyses focused on FA, the use
+of MCM has revealed more specific alterations associated with depression, notably an increase in the
+isotropic free-water fraction (IFW) (Bergamino et al., 2024; Cao et al., 2025; Cox et al., 2016; Langhein
+et al., 2022; Li et al., 2025; Vandeloo et al., 2022). However, effect sizes are still modest and the within-
+
+
+4
+2
+METHODS
+bundle spatial distribution of alterations remains poorly characterised (Hédouin et al., 2024). Therefore
+depression is an adequate framework to test for the sensibility of our approach.
+This is particularly relevant for late-life depression, where pathological changes intersect with brain aging,
+which is known to affect white matter in a non-uniform manner that preferentially impacts frontal and
+superficial regions (Raz & Rodrigue, 2006) where bundles are highly fanned.
+We evaluated the proposed method against classical approaches by examining the microstructural hetero-
+geneity of microstructure metrics (FA and IFW) within anatomically defined white-matter bundles. We
+further assessed its ability to detect group differences for these metrics and its sensitivity to subject age.
+This framework was validated on two independent cohorts of patients with depressive disorders. The
+first cohort comprised younger individuals with early-life depression (ELD), including both remitted and
+treatment-resistant phenotypes, while the second consisted of elderly individuals with late-life depression
+(LLD). In both cohorts, analyses were performed relative to age-matched healthy control groups.
+2
+Methods
+The overview of the proposed tractometry framework is illustrated in Figure 1.
+2.1
+Data and clinical context
+2.1.1
+Participants and clinical assessment
+Two independent cohorts of patients suffering from depression were included in this study. All participants
+provided written informed consent. Demographic and clinical characteristics of both cohorts are sum-
+marised in the supplementary materials (S1). Depression severity was assessed using the Montgomery-
+Åsberg Depression Rating Scale (MADRS) (Montgomery & Åsberg, 1979). All methods were performed
+in accordance with the guidelines of the Declaration of Helsinki.
+ELD cohort
+It is a cross-sectional study that recruited 74 participants (25 patients with remitted
+depression, 25 patients with treatment-resistant depression (TRD) (Holtzmann et al., 2016), and 24
+healthy controls (HC); 52 females, 22 males; mean age 26.1±5.6 years) between July 2020 and January
+2023 at Rennes University Hospital, France. Patients, aged 18-35 years, were recruited by their treating
+psychiatrists. Healthy controls were recruited via local advertisements and matched for age, sex, and
+
+
+2.1
+Data and clinical context
+5
+Peaks matching
+DWI
+ODF
+MCM
+Tractography
+Microstructure
+metrics
+(voxels)
+Projection
+Microstructure
+metrics
+(fibers)
+Bundle
+Segmentation
+Sub-bundle
+profiles
+Point
+ association  
+Registration
+Sub-bundle
+centroid atlas
+Sub-bundle
+Clustered
+streamlines
+HCP105 bundle
+atlas
+A
+B
+C
+Streamline-
+level cluster
+association
+Projection
+Point-level
+cluster
+association
+Centroids on
+subject space
+Subject 
+sub-bundles
+Points
+associated to
+centroid nodes
+Average metric
+per centroid
+nodes
+Figure 1: Overview of the proposed tractometry framework, illustrating key steps from diffusion MRI
+preprocessing to bundle profile analysis.
+A.
+Subject-level processing, from raw DWI signal to the
+projection of microstructure metrics onto identified tracts. B. Tractometry atlas construction and sub-
+bundle generation. C.
+Association steps between subject streamlines and atlas clusters, enabling the
+aggregation of microstructural metrics at anatomically corresponding locations along the bundles for
+subsequent statistical analysis.
+education. TRD was defined as a lack of response to at least two antidepressant trials of adequate dosage
+and duration (≥1 month). Remission was defined as a MADRS score <7 for ≥3 months. Exclusion
+criteria included substance use, bipolar, or developmental disorders; electroconvulsive therapy within six
+months; current somatic or neurological pathology; pregnancy; birth weight <800 g; and standard MRI
+contraindications. All participants underwent a standardized psychiatric interview followed by an MRI
+scan on the same day. Treatment history was evaluated using the antidepressant treatment history Form,
+and alcohol consumption over the last month with the timeline followback method. The study was
+approved by the ethics committee CPP Ile-de-France (IDR-RCB 2013-A00662-43).
+LLD cohort
+The LLD cohort recruited 60 participants (36 patients and 24 healthy age-matched con-
+trols; 44 females, 16 males; mean age 74.9±6.0 years) from the old-age psychiatry centres of Rennes (39
+participants) and Tours (21 participants) between October 2019 and April 2022. Inclusion and exclusion
+criteria were assessed during a psychiatric interview conducted by a trained geriatric psychiatrist. Inclu-
+sion criteria were age ≥60 years with DSM-5 and Mini-International Neuropsychiatric Interview (Sheehan
+et al., 1994) criteria for major depressive disorder. Non-inclusion criteria comprised DSM-5 criteria for
+major cognitive disorder and Mattis Dementia Rating Scale (Mattis, 1976) < 125; neurological diseases;
+
+
+6
+2
+METHODS
+inflammatory or mechanical diseases impeding motor activity; severe sarcopenia defined as a walk test
+<1 m/s; extrapyramidal symptoms assessed by the Unified Parkinson’s Disease Rating Scale-Part III (on
+Rating Scales for Parkinson’s Disease, 2003); having an antipsychotic prescription; high suicidality de-
+fined as a Clinical Global Impression Suicide Scale score (Lindenmayer et al., 2003); legal protection or
+deprivation of liberty; and MRI contraindications. The study was approved by the relevant institutional
+review board (ID-RCB 2018-AO2643-52, NCT03807167).
+Comparability in terms of age was assessed using Welch’s ANOVA for ELD (p = 0.079) and Welch’s t-test
+for LLD (p = 0.690) cohorts, with no significant differences between groups. In ELD, the MADRS score
+was significantly different between the resistant and the remission group (26.2 ± 5.9 vs. 5.6 ± 3.9, p ≪
+0.001, Welch’s t-test).
+2.1.2
+MRI scan acquisition
+At both sites (LLD - Rennes and Tours) and both samples, all participants underwent MRI in a 3T
+Siemens MR scanner (Magnetom Prisma, VE11C, Erlangen, Germany) with a 64-channel head coil. A
+whole brain T1-weighted MPRAGE image was acquired with repetition time (TR) = 1.9 s, echo time
+(TE) = 2.26 ms, inversion time (TI) = 900 ms, flip angle = 9°, 1 mm isotropic, field-of-view (FOV) =
+256 × 256 mm2, 176 slabs. The multi-shell dMRI data were gathered with a CUbe and SPhere (CUSP)
+sequence (Scherrer & Warfield, 2012) acquired on 72 slices using an interleaved slice acquisition, with
+the following parameters: slice thickness of 2 mm, in-plane resolution = 2 mm × 2 mm, an acquisition
+matrix of 110 × 110, TR/TE = 5216/54.40 ms, flip angle 90°, pixel bandwidth 1698 Hz and an imaging
+frequency of 123.25 MHz. The CUSP acquisition time was 6.42 min. An additional b0 volume with
+reversed phase encoding direction volume was also acquired with the same acquisition parameters for the
+distortion artifact correction. The specificity of this sequence lies in its 60 gradients that are placed on
+a sphere and a cube (i.e. with multiple gradient b-values ranging from 1000 to 3000 s mm−1). The goal
+of this particular gradient structure is to reduce the acquisition time compared to a regular multi-shell
+sequence while maintaining the quality of the resulting diffusion model. Moreover, the second interest
+of the CUSP sequence is in terms of image quality because the time echo of this diffusion sequence is
+less affected by high b-values, improving the signal-to-noise of the images.
+2.2
+Subject diffusion processing
+The process from raw diffusion MRI data to tractometry analysis involves several key steps, includ-
+ing preprocessing, tractography, multi-compartment modeling and microstructural metric projection to
+
+
+2.2
+Subject diffusion processing
+7
+streamlines. This pipeline is illustrated in the block A of Fig. 1.
+2.2.1
+Preprocessing
+Diffusion MRI preprocessing followed the protocol established by Hédouin et al. (Hédouin et al., 2024),
+using the Anima toolbox, including motion and eddy-current correction with outlier replacement, distor-
+tion correction using the reverse phase-encoded b0 images and nonlocal-means filtering. A whole-brain
+mask was computed from the mean b0 image. Additional details are available in (Hédouin et al., 2024).
+2.2.2
+Tractography
+ODF
+Orientation distribution functions (ODFs) were estimated using the Multi-Shell Multi-Tissue
+Constrained Spherical Deconvolution (MSMT-CSD) algorithm (Jeurissen et al., 2014) implemented in
+MRtrix3 (Tournier et al., 2019). Tissue response functions for white matter, gray matter, and CSF
+were estimated per subject and used to compute multi-tissue ODFs. Multi-tissue intensity normalization
+was applied to improve inter-subject comparability. To characterize local fiber populations, fiber bundle
+elements (fixels) were extracted per voxel following the approach by Raffelt et al. (Raffelt et al., 2017)
+and the MRtrix3 implementation.
+Whole-brain tractography
+Probabilistic whole-brain tractography was performed using the iFOD2
+(Tournier et al., 2010) algorithm with a target of 1 million streamlines, seeded from the whole-brain
+mask.
+Default MRtrix3 parameters were used, including curvature constraints and ODF amplitude
+cutoff. Minimum and maximum streamline lengths were set to exclude implausible tracts, and tracking
+was confined within the brain mask. All tractography outputs underwent basic quality check to verify
+streamline distribution and anatomical plausibility.
+2.2.3
+Multi-compartment model
+In MCMs, the diffusion-weighted signal is expressed as the weighted sum of multiple compartments, each
+representing a distinct microstructural environment with specific diffusion properties (Panagiotaki et al.,
+2012). Isotropic compartments account for free water or approximately spherical structures such as inter-
+axonal restricted water, while anisotropic compartments capture the directional diffusion observed within
+coherent fiber populations. Formally, the signal model decomposes the diffusion probability density into
+
+
+8
+2
+METHODS
+a mixture of isotropic and anisotropic components, with nonnegative compartment weights that sum to
+one.
+Assuming Gaussian compartmental diffusion, we use a MCM comprising two isotropic compartments,
+modeling free water and restricted water, together with a variable number of anisotropic compartments,
+each parameterized by a diffusion tensor. To robustly handle distinct crossing fibers, we used a variable
+number of anisotropic compartments, k, ranging from 0 to 3 based on the previously extracted number
+of fixels (prominent ODF peaks). This flexibility accommodates diverse regimes: no anisotropic com-
+partment in CSF-dominated voxels, a single dominant compartment in coherent bundles (e.g., corpus
+callosum), and two or three compartments in complex crossing regions.
+Derived microstructure metrics
+From the fitted model, we derive the following microstructural
+metrics: IFW from the isotropic compartment; iso-restricted (“trapped”) water fraction (IR); and, for
+each anisotropic compartment j = 1, . . . , k, FA is computed from the corresponding diffusion tensor.
+Projection to tractography
+Voxelwise MCM metrics are interpolated onto streamline points. For the
+FA, a direction-dependent metric, each streamline point is associated with the anisotropic compartment
+that maximizes the absolute dot product between its principal orientation and the local streamline tangent.
+2.3
+Tractometry atlas
+Reference atlas is crucial to identify the bundles of interest to be extracted, as well as providing a reference
+geometry for the extraction of clusters and the alignment of individual fibers. The key steps involved in
+this process are illustrated in the block B of Fig. 1.
+2.3.1
+Streamline atlasing
+We build an HCP105 bundle atlas (Jakob et al., 2018), comprising anatomically defined bundles recon-
+structed from 105 subjects. For each HCP diffusion data, fiber bundles were semi-automatically obtained
+by Wasserthal et al. (2018), using fiber tracking and filtering, first by regions of interest (ROIs), then
+curated by an expert. The overall process used to segment these bundles is detailed in Wasserthal et al.
+(2018) and the data is available online (Jakob et al., 2018). A total of 71 white matter bundles were
+investigated encompassing seven subdivisions of the corpus callosum (CC: rostrum, genu, rostral body,
+anterior midbody, posterior midbody, isthmus, and splenium), the anterior commissure (CA), association
+
+
+2.3
+Tractometry atlas
+9
+fascicles including the arcuate (AF), cingulum (CG), inferior occipito-frontal (IFO), inferior longitudinal
+(ILF), middle longitudinal (MLF), superior longitudinal I–III (SLF I–III), and uncinate (UF) fasciculi; pro-
+jection tracts including the corticospinal (CST), anterior and superior thalamic radiations (ATR, STR),
+fronto (FPT) and parieto-occipital (POPT) pontine, optic radiation (OR), and fornix (FX), cerebel-
+lar peduncles including the inferior, middle, and superior (ICP, MCP, SCP), thalamic (T) pathways to
+prefrontal (PREF), premotor (PREM), precentral (PREC), postcentral (POSTC), parietal (PAR), and oc-
+cipital (OCC) regions, and striato-cortical (ST) pathways to the same cortical targets plus fronto-orbital
+(FO) cortex.
+Bundles were then registered to a common space using an atlasing method, initially proposed by Durantel
+et al. (2025). It is a modified version of Guimond et al. (2000) approach applied to diffusion data (Suarez
+et al., 2012). It iteratively builds a tensor atlas by registering each individual HCP tensor images onto a
+running reference and averaging the resulting unbiased atlases at each step. Key modifications include
+the use of diffeomorphic Stable Vector Fields (SVF) and the log-Euclidean framework (Arsigny et al.,
+2006) for computing average transformations. The transformation field obtained by the atlasing method
+from each individual space to the atlas space are then applied to 71 segmented fiber bundles of interest
+of each subject in order to all align them to the tensor atlas. For each bundle, all streamlines from all
+subjects were, then, merged into a single tractogram to preserve the variability of individual shapes. This
+merged tractogram served as the bundle atlas for subject fiber segmentation and subsequent clustering
+and cluster extraction. Transformations and related scripts use to generate the bundle templates are
+publicly available 1.
+2.3.2
+Bundle clustering
+Clustering can be used to identify sub-groups of streamlines with similar geometric characteristics within
+a bundle. In conventional approaches, a single representative centroid is typically extracted for each
+bundle (Chandio et al., 2020; Cousineau et al., 2017). However, this representation may be insufficient
+for bundles exhibiting heterogeneous spatial topographies. We hypothesize that microstructural varia-
+tions may be confined to specific spatial sub-region of a bundle, requiring these regions to be analyzed
+independently to avoid averaging out localized effects. Partitioning bundles has previously been explored
+by Chandio et al. (2020) to mitigate this issue. In this work, the proposed clustering strategy is based on
+a conventional pairwise distances between streamlines known as the average direct-flip distance (MDF),
+first introduced in the QuickBundles algorithm by
+Garyfallidis et al. (2012). While computationally
+efficient, this approach relies on a distance threshold that must be tuned empirically for each bundle.
+1https://zenodo.org/records/22641462
+
+
+10
+2
+METHODS
+HCP105 bundle
+atlas
+Compressed
+bundle
+Clustered
+bundles
+k=3
+k=2
+ k clusters = 2 
+ k clusters = 3
+Streamline
+silouhette
+coefficients
+Mean
+silouhette
+k
+2
+3
+✔
+✘
+Sub-bundle
+centroid atlas
+Quickbundle
+Fréchet-based
+hierarchical clustering
+Fréchet distance
+Figure 2: Fréchet-based sub-bundle clustering pipeline, illustrated on the left corticospinal tract (CST),
+related to block B in Fig. 1. The bundle atlas (HCP105) is first compressed with QuickBundles (5 mm
+threshold) to obtain centroids. Pairwise discrete Fréchet distances between centroids are then grouped by
+agglomerative hierarchical clustering with complete linkage, yielding candidate partitions for k ∈{2, 3}.
+For each candidate, per-streamline silhouette coefficients are computed, and the number of clusters
+maximizing the mean silhouette score is retained (here k = 2). The selected clustering, with its cluster
+centroids, defines the reference sub-bundles used for subsequent tractometry.
+Moreover, this average streamline distance is a suboptimal metric in certain configurations. Although it
+can discriminate globally distant streamlines or of different lengths, it fails to separate fibers that share
+a similar trajectory but diverge at one extremity. This causes streamlines with distinct fanning patterns
+to be incorrectly grouped together, obscuring the true spatial spread of the bundle. To address this
+issue, we investigate a strategy specifically designed to capture geometrically distinct sub-bundles, and
+is illustrated in Fig. 2.
+Instead of MDF distance, we introduce pairwise streamline distances computed using the discrete Fréchet
+distance (Eiter & Mannila, 1994), which measures the maximum pointwise distance along ordered point
+sequences. Formally, let ca = (pa(1), . . . , pa(La)) and cb = (pb(1), . . . , pb(Lb)) be two streamlines of La
+and Lb points respectively. Their discrete Fréchet distance FLa,Lb is computed by the recurrence:
+Fi,j = max
+ d(pa
+(i), pb
+(j)), min(Fi−1,j, Fi,j−1, Fi−1,j−1)
+
+with i ∈{1, . . . , La} and j ∈{1, . . . , Lb}, where d(·, ·) denotes the Euclidean distance. To reduce
+computational cost, an initial clustering step was performed using the QuickBundles algorithm (Garyfal-
+lidis et al., 2012) with a conservative distance threshold of 5, mm, to obtain a compressed bundle. The
+Fréchet distance was subsequently computed between the resulting cluster centroids rather than between
+
+
+2.4
+Subject-level bundle correspondence and tractometry
+11
+all individual streamlines.
+These centroids were then grouped using agglomerative hierarchical clustering with complete linkage
+applied to this Fréchet distance matrix (Müllner, 2011). A key advantage of this formulation is that it
+operates on a fixed number of clusters k rather than a distance threshold, avoiding the need for per-
+bundle empirical tuning. The optimal number of sub-bundles, restricted to k ∈{2, 3}, was determined
+automatically by maximizing the average streamline silhouette coefficient (Shahapure & Nicholas, 2020).
+For a given streamline i, the silhouette coefficient is defined as s(i) =
+b(i)−a(i)
+max(a(i),b(i)), where a(i) denotes
+the average distance between i and all other streamlines within the same cluster, and b(i) corresponds to
+the minimum average distance between i and streamlines belonging to the nearest neighboring cluster.
+The value of k achieving the highest mean silhouette over all streamlines is retained as the optimal
+partition. Once the optimal clustering was identified, each original streamline was assigned to a final
+sub-bundle according to the label of its corresponding QuickBundles cluster from the initial grouping
+stage.
+Sub-bundle centroids are computed for each cluster using the standard centerline generation
+methodology (Chandio et al., 2023; Yeatman et al., 2012).
+2.4
+Subject-level bundle correspondence and tractometry
+Mapping subject streamlines onto the atlas-defined sub-bundles is a critical step for ensuring that mi-
+crostructural profiles are comparable across individuals. This process involves three key stages: bundle
+segmentation, streamline-level cluster association, and point-level cluster association. First, the anatom-
+ical bundles of interest are identified within each subject’s tractogram. Next, individual streamlines are
+associated with the corresponding atlas clusters. Finally, each point along the streamlines is mapped
+to a cluster-specific location, establishing a fine-grained correspondence with the atlas. Together, these
+steps enable the aggregation of microstructural measurements at anatomically consistent locations along
+the bundles, thereby facilitating meaningful inter-subject comparisons. This process is illustrated in the
+block C of Fig. 1.
+2.4.1
+Bundle segmentation
+Anatomical bundles were identified using BundleSeg (St-Onge et al., 2023) with the HCP105 bundle
+atlas as reference. FA map estimated from tensor atlas were non-linearly aligned to the FA map of each
+subject. Streamlines were, then, assigned to target bundles using distance-based matching provided by
+BundleSeg with a fixed radius of 8mm. This procedure produced a labeled set of streamlines for each
+bundle of interest and ensured consistent definitions across subjects.
+
+
+12
+2
+METHODS
+2.4.2
+Streamline-level cluster association
+Sub-bundle centroid atlas was registered to the subject’s native space using the same transformation
+employed in bundle segmentation. Each subject streamline was assigned to its nearest atlas cluster based
+on point-wise Euclidean distance to obtain subject sub-bundles. Following the approach of Garyfallidis et
+al. (Garyfallidis et al., 2012), this distance metric accounts for streamline orientation by evaluating both
+the original and reversed orientation, retaining the configuration that produces the highest similarity. The
+most similar orientation is then kept for subsequent point-level association.
+2.4.3
+Point-level cluster association
+After streamline-to-cluster assignment, each point along a subject’s streamline must be matched to a
+corresponding point within the associated atlas cluster. Several methods have been proposed to perform
+this association, including nearest-neighbor matching based on Euclidean distance (Chandio et al., 2020)
+and correspondence based on index position along the streamline (Yeatman et al., 2012). However,
+both strategies exhibit important limitations (illustration in the supplementary material, Fig. S1). The
+minimum Euclidean distance can produce erroneous correspondences in highly curved or U-shaped bun-
+dles, while the projection based on index position does not necessarily reflect anatomical equivalence
+with different lengths or exhibiting local stretching. More sophisticated approaches have been proposed
+to address these limitations. For example, the RadTract framework introduced by Neher et al. (Neher
+et al., 2023) trains a support vector machine (SVM) to learn a set of decision boundaries that partition
+streamline points according to their anatomical location, subsequently assigning each point to the nearest
+parcel in the learned feature space. While effective, this approach is computationally demanding, as a
+separate model must be trained for each sub-bundle.
+To overcome these limitations, we propose a position-weighted distance metric that integrates both
+spatial and longitudinal information along the fiber trajectory. The metric jointly penalizes geometric
+separation and mismatches in relative streamline position, thereby promoting correspondences between
+points and cluster points that are both spatially nearby and similarly located along the bundle.
+An
+illustration of the proposed association strategy is provided in the supplementary material (Fig. S1).
+Given the subject streamline s and the previously associated sub-bundle centroid c, let p(i)
+s denote the 3D
+coordinates of the i-th point (i ∈{1, . . . , Ls}) of s with a length of Ls points, and p(j)
+c
+the 3D coordinates
+of the j-th (j ∈{1, . . . , Lc}) of the c resampled to Lc points. To jointly penalize spatial displacement
+and length position mismatch, each point is embedded into an augmented four-dimensional space by
+appending its normalized length coordinate, scaled by a weight set to the arc-length of the subject
+
+
+2.5
+Tractometry analysis
+13
+streamline α = PLs−1
+i=1
+p(i+1)
+s
+−p(i)
+s
+
+2. The augmented space is then defined as :
+˜p(i)
+s =
+
+p(i)
+s , α i −1
+Ls −1
+
+,
+˜p(j)
+c
+=
+
+p(j)
+c , α j −1
+Lc −1
+
+.
+The association distance is then the Euclidean distance in this augmented space
+dassoc(i, j) =
+˜p(i)
+s −˜p(j)
+c
+
+2 =
+sp(i)
+s −p(j)
+c
+
+2
+2 + α2
+ i −1
+Ls −1 −j −1
+Lc −1
+2
+.
+This choice provides an automatic, scale-invariant calibration: the arc-length penalty term equal to
+α
+
+i −1
+Ls −1 −j −1
+Lc −1
+ ,
+whose maximum value α is exactly equal to the total length of the subject streamline, placing it
+on the same scale as the 3D spatial term.
+Consequently, a maximal normalized position mismatch
+ i−1
+Ls−1 −
+j−1
+Lc−1
+ = 1 contributes a penalty comparable to traversing the full fiber length, while neighbor-
+ing points
+ i−1
+Ls−1 −
+j−1
+Lc−1
+ = 0 are penalized almost exclusively by spatial distance. This balancing is
+automatic and requires no tuning, regardless of fiber size or resampling resolution. Correspondences are
+found efficiently for all streamline points simultaneously using a k-d tree built on the augmented cluster
+coordinates. This keeps computational cost similar to a standard nearest neighbor search while providing
+a more anatomically meaningful association that respects both spatial proximity and fiber trajectory.
+Each streamline point is assigned to the cluster point with lowest association distance:
+ϕ(i) = arg min
+j∈{0,...,Lc}
+dassoc(i, j)
+The set of streamline points attributed to cluster point j is then:
+S(j) =
+
+p(i)
+s | ϕ(i) = j
+	
+2.5
+Tractometry analysis
+For each point j, the microstructural value was computed by averaging the metric values of all points in
+S(j), resulting in a single scalar value per point and per subject (see the last step of the block C of the
+
+
+14
+2
+METHODS
+Fig. 1). This procedure generated sub-bundle profiles for each subject, bundle, and cluster. Our analyses
+were restricted to FA and IFW metrics, as these metrics provide direct biological insight into tissue
+alterations, with FA reflecting the loss of microstructural integrity associated with axonal degeneration
+and IFW capturing increases in extracellular free water linked to neuroinflammatory processes.
+The
+cluster length Lc was set to 50 points for all bundles. Empirically, this value provided an appropriate
+balance between spatial resolution, allowing the detection of localized group differences, and robustness
+to local anatomical variability and noise.
+Because of inter-subject differences in bundle geometry and imperfections in spatial registration, the
+number of streamline points assigned to a given cluster point may vary across subjects, and some points
+may receive no assignment in certain cases. To ensure robust and consistent statistical comparisons,
+we identified, for each sub-bundle, the longest contiguous profile segment containing valid data for all
+subjects. Points lying outside this common segment were excluded from subsequent analyses.
+2.5.1
+Bundle-level statistics
+To assess the quality of the sub-bundle approach, we evaluated several criteria for each bundle and
+microstructural metrics and compared them to the classical full bundle method.
+Microstructural homogeneity
+The first assumption is that meaningful clustering should capture
+microstructural heterogeneity within the bundle, as reflected by significant differences in the mean values
+of microstructural FA and IFW. To evaluate this hypothesis, within-cluster homogeneity was quantified by
+computing the standard deviation (SD) of microstructural values across all points and subjects assigned
+to each cluster, with lower SD values indicating greater homogeneity. For each subject and bundle,
+two summary measures were derived: the mean SD across all sub-bundles and the SD of the most
+homogeneous sub-bundle. The latter was compared with the mean sub-bundle SD using a paired t-
+test. In addition, both measures were contrasted with the SD computed over the classical full bundle
+configuration using Welch’s t-tests performed across bundles. All the above analyses were performed
+independently for each microstructural metric (FA, IFW) and method after residualization on confounders
+(age only).
+2.5.2
+Along-tract statistics
+Similarly to the Automated Fiber Quantification (AFQ) approach (Yeatman et al., 2012), point-wise
+statistical tests were computed at each cluster point, producing a profile of test statistics along the tract
+
+
+15
+for each bundle. To control for multiple comparisons across points, we applied a two-stage correction
+procedure. First, contiguous clusters of nominally significant points were identified using a cluster-based
+family-wise error rate (clusterFWE) permutation framework; second, only clusters containing at least one
+point whose corrected p-value fell below a point-level family-wise error threshold (αFWE) were retained as
+significant. This combined strategy ensures that reported effects are both spatially extended and include
+at least one point with strong individual-level evidence, thereby reducing the risk of reporting spatially
+diffuse but weak effects.
+Age sensitivity
+Aging is a major factor affecting white matter microstructure, and thus a meaningful
+representation should be sensitive to age-related changes. To evaluate this, point-wise Pearson correla-
+tions between microstructural metrics and subject age were computed at each cluster point, restricted
+to healthy controls to avoid confounding by disease-related changes.
+Group comparison
+To characterise the spatial distribution of group effects along the bundles, Welch’s
+t-tests comparing clinical groups were computed at each point. We consider that a larger number of
+significant points within a bundle indicates a more sensitive representation, as it captures more extensive
+spatial patterns of group differences.
+3
+Results
+Applying the sub-bundle clustering method to the 71 bundles of the HCP105 atlas, 58 bundles were
+divided into two sub-bundles and the remaining 13 into three.
+In the two sub-bundles setting, the
+average Fréchet distance from a streamline to others in its own sub-bundle is 36% smaller than to
+streamlines in the nearest neighboring one (silhouette 0.36). For the 13 bundles split into three, this
+figure is 29% (silhouette 0.29). This makes a total of 155 sub-bundles to study.
+Since the assignment of a subject’s streamlines to sub-bundles is based on the distance from the centroids,
+there is no guarantee that a subject’s streamlines will be distributed across all sub-bundles. Among the
+155 sub-bundles, 41 and 5 were not assigned to every LLD and ELD subjects, respectively. The number
+of missing subjects ranges up to 16/60 in LLD and 8/75 in ELD. These sub-bundles are not included in
+the subsequent analysis.
+However, in the ELD cohort, all bundles have at least one sub-bundle associated with all subjects. In the
+LLD cohort, only 8/71 bundles were missing subjects across their sub-bundles (left and right ILF, left and
+
+
+16
+3
+RESULTS
+right FX, CA, left SLF I, right SLF II, and left SLF III) and were excluded from the Group comparison
+(Sec. 3.3) analysis. These specific bundles are illustrated in Fig. S2.
+Among these bundles, only four (left ILF, right FX, CA, and left SLF III) lacked healthy controls in every
+sub-bundle, and were therefore also excluded from the Age sensitivity (Sec. 3.2) analysis.
+3.1
+Microstructural homogeneity
+The proposed clustering method revealed substantial microstructural heterogeneity within white matter
+bundles, producing significantly different sub-bundle profiles across both cohorts and metrics. In the ELD
+cohort, significantly increased FA homogeneity was observed in 42 of 71 bundles, alongside increased
+IFW homogeneity in 47 out of 71 bundles. Similarly, in the LLD cohort, we found significantly increased
+homogeneity within 48 bundles for FA and 34 bundles for IFW out of 71.
+Figure 3 compares the within-cluster SD of microstructural metrics obtained with the proposed sub-bundle
+clustering against the conventional full bundle analysis with only one centroid. The proposed approach
+produced significantly more homogeneous clusters than the full bundle method (p < 0.01 to p < 0.001).
+When considering the average SD across all sub-bundles, the sub-bundle clustering reduced IFW variability
+from 8.4% to 7.8% in the ELD cohort and from 10.4% to 8.7% in the LLD cohort. Selecting the most
+homogeneous sub-bundle in each bundle resulted in an additional reduction in SD compared with the
+average across sub-bundles (p < 0.001 for all conditions). This reduction ranged from 0.7% to 1.0%.
+3.2
+Age sensitivity
+Results of the along-tract (or tract-cluster) microstructural changes correlation with age in controls only
+is reported in the Fig. 4. In both approaches, similar correlations are detected in both dataset and
+metrics. In LLD, age is correlated positively correlated with IFW (pearson coefficients between 0.5 and
+0.6) and negatively correlated with FA (−0.5 and −0.6). Overall, the sub-bundle clustering detected
+more significant (11 vs 5) bundles than the standard full bundle analysis. The left FX in IFW and the right
+ST PREM are the sole bundle detected with the full bundle setting but not by the proposed approach.
+
+
+3.2
+Age sensitivity
+17
+Figure 3: Distribution of the mean within-cluster standard deviation (in metric percentage) for the
+full bundle and sub-bundle approaches, shown per cohort (LLD, ELD) and metric (FA, IFW). For the
+sub-bundle approach, two summaries are reported: the most homogeneous cluster (lowest SD) and the
+average SD across all clusters of each bundle. Statistical differences are tested between the full bundle
+approach and both sub-bundle summaries, as well as between the two sub-bundle summaries. Significance
+levels are indicated as * for p < 0.05, ** for p < 0.01, and *** for p < 0.001
+
+
+18
+3
+RESULTS
+Full bundle
+Sub-bundles
+1
+Sub-bundles
+2
+Sub-bundles
+3
+Method
+CC 1
+CC 6
+CG right
+FX left
+ICP left
+ILF right
+MLF left
+ST OCC left
+STR right
+T OCC left
+T OCC right
+Bundle
+X
+X
+0.5
+X
+X
+X
+0.5
+0.5
+0.5
+X
+0.5
+X
+X
+X
+0.6
+X
+X
+X
+X
+0.5
+0.5
+0.6
+0.5
+0.6
+0.6
+0.5
+0.6
+X
+0.5
+X
+X
+X
+0.5
+X
+0.5
+X
+LLD - IFW
+Full bundle
+Sub-bundles
+1
+Sub-bundles
+2
+Method
+MLF left
+ST PREM right
+Bundle
+X
+-0.5
+X
+-0.6
+X
+X
+LLD - FA
+−0.50 −0.25 0.00
+0.25
+0.50
+Average Pearson's r (significant points)
+Sub-bundle exists but not significant
+Sub-bundle does not exist for this bundle
+Figure 4: Correlation matrices between control subject age and microstructural metrics for the LLD
+dataset, per bundle or sub-bundle. Reported values are the average Pearson’s r over significant (multiple-
+comparison corrected) points only in the along-tract analyses. In sub-bundle settings, when significant
+points were detected for the same bundle in several clusters, values are reported separately with an
+arbitrary index (sub-bundle 1 or sub-bundle 2). Excluded bundles for analysis : left ILF, right FX, CA,
+and left SLF III.
+3.3
+Group comparison
+3.3.1
+ELD
+Metric
+Comparison
+Clustering
+N. sig. bundles
+% sig. pts
+Mean diff.
+FA
+Remission −Control
+Full bundle
+8
+16.0%
+2.2 ± 0.4 *
+Sub-bundles
+5 (2 multi.)
+15.4%
+2.5 ± 0.7 *
+Resistant −Control
+Full bundle
+2
+10.0%
+-0.1 ± 3.9 *
+Sub-bundles
+1
+8.0%
+-1.6 *
+Remission −Resistant
+Full bundle
+6
+10.8%
+1.8 ± 0.3 *
+Sub-bundles
+11
+8.6%
+2.9 ± 0.6 *
+Table 1: Summary of significant bundles identified by each tractometry clustering in ELD. For each
+clustering, we report the number of significant bundles (N. sig. bundles)(out of 71) reaching statistical
+significance (AFQ-corrected point clusters with at least one point-level FWE-corrected point). For the
+proposed clustering, the number of bundles with at least 2 significant sub-bundles is also reported
+in parentheses. The percentage of significant points (% sig. pts) is the ratio of significant to total
+evaluated points, averaged across bundles. The mean difference (Mean diff.) is the average point-wise
+group difference across all significant points (average p < 0.05 as * with multiple comparison).
+
+
+3.3
+Group comparison
+19
+Full-bundle
+Sub-bundles
+Comparison
+Bundle
+∆
+nsig
+∆
+nsig
+Remission −Control
+ATR −left
+2.9∗∗
+%
+10
+3.5∗∗
+%
+8×2
+CC −1
+2.1∗
+%
+9
+–
+–
+ST −FO −left
+2.3∗∗
+%
+32
+2.4∗
+%
+38
+ST −FO −right
+2.6∗
+%
+9
+–
+–
+ST −PREF −left
+1.7∗
+%
+33
+1.9∗
+%
+16×2
+ST −PREM −left
+1.7∗∗
+%
+9
+3.0∗∗
+%
+9
+T −PREF −left
+2.1∗
+%
+13
+–
+–
+UF −left
+2.0∗
+%
+13
+–
+–
+CC −7
+–
+–
+1.8∗
+%
+6
+Resistant −Control
+OR −left
+−2.9∗
+%
+10
+–
+–
+ST −FO −right
+2.6∗
+%
+10
+–
+–
+ST −POSTC −left
+–
+–
+−1.6∗
+%
+8
+Remission −Resistant
+CC −2
+1.8∗
+%
+11
+3.0∗∗
+%
+9
+CC −3
+1.9∗
+%
+8
+3.2∗
+%
+6
+CG −left
+1.7∗
+%
+15
+3.4∗
+%
+8
+CG −right
+2.3∗∗
+%
+10
+4.0∗∗
+%
+8
+ST −PREF −left
+1.6∗∗
+%
+11
+2.2∗∗
+%
+17
+ST −PREM −left
+1.6∗
+%
+10
+2.3∗
+%
+9
+CC −4
+–
+–
+2.9∗
+%
+6
+CC −5
+–
+–
+2.2∗
+%
+5
+FX −left
+–
+–
+3.2∗
+%
+9
+ICP −left
+–
+–
+3.2∗
+%
+7
+ST −POSTC −left
+–
+–
+2.2∗∗
+%
+11
+Full bundle
+Sub −bundles
+n = 6
+n = 10
+n = 7
+CC 1
+OR left
+ST FO right
+T PREF left
+UF left
+ATR left
+CC 2
+CC 3
+CG left
+CG right
+ST FO left
+ST PREF leftST PREM left
+CC 4
+CC 5
+CC 7
+FX left
+ICP left
+ST POSTC left
+Comparison
+Rem. vs Ctrl
+Rem. vs Res.
+Res. vs Ctrl
+Figure 5: (left) Comparison of significant bundles identified by the sub-bundle and full bundle approaches
+for FA in ELD. Compared statistics are the average group difference in significant point (∆) and mean
+significant cluster size (nsig). When applicable, the number of significant cluster per bundle is indicated
+as a multiple of the mean cluster size. (right) Venn diagram showing the overlap of significant bundles.
+The shape of the displayed points distinguishes between pairwise comparisons between groups : remission
+vs. controls, resistant vs. controls, remission vs. resistant.
+
+
+20
+3
+RESULTS
+The global point-wise group comparison analysis (Table 1) revealed that the proposed cluster approach
+identified a similar number of significant bundles to the full bundle analysis (17 vs 16 bundles for FA).
+However, it detected larger average microstructural differences, with absolute FA percentage differences
+increasing from 1.6% to 2.9% for the sub-bundle profiles and from 0.1% to 2.2% for the full bundle
+analysis. This effect was particularly pronounced in the Resistant vs. Remission comparison, where the
+average difference increased from 1.8% ± 0.3 to 2.9% ± 0.6.
+The Venn diagram (Fig. 5) further shows that the sub-bundle analysis identified a largely overlapping set
+of significant bundles compared to the full bundle approach, while also revealing method-specific findings
+(6 bundles unique to full bundle analysis and 7 unique to clustered approach). Notably, the clustering
+method detected substantially more significant bundles in the Resistant vs. Remission comparison (10
+vs. 5), suggesting increased sensitivity to localized microstructural alterations.
+Fig. S3 shows along-tract profiles of significant bundle clusters in FA. It reveals FA alterations concen-
+trated in sub-bundles connecting striatal (ST, 5 bundles), prefrontal (PREF, 2 bundles) regions. In the
+remission group relative to controls, FA increases are observed in striato-frontal connections, including
+ST-FO (left and right), ST-PREF-left, and ST-PREM-left, suggesting restored or preserved white matter
+integrity in remitting patients. Notably, ST-PREF-left and ST-POSTC-left each appear as significant in
+two distinct comparisons: ST-PREF-left is identified in both the remission vs. controls and the remission
+vs. resistant comparisons, while ST-POSTC-left emerges in both the resistant vs. controls and the
+remission vs. resistant settings.
+3.3.2
+LLD
+Comparison
+Metric
+Clustering
+N. sig. bundles
+% sig. pts
+Mean diff.
+LLD - Control
+FA
+Full bundle
+4
+12.5%
+-2.2 ± 0.6 *
+Sub-bundles
+6
+14.8%
+-2.4 ± 0.9 *
+IFW
+Full bundle
+15
+13.6%
+2.1 ± 0.5 *
+Sub-bundles
+23 (5 multi.)
+13.0%
+2.5 ± 0.8 *
+Table 2: Summary of significant bundles identified by each tractometry clustering in LLD. For each
+clustering, we report the number of bundles (out of 71) reaching statistical significance (AFQ-corrected
+point clusters with at least one point-level FWE-corrected point).
+For the proposed clustering, the
+number of bundles with at least 2 significant sub-bundles is also reported in parentheses. The percentage
+of significant points is the ratio of significant to total evaluated points, averaged across bundles. The
+mean difference is the average point-wise group difference across all significant points (average p < 0.05
+as * with multiple comparison).
+
+
+21
+The global results of the group comparison analysis (Table 2) revealed that using sub-bundles increase
+the number of significant results in distinct bundles for both FA (6 vs. 4) and IFW (23 vs. 15), with a
+higher mean difference in both metrics (FA: −2.4% vs. −2.2%; IFW: 2.5% vs. 2.1%). The Venn diagram
+analysis (Fig. 6) shows that the sub-bundle clustering method identifies a superset of those found by the
+full bundle, with additional bundles (2 in FA, 9 in IFW). Only the ST FO left bundle (out of 23 bundles)
+detected by the standard analysis is not identified in sub-bundles, and only for IFW. Along-tract profiles
+visualization are available in the supplementary material (Fig. S4 and S5).
+Figure S4 presents the along-tract profiles of significant bundle clusters for IFW. The results reveal a
+marked increase in IFW in the LLD group relative to controls, localized to specific sub-bundles connecting
+distinct brain regions, including the striatum (ST; 6 of 23 significant bundles), thalamus (T; 7 bundles),
+prefrontal cortex (PREF; 4 bundles), and premotor cortex (PREM; 3 bundles).
+For FA, as illustrated in Fig. S5, cluster 1 of the left ST–PREF and right ST–PAR pathways identified
+localized FA reductions in the LLD group that were not detected by the full bundle approach.
+These findings demonstrate that the clustering framework can reveal localized microstructural alterations
+that are not detected by the full bundle approach.
+4
+Discussion
+This work introduces a bundle-clustering tractometry framework based on hierarchical clustering with
+an automatic, quality-driven determination of the number of sub-bundles, thereby eliminating the need
+for empirically defined geometric thresholds. Clustering is performed using the Fréchet distance, which
+captures the maximum deviation between streamline trajectories rather than their average separation.
+This approach enables the identification of well-separated and anatomically distinct sub-bundle groups.
+Microstructural metrics are not homogeneous across sub-bundles.
+A key motivation for the
+sub-bundle approach is the hypothesis that microstructural alterations are spatially heterogeneous within
+white matter bundles and may not be uniformly distributed along the streamline trajectories. Analysis of
+the microstructural SD within sub-bundles compared with the corresponding full bundles (Fig. 3) confirms
+that clustering generally produces more homogeneous sub-bundles. These results suggest that reducing a
+bundle to a single representative profile may obscure meaningful intra-bundle spatial variability, whereas
+the proposed clustering strategy preserves and characterizes this heterogeneity across diverse populations
+and microstructural metrics.
+
+
+22
+4
+DISCUSSION
+Full-bundle
+Sub-bundles
+Comparison
+Bundle
+∆
+nsig
+∆
+nsig
+LLD −Control
+CC −1
+−2.9∗
+%
+8
+−4.1∗∗
+%
+8
+MLF −left
+−1.4∗
+%
+7
+−1.7∗
+%
+10
+ST −FO −left
+−2.3∗∗
+%
+23
+−2.6∗
+%
+16
+ST −FO −right
+−2.2∗
+%
+12
+−2.5∗
+%
+17
+ST −PAR −right
+–
+–
+−1.6∗
+%
+10
+ST −PREF −left
+–
+–
+−1.9∗
+%
+28
+Full bundle
+Sub −bundles
+n = 0
+n = 4
+n = 2
+CC 1
+MLF left
+ST FO left
+ST FO right
+ST PAR right
+ST PREF left
+Comparison
+Dep. vs Ctrl
+(a) FA
+Full-bundle
+Sub-bundles
+Comparison
+Bundle
+∆
+nsig
+∆
+nsig
+LLD −Control
+CC −1
+2.8∗
+%
+13
+2.4∗
+%
+9.5×2
+CC −3
+2.0∗
+%
+12
+2.0∗
+%
+9
+IFO −right
+2.2∗
+%
+9
+2.9∗
+%
+8
+POPT −right
+2.8∗
+%
+13
+2.7∗
+%
+8
+SLF −III −right
+2.1∗
+%
+11
+2.5∗∗
+%
+12
+ST −FO −left
+1.7∗
+%
+11
+–
+–
+ST −PAR −right
+1.7∗
+%
+14
+1.9∗
+%
+15.5×2
+ST −POSTC −right
+1.5∗∗
+%
+14
+1.5∗
+%
+12×2
+ST −PREC −right
+1.6∗
+%
+14
+1.8∗∗
+%
+16
+ST −PREF −left
+1.5∗∗
+%
+26
+1.6∗
+%
+14.5×2
+STR −right
+2.1∗∗
+%
+16
+2.2∗
+%
+19
+T −PAR −right
+2.4∗∗
+%
+14
+3.4∗∗
+%
+19×2
+T −POSTC −right
+1.5∗
+%
+10
+1.6∗
+%
+12
+T −PREC −right
+1.8∗
+%
+12
+1.9∗
+%
+17
+T −PREM −right
+3.1∗
+%
+15
+3.3∗
+%
+14
+CST −right
+–
+–
+2.1∗∗
+%
+10
+FPT −left
+–
+–
+4.5∗∗
+%
+7
+OR −right
+–
+–
+3.8∗
+%
+22
+ST −PREF −right
+–
+–
+2.0∗
+%
+16
+ST −PREM −left
+–
+–
+2.5∗
+%
+9
+T −PREF −left
+–
+–
+2.0∗
+%
+16
+T −PREF −right
+–
+–
+2.6∗∗
+%
+11
+T −PREM −left
+–
+–
+2.9∗
+%
+11
+UF −left
+–
+–
+2.9∗
+%
+12
+Full bundle
+Sub −bundles
+n = 1
+n = 14
+n = 9
+ST FO left
+CC 1
+CC 3
+IFO right
+POPT right
+SLF III right
+ST PAR right
+ST POSTC right
+ST PREC right
+ST PREF left
+STR right
+T PAR right
+T POSTC right
+T PREC right
+T PREM right
+CST right
+FPT left
+OR right
+ST PREF right
+ST PREM left
+T PREF left
+T PREF right
+T PREM left
+UF left
+Comparison
+Dep. vs Ctrl
+(b) IFW
+Figure 6: Comparison of significant bundles identified by the sub-bundle and full bundle approaches in LLD
+(LLD vs. controls). Left: per-bundle along-tract summary table. Compared statistics are the average
+group difference in significant point (∆) and mean significant cluster size (nsig). When applicable, the
+number of significant cluster per bundle is indicated as a multiple of the mean cluster size. Right: Venn
+diagram showing the overlap of significant bundles between approaches. Excluded bundles for analysis :
+left and right ILF, left and right FX, CA, left SLF I, right SLF II, and left SLF III. (a) FA; (b) IFW.
+
+
+23
+Sub-bundle analysis is more sensitive to age-related microstructural changes.
+Both mi-
+crostructural metrics exhibit age-related variations, but with opposite directions, i.e an increase in IFW
+and a decrease in FA with age. This is consistent with their biological interpretation, namely the neu-
+roinflammation for IFW and the loss of fiber organization and integrity for FA, and is supported by
+the litterature (Kochunov et al., 2010). In both cases, the sub-bundle analysis preserves the direction
+reported by the whole-bundle approach, indicating no apparent false positives. Crucially, it also detects
+additional bundles, and these new detections systematically arise from specific clusters rather than spread
+across the entire bundle, confirming that age-related effects are spatially heterogeneous and emerge at
+the sub-bundle scale.
+Sub-bundle analysis reveals localized group differences in fanning topologies
+The gain of
+the sub-bundle approach over the full bundle profile analysis is more pronounced in LLD. This cohort-
+dependent gap is methodologically informative.
+By construction, the proposed clustering partitions
+streamlines by trajectory divergence, making it particularly sensitive to fanning topographies, in which
+streamlines progressively diverge towards spatially distributed cortical terminations. Such configurations
+are typical of thalamo-cortical and striato-cortical projections, and of association fibers. Some of these
+bundles had previously been identified in this cohort in a study by Hédouin et al. (2024), but the
+proposed method enabled additional significant differences in other bundles in this region to be detected.
+Consistent with this rationale, the sub-bundle-specific findings in LLD are predominantly localized within
+fanning fiber configurations. Thalamo-cortical and striato-cortical projections (T-PREF, T-PREM, ST-
+PREF, ST-PREM, ST-PAR) account for most of the IFW bundles detected exclusively by the sub-bundle
+approach (Fig. 6). This spatial pattern matches with the concept of differential brain aging (Raz &
+Rodrigue, 2006), which describes non-uniform vulnerability of white matter, particularly affecting frontal
+and superficial regions. This structural pattern also aligns with our previous functional findings, which
+demonstrated that motor activity, a marker of depression severity, in LLD were primarily associated with
+altered resting-state functional connectivity within the prefrontal, premotor, and parietal cortices of the
+default mode, cingulo-opercular, and frontoparietal networks (Roy et al., 2024). Free-water content in
+these regions is also strongly sensitive to partial volume effects with cortical grey matter.
+In ELD, the alterations appear concentrated in deep white matter regions, notably in the corpus callosum
+subdivisions (CC1-CC7). These regions are dominated by parallel, geometrically coherent fibers rather
+than fanning, which limits the advantage of trajectory-divergence-based clustering.
+Furthermore, only FA differences were detected in these younger patients, whereas the majority of dif-
+ferences in LLD were observed in IFW. These results align with the fact that IFW is associated with
+neuroinflammation (Sumra et al., 2025), a mechanism closely linked to brain aging that is more pro-
+
+
+24
+4
+DISCUSSION
+nounced in individuals susceptible to LLD (Vu & Aizenstein, 2013). Importantly, the absence of IFW
+findings in ELD when using our proposed approach demonstrates its selectivity, indicating that the method
+does not detect arbitrary changes.
+Limitations and perspectives.
+This study has several limitations. First, the proposed methodology
+for deriving subject-specific bundle clusters depends on both the quality of the atlas and the accuracy
+of the registration between individual subjects and the atlas space. Registration inaccuracies may in-
+troduce systematic errors in streamline assignment and cluster correspondence, thereby affecting the
+reliability of the resulting microstructural profiles. The development of registration methods specifically
+tailored to tractography data therefore remains an important challenge for improving the robustness and
+reproducibility of atlas-based tractometry analyses.
+A related limitation concerns the treatment of sub-bundles that could not be assigned across all subjects.
+To ensure a robust and homogeneous basis for statistical comparison, these incomplete sub-bundles were
+excluded from further analysis. Although this strategy avoids unbalanced sample sizes across clusters,
+it may introduce selection bias by removing potentially informative sub-bundles. The origin of these
+unassigned clusters warrants further investigation to determine whether they arise from segmentation
+inaccuracies, tractography failures, registration errors, or genuine inter-individual anatomical variability.
+Bundles that had at least one missing subject per sub-bundle are illustrated in the supplementary material
+(Fig. S2). Bundles such as the CA and bilateral FX exhibit largely overlapping sub-bundles separated only
+by fiber length variations, indicating that clustering is simply inappropriate for these tracts. Conversely, for
+larger bundles (ILF, left SLF I, right SLF II, left SLF III), missing associations are likely due to tractography
+failures. This is supported by the issue being exclusive to the elderly cohort, where neuroinflammation
+may degrade the diffusion signal.
+In the present study, all 71 bundles were systematically subdivided to enable a rigorous and unbiased
+comparison between sub-bundle and full bundle tractometry. However, this design choice may not be
+optimal for all white matter pathways. Smaller and anatomically compact tracts, such as the CA or
+the FX, may exhibit limited internal spatial heterogeneity and therefore derive less benefit from further
+subdivision. Future work should investigate adaptive clustering strategies in which the number of sub-
+bundles is determined using data-driven model selection criteria, allowing the level of subdivision to
+better reflect the intrinsic anatomical and geometric complexity of each bundle. Moreover, the current
+evaluation is restricted to FA and IFW; other microstructural metrics (e.g. neurite density) may show
+different patterns of sensitivity across approaches and populations.
+The statistical robustness of the reported findings deserves consideration. The statistical robustness of
+
+
+25
+the reported findings deserves consideration. Because our inference strategy relies on a conservative
+clusterFWE correction applied independently within each bundle or sub-bundle profile, the local risk of
+Type I errors is equally controlled in both the full bundle and sub-bundle approaches. Consequently,
+the increased number of significant bundles detected by the sub-bundle method is unlikely to be driven
+by an inflation of false positives, but rather reflects a genuine gain in sensitivity due to reduced signal
+averaging. However, in the sub-bundle approach, a bundle is declared significant if at least one of its
+sub-bundles yields a significant cluster, which slightly inflates the family-wise error rate at the bundle
+level.
+Extending the multiple comparison correction (e.g., the AFQ cluster-based framework) across
+clusters within the same bundle, as suggested by Zheng et al. (Zheng et al., 2026), would be a natural
+avenue to rigorously control this residual this risk, but would require a prior characterisation of spatial
+neighbourhoods between clusters of the same bundle.
+Finally, although the clustering approach increases the spatial resolution of the analysis compared to a
+full bundle profile analysis, the framework remains fundamentally point-wise in nature, aggregating mi-
+crostructural measurements at discrete locations along the tract. More integrative approaches exploiting
+the full three-dimensional geometry of a bundle could provide a richer characterization of white matter
+organization and may better capture alterations that are distributed across the spatial extent of a bundle
+rather than localized along its longitudinal axis.
+5
+Conclusion
+We have presented a sub-bundle tractometry framework that decomposes each bundle into geometrically
+coherent sub-bundles.
+The decomposition is fully automatic: the optimal number of sub-bundles is
+selected by maximizing cluster separation, without requiring any per-bundle parameter tuning.
+Validation on two independent depression cohorts confirms that sub-bundles produces more homogeneous
+clusters than within the full bundle in FA and IFW. The sub-bundle approach highlights more bundles
+with significant age correlations in both cohorts and both metrics. New detections arise from specific sub-
+bundles rather than from the whole tract, showing that age-related effects are spatially heterogeneous and
+can be missed when the entire bundle is summarised by a single profile. The gain in group discriminability
+is larger in the late-life depression cohort, where aging-related changes affect fanning projection tracts that
+proposed bundle clustering is designed to resolve. It is more modest in the younger treatment-resistance
+cohort, where alterations concentrate in deep, geometrically coherent tracts such as the corpus callosum.
+These results demonstrate that performing tractometry at a finer spatial scale than the whole bundle
+
+
+26
+5
+CONCLUSION
+is beneficial, and that automatic clustering is a practical way to achieve this in group studies where
+white matter alterations are subtle and spatially heterogeneous, such as in diffusion measure in aged
+participants.
+Author contributions statement
+N.D. performed the statistics, interpreted the results and wrote the first draft; J-C.R. and T.D. designed
+the study, performed the data acquisition and revised the manuscript; M-L.P.M found the financial
+supports and revised the manuscript; G.H.R. and J.C designed the study, found the financial supports,
+authorization, data acquisition, supervised this study, interpreted the results and revised the manuscript.
+Ethics
+All methods were performed in accordance with the guidelines of the Declaration of Helsinki, and the
+study was approved by the relevant institutional review boards (ID-RCB 2018-AO2643-52, NCT03807167
+and IDR-RCB 2013-A00662-43). All subjects provided informed, written consent before participation in
+the study, according to the French legislation.
+Data and Code Availability
+The original datasets used and analyzed as part of this study are available from the corresponding author,
+subject to approval by the local ethics committee of the researcher making the request. Aggregated data
+and the code used to generate the figures in this paper are publicly available at https://github.com/
+nathandecaux/AutoSubTracto. The code used to process the original datasets is available at https:
+//github.com/nathandecaux/TractoPL.
+Funding
+This study was supported by the Fondation de l’Avenir, Fondation Planiol, Fondation de France, and the
+Comité de recherche Clinique et d’Evaluation Thérapeutique from the Rennes University Hospital. J-CR
+and ND received financial support from the Institut de Neuroscience Clinique de Rennes.
+
+
+REFERENCES
+27
+Declaration of Competing interests
+The authors declare no competing interests.
+Declaration of the use of AI
+We did not use AI in writing this paper.
+References
+Arsigny, V., Commowick, O., Pennec, X., & Ayache, N. (2006). A log-euclidean framework for statistics
+on diffeomorphisms. Lecture Notes in Computer Science (including subseries Lecture Notes in
+Artificial Intelligence and Lecture Notes in Bioinformatics), 4190 LNCS - I, 924–931. https :
+//doi.org/10.1007/11866565_113/SAVE-RESEARCH
+Bergamino, M., McElvogue, M. M., & Stokes, A. M. (2024). Distinguishing early mild cognitive impair-
+ment from late mild cognitive impairment through free-water diffusion tensor imaging: A com-
+parative analysis. Alzheimer’s & Dementia, 20, e084580. https://doi.org/10.1002/ALZ.084580
+Cao, Y., Lizano, P., Li, M., Opel, N., Sen, Z. D., Colic, L., Sun, H., Zhou, X., Aruci, M., Chand, T.,
+Long, X., Deng, G., Mu, J., Guo, S., Sun, H., Gong, Q., Qiu, C., Walter, M., & Jia, Z. (2025).
+Association between peripheral inflammation and body mass index on white matter integrity
+and free water in bipolar ii depression. Brain, behavior, and immunity, 128, 208–218. https:
+//doi.org/10.1016/J.BBI.2025.04.005
+Chamberland, M., Raven, E. P., Genc, S., Duffy, K., Descoteaux, M., Parker, G. D., Tax, C. M. W., &
+Jones, D. K. (2019). Dimensionality reduction of diffusion MRI measures for improved tractometry
+of the human brain. NeuroImage, 200, 89–100. https://doi.org/10.1016/j.neuroimage.2019.06.
+020
+Chandio, B. Q., Risacher, S. L., Pestilli, F., Bullock, D., Yeh, F.-C., Koudoro, S., Rokem, A., Harezlak,
+J., & Garyfallidis, E. (2020). Bundle analytics, a computational framework for investigating the
+shapes and profiles of brain pathways across populations. Scientific Reports, 10(1), 17149. https:
+//doi.org/10.1038/s41598-020-74054-4
+Chandio, B. Q., Thomopoulos, S., Thompson, P., Harezlak, J., & Garyfallidis, E. (2023). Buan 2.0,
+streamlines as functions, nonlinear registration, and subdivision of bundles for advanced tractom-
+etry. 2023 ISMRM & ISMRT Annual Meeting. https://doi.org/10.58530/2023/3965
+
+
+28
+REFERENCES
+Chang, K., Burke, L., LaPiana, N., Howlett, B., Hunt, D., Dezelar, M., Andre, J. B., Curl, P., Ralston,
+J. D., Rokem, A., & Donald, C. L. M. (2025). Free water elimination tractometry for aging
+brains. Imaging Neuroscience, 3. https://doi.org/10.1162/IMAG.A.991/133658/FREE-WATER-
+ELIMINATION-TRACTOMETRY-FOR-AGING
+Corouge, I., Gouttard, S., & Gerig, G. (2004). Towards a shape model of white matter fiber bundles
+using diffusion tensor mri. 2004 2nd IEEE international symposium on biomedical imaging: nano
+to macro (IEEE Cat No. 04EX821), 344–347.
+Cousineau, M., Jodoin, P. M., Morency, F. C., Rozanski, V., Grand’Maison, M., Bedell, B. J., & De-
+scoteaux, M. (2017). A test-retest study on parkinson’s ppmi dataset yields statistically significant
+white matter fascicles. NeuroImage : Clinical, 16, 222. https://doi.org/10.1016/J.NICL.2017.07.
+020
+Cox, S. R., Ritchie, S. J., Tucker-Drob, E. M., Liewald, D. C., Hagenaars, S. P., Davies, G., Wardlaw,
+J. M., Gale, C. R., Bastin, M. E., & Deary, I. J. (2016). Ageing and brain white matter structure
+in 3,513 uk biobank participants. Nature Communications 2016 7:1, 7, 13629–. https://doi.org/
+10.1038/ncomms13629
+Durantel, T., Girard, G., Caruyer, E., Commowick, O., & Coloigner, J. (2025). A riemannian framework
+for incorporating white matter bundle prior in orientation distribution function based tractography
+algorithms. PLOS ONE, 20(3), e0304449. https://doi.org/10.1371/journal.pone.0304449
+Eiter, T., & Mannila, H. (1994). Computing discrete frechet distance. Technical Report CD-TR 94 64,
+Christian Doppler Laboratory for Expert.
+Garyfallidis, E., Brett, M., Correia, M. M., Williams, G. B., & Nimmo-Smith, I. (2012). Quickbundles,
+a method for tractography simplification. Frontiers in Neuroscience, 6, 175. https://doi.org/10.
+3389/FNINS.2012.00175
+Guimond, A., Meunier, J., & Thirion, J.-P. (2000). Average brain models: A convergence study. Computer
+Vision and Image Understanding, 77(2), 192–210. https://doi.org/10.1006/cviu.1999.0815
+Hédouin, R., Roy, J.-C., Desmidt, T., Robert, G., & Coloigner, J. (2024). Microstructural brain as-
+sessment in late-life depression and apathy using diffusion MRI multi-compartments models and
+tractometry. Scientific Reports, 14(1), 18193. https://doi.org/10.1038/s41598-024-67535-3
+Holtzmann, J., Richieri, R., Saba, G., Allaïli, N., Bation, R., Moliere, F., Nieto, I., Bellivier, F., Bennabi,
+D., Bubrovszky, M., Camus, V., Charpeaud, T., Courvoisier, P., Haesebaert, F., Doumy, O.,
+Courtet, P., El-Hage, W., Garnier, M., d’Amato, T., . . . Haffen, E. (2016). Quelle définition pour
+la dépression résistante ? La Presse Medicale, 45, 323–328. https://doi.org/10.1016/J.LPM.
+2016.02.002
+Jakob, W., Peter, N., & Klaus, M.-H. (2018, November 5). High quality white matter reference tracts.
+https://doi.org/10.5281/zenodo.1477956
+
+
+REFERENCES
+29
+Jeurissen, B., Tournier, J. D., Dhollander, T., Connelly, A., & Sijbers, J. (2014). Multi-tissue constrained
+spherical deconvolution for improved analysis of multi-shell diffusion mri data. NeuroImage, 103,
+411–426. https://doi.org/10.1016/J.NEUROIMAGE.2014.07.061
+Jiang, J., Zhao, Y. J., Hu, X. Y., Du, M. Y., Chen, Z. Q., Wu, M., Li, K. M., Zhu, H. Y., Kumar, P., &
+Gong, Q. Y. (2017). Microstructural brain abnormalities in medication-free patients with major
+depressive disorder: A systematic review and meta-analysis of diffusion tensor imaging. Journal of
+psychiatry & neuroscience : JPN, 42, 150–163. https://doi.org/10.1503/JPN.150341
+Joo, S. W., Park, H., Park, J., & Lee, J. (2025). Along-tract white matter abnormalities and their
+clinical associations in recent-onset and chronic schizophrenia. Schizophrenia 2025 11:1, 11, 37–.
+https://doi.org/10.1038/s41537-025-00586-1
+Kochunov, P., Williamson, D. E., Lancaster, J., Fox, P., Cornell, J., Blangero, J., & Glahn, D. C. (2010).
+Fractional anisotropy of water diffusion in cerebral white matter across the lifespan. Neurobiology
+of aging, 33, 9. https://doi.org/10.1016/J.NEUROBIOLAGING.2010.01.014
+Koshiyama, D., Fukunaga, M., Okada, N., Morita, K., Nemoto, K., Usui, K., Yamamori, H., Yasuda,
+Y., Fujimoto, M., Kudo, N., Azechi, H., Watanabe, Y., Hashimoto, N., Narita, H., Kusumi, I.,
+Ohi, K., Shimada, T., Kataoka, Y., Yamamoto, M., . . . Hashimoto, R. (2019). White matter
+microstructural alterations across four major psychiatric disorders: Mega-analysis study in 2937
+individuals. Molecular Psychiatry 2019 25:4, 25(4), 883–895. https://doi.org/10.1038/s41380-
+019-0553-7
+Kruper, J., Yeatman, J. D., Richie-Halford, A., Bloom, D., Grotheer, M., Caffarra, S., Kiar, G., Karipidis,
+I. I., Roy, E., Chandio, B. Q., Garyfallidis, E., & Rokem, A. (2021). Evaluating the reliability
+of human brain white matter tractometry. Aperture neuro, 1(1). https://doi.org/10.52294/
+e6198273-b8e3-4b63-babb-6e6b0da10669
+Langhein, M., Seitz-Holland, J., Lyall, A. E., Pasternak, O., Chunga, N., Cetin-Karayumak, S., Kubicki,
+A., Mulert, C., Espinoza, R. T., Narr, K. L., & Kubicki, M. (2022). Association between periph-
+eral inflammation and free-water imaging in major depressive disorder before and after ketamine
+treatment – a pilot study. Journal of affective disorders, 314, 78. https://doi.org/10.1016/J.
+JAD.2022.06.043
+Le Bihan, D., Mangin, J.-F., Poupon, C., Clark, C. A., Pappata, S., Molko, N., & Chabriat, H. (2001).
+Diffusion tensor imaging: Concepts and applications. Journal of Magnetic Resonance Imaging: An
+Official Journal of the International Society for Magnetic Resonance in Medicine, 13(4), 534–546.
+Li, W., You, Z., Wang, C., Lan, X., Zhang, F., Hu, Z., Chen, X., Luo, Z., Zeng, Y., Chen, Y., Chen,
+Y., Mai, S., Shao, R., Lu, H., McIntyre, R. S., Sun, X., Ning, Y., & Zhou, Y. (2025). White
+matter free water and depressive symptoms in medication-free depressed adolescents: Moderation
+
+
+30
+REFERENCES
+by peripheral inflammation. Translational Psychiatry, 15, 407. https://doi.org/10.1038/S41398-
+025-03643-6
+Liao, C., Feng, Z., Zhou, D., Dai, Q., Xie, B., Ji, B., Wang, X., & Wang, X. (2012). Dysfunction of
+fronto-limbic brain circuitry in depression. Neuroscience, 201, 231–238. https://doi.org/10.1016/
+j.neuroscience.2011.10.053
+Lindenmayer, J. P., Czobor, P., Alphs, L., Nathan, A. M., Anand, R., Islam, Z., Chou, J. C., Altinsan,
+S., Altman, S., Avigo, L., Balon, R., Beněsová, V., Bengochea, L., Bertoldi, A., Bokowska, E.,
+Bourgeois, M., Carpiniello, B., Chou, J., Chouinard, G., . . . Zimmerman, M. A. (2003). The
+intersept scale for suicidal thinking reliability and validity. Schizophrenia Research, 63, 161–170.
+https://doi.org/10.1016/S0920-9964(02)00335-3
+Mattis, S. (1976). Mental status examination for organic mental syndrome in the elderly patient. Geriatric
+psychiatry.
+Mesbah, R., Koenders, M. A., Wee, N. J. V. D., Giltay, E. J., Hemert, A. M. V., & Leeuw, M. D.
+(2023). Association between the fronto-limbic network and cognitive and emotional functioning
+in individuals with bipolar disorder: A systematic review and meta-analysis. JAMA Psychiatry,
+80(5), 432–440. https://doi.org/10.1001/jamapsychiatry.2023.0131
+Mishra, V., Guo, X., Delgado, M. R., & Huang, H. (2015). Toward tract-specific fractional anisotropy
+(tsfa) at crossing-fiber regions with clinical diffusion mri. Magnetic resonance in medicine, 74,
+1768–1779. https://doi.org/10.1002/MRM.25548
+Montgomery, S. A., & Åsberg, M. (1979). A new depression scale designed to be sensitive to change.
+The British journal of psychiatry, 134(4), 382–389.
+Müllner, D. (2011). Modern hierarchical, agglomerative clustering algorithms. arXiv preprint arXiv:1109.2378.
+https://arxiv.org/abs/1109.2378v1
+Neher, P., Hirjak, D., & Maier-Hein, K. (2023). Radiomic tractometry: A rich and tract-specific class of
+imaging biomarkers for neuroscience and medical applications. Research Square, rs.3.rs–2950610.
+https://doi.org/10.21203/RS.3.RS-2950610/V1
+on Rating Scales for Parkinson’s Disease, M. D. S. T. F. (2003). The unified parkinson’s disease rating
+scale (updrs): Status and recommendations. Movement Disorders, 18(7), 738–750.
+Panagiotaki, E., Schneider, T., Siow, B., Hall, M. G., Lythgoe, M. F., & Alexander, D. C. (2012). Com-
+partment models of the diffusion mr signal in brain white matter: A taxonomy and comparison.
+NeuroImage, 59, 2241–2254. https://doi.org/10.1016/J.NEUROIMAGE.2011.09.081
+Raffelt, D. A., Tournier, J. D., Smith, R. E., Vaughan, D. N., Jackson, G., Ridgway, G. R., & Connelly,
+A. (2017). Investigating white matter fibre density and morphology using fixel-based analysis.
+NeuroImage, 144, 58–73. https://doi.org/10.1016/J.NEUROIMAGE.2016.09.029
+
+
+REFERENCES
+31
+Raz, N., & Rodrigue, K. M. (2006). Differential aging of the brain: Patterns, cognitive correlates and mod-
+ifiers. Neuroscience and biobehavioral reviews, 30, 730. https://doi.org/10.1016/J.NEUBIOREV.
+2006.07.001
+Roy, J. C., Hédouin, R., Desmidt, T., Dam, S., Mirea-Grivel, I., Weyl, L., Bannier, E., Barantin, L.,
+Drapier, D., Batail, J. M., David, R., Coloigner, J., & Robert, G. H. (2024). Quantifying apathy
+in late-life depression: Unraveling neurobehavioral links through daily activity patterns and brain
+connectivity analysis. Biological psychiatry. Cognitive neuroscience and neuroimaging, 9, 639–649.
+https://doi.org/10.1016/J.BPSC.2024.04.002
+Scherrer, B., & Warfield, S. K. (2012). Parametric representation of multiple white matter fascicles from
+cube and sphere diffusion mri. PLOS ONE, 7, e48232. https://doi.org/10.1371/JOURNAL.
+PONE.0048232
+Schmaal, L., Pozzi, E., Ho, T. C., van Velzen, L. S., Veer, I. M., Opel, N., Someren, E. J. V., Han, L. K.,
+Aftanas, L., Aleman, A., Baune, B. T., Berger, K., Blanken, T. F., Capitão, L., Couvy-Duchesne,
+B., Cullen, K. R., Dannlowski, U., Davey, C., Erwin-Grabner, T., . . . Veltman, D. J. (2020).
+Enigma mdd: Seven years of global neuroimaging studies of major depression through worldwide
+data sharing. Translational Psychiatry 2020 10:1, 10, 172–. https://doi.org/10.1038/s41398-
+020-0842-6
+Shahapure, K. R., & Nicholas, C. (2020). Cluster quality analysis using silhouette score. Proceedings -
+2020 IEEE 7th International Conference on Data Science and Advanced Analytics, DSAA 2020,
+747–748. https://doi.org/10.1109/DSAA49011.2020.00096
+Sheehan, D., Janavs, J., Baker, R., Harnett-Sheehan, K., Knapp, E., Sheehan, M., et al. (1994). Mini:
+Mini international neuropsychiatric interview. English version, 6(0).
+St-Onge, E., Schilling, K. G., & Rheault, F. (2023, August 21). BundleSeg: A versatile, reliable and
+reproducible approach to white matter bundle segmentation. https://doi.org/10.48550/arXiv.
+2308.10958
+Suarez, R. O., Commowick, O., Prabhu, S. P., & Warfield, S. K. (2012). Automated delineation of
+white matter fiber tracts with a multiple region-of-interest approach. NeuroImage, 59, 3690–
+3700. https://doi.org/10.1016/J.NEUROIMAGE.2011.11.043
+Sumra, V., Hadian, M., Dilliott, A. A., Farhan, S. M., Frank, A. R., Lang, A. E., Roberts, A. C., Troyer,
+A., Arnott, S. R., Marras, C., Tang-Wai, D. F., Finger, E., Rogaeva, E., Orange, J. B., Ramirez,
+J., Zinman, L., Binns, M., Borrie, M., Freedman, M., . . . Tartaglia, M. C. (2025). Regional free-
+water diffusion is more strongly related to neuroinflammation than neurodegeneration. Journal of
+Neurology 2025 272:7, 272(7), 478–. https://doi.org/10.1007/s00415-025-13201-1
+
+
+32
+REFERENCES
+Tones, D. K., Travis, A. R., Eden, G., Pierpaoli, C., & Basser, P. J. (2005). Pasta: Pointwise assessment
+of streamline tractography attributes. Magnetic resonance in medicine, 53, 1462–1467. https:
+//doi.org/10.1002/MRM.20484
+Tournier, J. D., Calamante, F., Connelly, A., et al. (2010). Improved probabilistic streamlines tractography
+by 2nd order integration over fibre orientation distributions. Proceedings of the international
+society for magnetic resonance in medicine, (10.1016).
+Tournier, J. D., Smith, R., Raffelt, D., Tabbara, R., Dhollander, T., Pietsch, M., Christiaens, D., Jeurissen,
+B., Yeh, C. H., & Connelly, A. (2019). Mrtrix3: A fast, flexible and open software framework for
+medical image processing and visualisation. NeuroImage, 202, 116137. https://doi.org/10.1016/
+J.NEUROIMAGE.2019.116137
+Vandeloo, K. L., Burhunduli, P., Bouix, S., Owsia, K., Cho, K. I. K., Fang, Z., Geel, A. V., Pasternak, O.,
+Blier, P., & Phillips, J. L. (2022). Free-water diffusion magnetic resonance imaging differentiates
+suicidal ideation from suicide attempt in treatment-resistant depression. Biological psychiatry.
+Cognitive neuroscience and neuroimaging, 8, 471. https://doi.org/10.1016/J.BPSC.2022.12.007
+Vu, N. Q., & Aizenstein, H. J. (2013). Depression in the elderly: Brain correlates, neuropsychological
+findings, and role of vascular lesion load. Current Opinion in Neurology, 26, 656–661. https:
+//doi.org/10.1097/WCO.0000000000000028
+Wasserthal, J., Neher, P., & Maier-Hein, K. H. (2018). TractSeg - fast and accurate white matter tract
+segmentation. NeuroImage, 183, 239–253. https://doi.org/10.1016/j.neuroimage.2018.07.070
+Wijtenburg, S. A., McGuire, S. A., Rowland, L. M., Sherman, P. M., Lancaster, J. L., Tate, D. F., Hardies,
+L. J., Patel, B., Glahn, D. C., Hong, L. E., Fox, P. T., & Kochunov, P. (2012). Relationship
+between fractional anisotropy of cerebral white matter and metabolite concentrations measured
+using 1H magnetic resonance spectroscopy in healthy adults. NeuroImage, 0, 161. https://doi.
+org/10.1016/j.neuroimage.2012.10.014
+Witt, A. A., Fleishman, S., Houston, D., Prock, L. E., Sweeney, G., McGonigle, T., Vandekar, S.,
+Chamberland, M., Stubblefield, S., McKnight, C. D., O’Grady, K. P., Schilling, K., & Smith,
+S. A. (2025). Tract-specific analysis of diffusion mri at 3t detects cervical spinal cord aberrations
+in multiple sclerosis. Imaging Neuroscience, 3, 2025. https://doi.org/10.1162/IMAG.A.72/
+131446/TRACT-SPECIFIC-ANALYSIS-OF-DIFFUSION-MRI-AT-3T
+Xu, E. P., Nguyen, L., Leibenluft, E., Stange, J. P., & Linke, J. O. (2023). A meta-analysis on the
+uncinate fasciculus in depression. Psychological medicine, 53, 2721–2731. https://doi.org/10.
+1017/S0033291723000107
+Yeatman, J. D., Dougherty, R. F., Myall, N. J., Wandell, B. A., & Feldman, H. M. (2012). Tract
+profiles of white matter properties: Automating fiber-tract quantification. PloS one, 7. https:
+//doi.org/10.1371/JOURNAL.PONE.0049790
+
+
+REFERENCES
+33
+Zhang, F., Wu, Y., Norton, I., Rigolo, L., Rathi, Y., Makris, N., & O’Donnell, L. J. (2018). An anatom-
+ically curated fiber clustering white matter atlas for consistent white matter tract parcellation
+across the lifespan. NeuroImage, 179, 429–447. https://doi.org/10.1016/J.NEUROIMAGE.2018.
+06.027
+Zheng, R., Zhang, W., Li, Y., Zhu, X., Lan, Z., Rushmore, J., Rathi, Y., Makris, N., O’Donnell, L. J.,
+& Zhang, F. (2026). Agfs-tractometry: A novel atlas-guided fine-scale tractometry approach for
+enhanced along-tract group statistical comparison using diffusion mri tractography. Medical Image
+Analysis, 109, 103892. https://doi.org/10.1016/J.MEDIA.2025.103892
+
+
+34
+S1
+DEMOGRAPHIC STATISTICS
+S1
+Demographic statistics
+Table S1: Demographic characteristics of the LLD cohort. The table reports the number of subjects and
+mean age (with standard deviation) for each clinical group: healthy controls and subjects with LLD. The
+significance levels of the Welch’s t-test is showwn in the p-value row.
+Group
+N. subjects
+Age
+Control
+24
+74.6 ± 5.2
+LLD
+36
+75.2 ± 6.5
+Table S2: Comparability in age between healthy controls, remitted and treatment-resistant subjects of
+the ELD cohort. The significance levels of the Welch’s ANOVA is showwn in the p-value row.
+Group
+N. subjects
+Age
+Remission
+25
+24.7 ± 5.4
+Resistant
+25
+25.6 ± 5.0
+Control
+24
+28.1 ± 6.0
+Table S3: Comparability in age, MADRS and duration of depression between remitted and treatment-
+resistant subjects of the ELD cohort. The significance levels of the t-tests are shown in the p-value row.
+Group
+N
+Age (years)
+MADRS
+Depression duration (months)
+Remission
+25
+24.7 ± 5.4
+5.6 ± 3.9
+51.0 ± 41.9
+Resistant
+25
+25.6 ± 5.0
+26.2 ± 5.9
+77.4 ± 74.0
+p-value
+0.551
+0.000
+0.132
+
+
+35
+S2
+Point-level association
+(a) Length position mismatch
+Sub-bundle centroid
+Subject streamline
+(b) U-shape mismatch
+Length position
+Euclidian distance
+j=0
+i=0
+i=5
+j=5
+Proposed
++
+=
+j=10
+i=10
+j=0
+i=0
+Figure S1: Illustration of the point-level association process between subject streamlines and cluster
+points. Each streamline point is embedded into an augmented space that jointly encodes spatial coor-
+dinates and normalized index position, allowing for a balanced association that penalizes both spatial
+displacement and length mismatch. The nearest cluster point is identified for each streamline point
+based on this composite distance, enabling the aggregation of microstructural metrics at anatomically
+corresponding locations along the bundle.
+
+
+36
+S3
+INCOMPLETE SUB-BUNDLE ASSOCIATIONS
+S3
+Incomplete sub-bundle associations
+Bundle
+Centroid
+Miss. dep.
+Miss. HC
+Tot. miss.
+CA
+0
+3
+1
+4
+1
+3
+1
+4
+FX left
+0
+1
+0
+1
+1
+5
+1
+6
+FX right
+0
+3
+2
+5
+1
+1
+1
+2
+ILF left
+0
+4
+5
+9
+1
+2
+2
+4
+2
+2
+3
+5
+ILF right
+0
+6
+1
+7
+1
+1
+0
+1
+2
+2
+0
+2
+SLF III left
+0
+1
+1
+2
+1
+0
+1
+1
+SLF II right
+0
+2
+5
+7
+1
+1
+0
+1
+SLF I left
+0
+1
+0
+1
+1
+1
+0
+1
+(a)
+CA
+ILF
+SLF III left
+SLF I left
+SLF II right
+FX
+Centroid index
+0
+1
+2
+(b)
+Figure S2: (a) Missing association by centroid and per LLD group for excluded bundles (no complete
+sub-bundle), alongside an illustration (b) of the excluded bundles with color-coded sub-bundles and their
+respective centroids.
+
+
+37
+S4
+Bundle profiles
+Remission vs Resistant
+CC4
+0
+10
+20
+30
+40
+50
+Point ID
+60
+70
+80
+90
+100
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+CC2
+0
+10
+20
+30
+40
+50
+Point ID
+60
+70
+80
+90
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+-log10(p-value)
+STPREFleft
+0
+10
+20
+30
+40
+50
+Point ID
+55
+60
+65
+70
+75
+80
+85
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+-log10(p-value)
+CGright
+0
+10
+20
+30
+40
+50
+Point ID
+55
+60
+65
+70
+75
+80
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+CC3
+0
+10
+20
+30
+40
+50
+Point ID
+60
+70
+80
+90
+100
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+CC5
+0
+10
+20
+30
+40
+50
+Point ID
+60
+70
+80
+90
+100
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+CGleft
+0
+10
+20
+30
+40
+50
+Point ID
+50
+60
+70
+80
+90
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STPOSTCleft
+0
+10
+20
+30
+40
+50
+Point ID
+55
+60
+65
+70
+75
+80
+85
+FA
+0
+1
+2
+3
+4
+-log10(p-value)
+FXleft
+0
+10
+20
+30
+40
+50
+Point ID
+40
+50
+60
+70
+80
+90
+100
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+ICPleft
+0
+10
+20
+30
+40
+50
+Point ID
+55
+60
+65
+70
+75
+80
+85
+90
+95
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STPREMleft
+0
+10
+20
+30
+40
+50
+Point ID
+50
+55
+60
+65
+70
+75
+80
+85
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+Remission
+Resistant
+-log10(p-value)
+Control vs Resistant
+STPOSTCleft
+0
+10
+20
+30
+40
+50
+Point ID
+60
+65
+70
+75
+80
+85
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+Control vs Remission
+STPREFleft (0)
+0
+10
+20
+30
+40
+50
+Point ID
+60
+65
+70
+75
+80
+85
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+4.0
+-log10(p-value)
+STPREFleft (1)
+0
+10
+20
+30
+40
+50
+Point ID
+60.0
+62.5
+65.0
+67.5
+70.0
+72.5
+75.0
+77.5
+80.0
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+CC7
+0
+10
+20
+30
+40
+50
+Point ID
+60
+65
+70
+75
+80
+85
+90
+95
+100
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STFOleft
+0
+10
+20
+30
+40
+50
+Point ID
+62.5
+65.0
+67.5
+70.0
+72.5
+75.0
+77.5
+80.0
+82.5
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+4.0
+-log10(p-value)
+STPREMleft
+0
+10
+20
+30
+40
+50
+Point ID
+50
+55
+60
+65
+70
+75
+80
+85
+FA
+0
+1
+2
+3
+4
+-log10(p-value)
+ATRleft (1)
+0
+10
+20
+30
+40
+50
+Point ID
+65
+70
+75
+80
+85
+FA
+0
+1
+2
+3
+4
+-log10(p-value)
+ATRleft (0)
+0
+10
+20
+30
+40
+50
+Point ID
+60
+65
+70
+75
+80
+85
+FA
+0
+1
+2
+3
+4
+-log10(p-value)
+Resistant
+Control
+-log10(p-value)
+Remission
+Control
+-log10(p-value)
+Figure S3: Along-tract FA profiles for significant sub-bundles in ELD group comparison analysis. The
+(arbitrary) number of the sub-bundle is indicated in parentheses when the same bundle appears mul-
+tiple times. Each panel shows the group mean profiles with SD as shaded areas, and the point-wise
+−10 log(p-values) from the group comparison tests. Significant point clusters (multiple comparison) are
+highlighted in red.
+
+
+38
+S4
+BUNDLE PROFILES
+STPRECright
+0
+10
+20
+30
+40
+50
+Point ID
+5
+10
+15
+20
+25
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+-log10(p-value)
+TPREFright
+0
+10
+20
+30
+40
+50
+Point ID
+5
+10
+15
+20
+25
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+TPOSTCright
+0
+10
+20
+30
+40
+50
+Point ID
+0
+5
+10
+15
+20
+25
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+ORright
+0
+10
+20
+30
+40
+50
+Point ID
+10
+0
+10
+20
+30
+40
+50
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+CC1 (0)
+0
+10
+20
+30
+40
+50
+Point ID
+10
+5
+0
+5
+10
+15
+20
+25
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+CC1 (1)
+0
+10
+20
+30
+40
+50
+Point ID
+20
+10
+0
+10
+20
+30
+40
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+CSTright
+0
+10
+20
+30
+40
+50
+Point ID
+10
+0
+10
+20
+30
+40
+50
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+TPREMleft
+0
+10
+20
+30
+40
+50
+Point ID
+10
+0
+10
+20
+30
+40
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+SLFIIIright
+0
+10
+20
+30
+40
+50
+Point ID
+20
+10
+0
+10
+20
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STPREFleft (0)
+0
+10
+20
+30
+40
+50
+Point ID
+0
+10
+20
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STPREFleft (1)
+0
+10
+20
+30
+40
+50
+Point ID
+5
+0
+5
+10
+15
+20
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+CC3
+0
+10
+20
+30
+40
+50
+Point ID
+0
+10
+20
+30
+40
+50
+60
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+STPOSTCright (1)
+0
+10
+20
+30
+40
+50
+Point ID
+5
+10
+15
+20
+25
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+STPOSTCright (0)
+0
+10
+20
+30
+40
+50
+Point ID
+0
+5
+10
+15
+20
+25
+30
+35
+40
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+-log10(p-value)
+STPREFright
+0
+10
+20
+30
+40
+50
+Point ID
+5
+10
+15
+20
+25
+30
+35
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+IFOright
+0
+10
+20
+30
+40
+50
+Point ID
+5
+0
+5
+10
+15
+20
+25
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+TPRECright
+0
+10
+20
+30
+40
+50
+Point ID
+0
+5
+10
+15
+20
+25
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+4.0
+-log10(p-value)
+UFleft
+0
+10
+20
+30
+40
+50
+Point ID
+10
+0
+10
+20
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+TPREMright
+0
+10
+20
+30
+40
+50
+Point ID
+0
+10
+20
+30
+40
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+POPTright
+0
+10
+20
+30
+40
+50
+Point ID
+20
+0
+20
+40
+60
+80
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+TPREFleft
+0
+10
+20
+30
+40
+50
+Point ID
+0
+5
+10
+15
+20
+25
+30
+35
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+STRright
+0
+10
+20
+30
+40
+50
+Point ID
+10
+5
+0
+5
+10
+15
+20
+25
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+TPARright (0)
+0
+10
+20
+30
+40
+50
+Point ID
+10
+0
+10
+20
+30
+40
+50
+60
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+TPARright (1)
+0
+10
+20
+30
+40
+50
+Point ID
+0
+5
+10
+15
+20
+25
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+-log10(p-value)
+STPARright (0)
+0
+10
+20
+30
+40
+50
+Point ID
+0
+5
+10
+15
+20
+25
+30
+35
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STPARright (1)
+0
+10
+20
+30
+40
+50
+Point ID
+5
+10
+15
+20
+25
+30
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+FPTleft
+0
+10
+20
+30
+40
+50
+Point ID
+10
+0
+10
+20
+30
+40
+50
+60
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STPREMleft
+0
+10
+20
+30
+40
+50
+Point ID
+10
+0
+10
+20
+30
+40
+IFW
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+-log10(p-value)
+LLD
+Control
+-log10(p-value)
+Figure S4: Along-tract IFW profiles for significant sub-bundles in LLD group comparison analysis. The
+(arbitrary) number of the sub-bundle is indicated in parentheses when the same bundle appears mul-
+tiple times. Each panel shows the group mean profiles with SD as shaded areas, and the point-wise
+−10 log(p-values) from the group comparison tests. Significant point clusters (multiple comparison) are
+highlighted in red.
+
+
+39
+CC1
+0
+10
+20
+30
+40
+50
+Point ID
+55
+60
+65
+70
+75
+80
+85
+90
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+-log10(p-value)
+STPREFleft
+0
+10
+20
+30
+40
+50
+Point ID
+55
+60
+65
+70
+75
+80
+85
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STFOleft
+0
+10
+20
+30
+40
+50
+Point ID
+65
+70
+75
+80
+85
+90
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STFOright
+0
+10
+20
+30
+40
+50
+Point ID
+50
+55
+60
+65
+70
+75
+80
+85
+90
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+MLFleft
+0
+10
+20
+30
+40
+50
+Point ID
+55
+60
+65
+70
+75
+80
+85
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+STPARright
+0
+10
+20
+30
+40
+50
+Point ID
+65
+70
+75
+80
+85
+FA
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+-log10(p-value)
+LLD
+Control
+-log10(p-value)
+Figure S5: Along-tract FA profiles for significant sub-bundles in ELD group comparison analysis. The
+(arbitrary) number of the sub-bundle is indicated in parentheses when the same bundle appears mul-
+tiple times. Each panel shows the group mean profiles with SD as shaded areas, and the point-wise
+−10 log(p-values) from the group comparison tests. Significant point clusters (multiple comparison) are
+highlighted in red.
